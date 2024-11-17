@@ -6,10 +6,11 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/13 19:10:13 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/17 18:57:15 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string.h>
@@ -31,41 +32,66 @@ typedef struct								s_header {
 	std::string								contentType;
 	std::string								connection;
 	std::string								transferEncoding;
+	std::string								contentLength;
 }											t_header;
 
 typedef struct								s_body {
 	std::string								rawBody;
 	std::string								boundaryBegin;
 	std::string								boundaryEnd;
-	size_t									bodySize;
-	size_t									contentLength;
+	int										bodySize;
+	int										contentLength;
 }											t_body;
 
 class Request {
 	private:
+		std::string						buffer;
 		std::vector<std::string>		rawRequest;
 		size_t							statusCode;
 		t_body							body;
 		t_header						header;
 		t_requestline					requestLine;
-		Request();
+
+		bool							parsingFinished;
+		bool							headersParsed;
+		bool							bodyParsed;
 	
 	public:
-		Request(std::string rawRequest);
+		Request();
+		Request(const std::string& rawRequest);
 		~Request();
 
-		void						printParsedRequest();
+		bool						printParsedRequest();
 
-		bool						parseRequest(const std::string& rawRequest);
+		bool						headersReceived();
+		bool						chunkReceived();
+		std::string					extractHeadersFromBuffer();
+		bool						headerExists(const std::string& key);
+
+		bool						requestParseControl();
+		bool						parseRequestLineAndHeaders();
+		bool						storeHeadersInVector();
 		bool						parseRequestLine();
 		bool						parseHeaders();
-		bool						parseBody();
+		bool						parseRequestBody();
+		bool						parseChunkedBody();
+		bool						parseLengthBody();
+
+		std::string&				getBuffer() { return buffer; };
+		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 
 		std::vector<std::string>&	getRawRequest();
 		t_body&						getBodySt();
 		t_header&					getHeaderSt();
 		t_requestline&				getRequestLineSt();
+
+		bool						getHeadersParsed() { return headersParsed; };
+		bool						getBodyParsed() { return bodyParsed; };
+		bool						getParsingFinished() { return parsingFinished; };
 };
 
+bool			stringIsDigit(const std::string& str);
 std::string		stringtrim(const std::string& str);
 std::string		stringtolower(std::string& str);
+bool			isHexa(const std::string& num);
+int				hexToInt(const std::string& num);

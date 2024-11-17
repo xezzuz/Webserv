@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/14 21:37:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/17 16:13:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <unistd.h>
 #include <vector>
+#include <map>
 #include <poll.h>
 
 #include "Request.hpp"
@@ -31,19 +32,26 @@
 
 class Server {
 	private:
-		int						port;
-		bool					status;
-		int						serverSocket;
-		sockaddr_in				serverAddress;
-		std::vector<pollfd> 	pollSockets;
+		int									port;
+		bool								status;
+		int									serverSocket;
+		sockaddr_in							serverAddress;
+		std::vector<pollfd> 				pollSockets;
 
-		std::string				rawRequest;
+		std::map<int, Request>				clientsRequests;
 		
 		bool	initServer();
+		
 		bool	acceptConnections();
+		
 		bool	pollServerSocket(pollfd&	pollServerSock);
 		bool	pollClientSocket(pollfd&	pollClientSock);
-		void	handleRequest();
+		
+		pollfd&	addToPoll(pollfd& toAdd, int fd, short events, short revents);
+		void	rmFromPoll(pollfd&	toRemove);
+		void	rmFromClientsRequests(int key);
+		
+		void	handleRequest(const std::string& buffer, int clientSocket);
 		
 	public:
 		Server(const int _port);
@@ -51,6 +59,8 @@ class Server {
 
 		void	startWebserv();
 		void	stopWebserv();
+
+		bool	getStatus() { return status; };
 };
 
 #endif

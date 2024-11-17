@@ -6,28 +6,29 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/13 18:25:27 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/17 19:58:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-void			Request::printParsedRequest() {
-	printf("/---------------- REQUEST ----------------/\n\n");
-	for (size_t i = 0; i < rawRequest.size(); i++) {
-		printf("[%s]\n", rawRequest[i].c_str());
-	}
+bool			Request::printParsedRequest() {
+	std::cout << "*********************************************" << std::endl;
+	// printf("/---------------- REQUEST ----------------/\n\n");
+	// for (size_t i = 0; i < rawRequest.size(); i++) {
+	// 	printf("[%s]\n", rawRequest[i].c_str());
+	// }
 
 	// startline
-	printf("/---------------- STARTLINE ----------------/\n");
-	printf("RAW STARTLINE: [%s]\n", requestLine.rawRequestLine.c_str());
+	printf("/---------------- REQUESTLINE ----------------/\n");
+	// printf("RAW STARTLINE: [%s]\n", requestLine.rawRequestLine.c_str());
 	printf("METHOD: [%s]\n", requestLine.method.c_str());
 	printf("URI: [%s]\n", requestLine.uri.c_str());
 	printf("HTTP VERSION: [%s]\n\n", requestLine.httpversion.c_str());
 
 	// header
 	printf("/----------------- HEADERS -----------------/\n");
-	printf("RAW HEADERS: [%s]\n", header.rawHeader.c_str());
+	// printf("RAW HEADERS: [%s]\n", header.rawHeader.c_str());
 	std::map<std::string, std::string>::iterator it = header.headersMap.begin();
 	std::map<std::string, std::string>::iterator ite = header.headersMap.end();
 	while (it != ite) {
@@ -36,42 +37,47 @@ void			Request::printParsedRequest() {
 	}
 	
 	// body
-	printf("\n/------------------- BODY -------------------/\n");
-	printf("RAW BODY: [%s]\n", body.rawBody.c_str());
+	// printf("\n/------------------- BODY -------------------/\n");
+	// printf("RAW BODY: [%s]\n", body.rawBody.c_str());
+	std::cout << "*********************************************" << std::endl;
+	return true;
 }
 
 Request::Request() {
-
+	// std::cout << "Default Constructor Called" << std::endl;
 }
 
-Request::Request(std::string rawRequest) {
-	if (!parseRequest(rawRequest)) {
-		printf("Invalid Request!!!\n");
-	}
-	printParsedRequest();
+Request::Request(const std::string& rawRequest) : buffer(rawRequest) {
+	statusCode = 0;
+	
+	bodyParsed = false;
+	headersParsed = false;
+	parsingFinished = false;
+	
+	body.rawBody = "";
+	body.boundaryBegin = "";
+	body.boundaryEnd = "";
+	body.bodySize = -1;
+	body.contentLength = -1;
+
+	header.rawHeader = "";
+	header.host = "";
+	header.contentType = "";
+	header.connection = "";
+	header.transferEncoding = "";
+	header.contentLength = "";
+
+	requestLine.rawRequestLine = "";
+	requestLine.method = "";
+	requestLine.uri = "";
+	requestLine.httpversion = "";
+	// requestLine.query = "";
+	
 }
 
 Request::~Request() {
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 bool			isValidMethod(const std::string& method) {
@@ -112,8 +118,9 @@ bool			Request::parseRequestLine() {
 	std::string			tokens[3];
 	size_t				tokenCount = 0;
 	size_t				spaceCount = 0;
-	std::stringstream	ss(requestLine.rawRequestLine);
+	std::stringstream	ss(rawRequest[0]);
 
+	requestLine.rawRequestLine = rawRequest[0];
 	for (size_t i = 0; requestLine.rawRequestLine[i]; i++)
 		if (requestLine.rawRequestLine[i] == ' ')
 			spaceCount++;
@@ -126,10 +133,12 @@ bool			Request::parseRequestLine() {
 	if (!token.empty())
 		return false;
 	
-	requestLine.method = tokens[0];
 	requestLine.uri = tokens[1];
+	requestLine.method = tokens[0];
 	requestLine.httpversion = tokens[2];
-	return isValidMethod(requestLine.method)
+	if (requestLine.method == "GET")
+		bodyParsed = true;
+	return     isValidMethod(requestLine.method)
 			&& isValidURI(requestLine.uri)
 			&& isValidHTTPVersion(requestLine.httpversion);
 }
@@ -177,77 +186,175 @@ bool			Request::parseHeaders() {
 	it = header.headersMap.find("Host");
 	if (it != header.headersMap.end())
 		header.host = it->second;
+	
 	it = header.headersMap.find("Content-Type");
 	if (it != header.headersMap.end())
 		header.contentType = it->second;
+	
 	it = header.headersMap.find("Connection");
 	if (it != header.headersMap.end())
 		header.connection = it->second;
+	
 	it = header.headersMap.find("Transfer-Encoding");
 	if (it != header.headersMap.end())
 		header.transferEncoding = stringtolower(it->second);
-	// should check if its a valid integer or not
-	// it does throw an exception maybe?
+	
 	it = header.headersMap.find("Content-Length");
-	if (it != header.headersMap.end())
+	if (it != header.headersMap.end() && stringIsDigit(it->second))
 		body.contentLength = std::atoi(it->second.c_str());
-	printf("Headers Are Valid!\n");
+	
 	return true;
 }
 
+bool			Request::parseChunkedBody() {
+	size_t			cpos = 0;
+	size_t			CRLFpos = 0;
+	std::string		chunkSizeHex;
+	
+	if (!chunkReceived())
+		return true;
 
-/*
-	The presence of a message body in a request is signaled
-	by a Content-Length or Transfer-Encoding header field.
-*/
-// if both are present TE is first
-// if TE is not chunked && CL is valid => ignore TE
-bool			Request::parseBody() {
-	// bool		pContentLength = 
-	// 	header.headersMap.find("Content-Length") != header.headersMap.end();
-	// bool		pTransferEncoding = 
-	// 	header.headersMap.find("Transfer-Encoding") != header.headersMap.end();
-
-	// if (pContentLength && pTransferEncoding)
-	// 	return false;
-	// if (pTransferEncoding && header.transferEncoding == "chunked")
-	// 	return parseChunks();
-	// else if (pTransferEncoding && header.transferEncoding != "chunked")
-	// 	return false;
-	// if (pContentLength)
-	// 	return parseBody();
-	// return true;
+	CRLFpos = buffer.find("\r\n", cpos);
+	if (CRLFpos == std::string::npos)
+		return false;
+	chunkSizeHex = buffer.substr(cpos, CRLFpos - cpos);
+	if (!isHexa(chunkSizeHex))
+		return false;
+		
+	int	chunkSize = hexToInt(chunkSizeHex);
+	if (!chunkSize && buffer.substr(CRLFpos, 4) == "\r\n\r\n")
+		return true;
+	cpos = CRLFpos + 2;
+	
+	if (buffer.size() < cpos + chunkSize + 2)
+		return false;
+	body.rawBody += buffer.substr(cpos, chunkSize);
+	cpos += chunkSize + 2;
+	if (buffer.substr(cpos - 2, 2) != "\r\n")
+		return false;
+	buffer = buffer.substr(cpos);
+	
+	// buffer = "";
+	// bodyParsed = true;
 	return true;
 }
 
-bool			Request::parseRequest(const std::string& _rawRequest) {
-	// split the lines using CRLF delim
+bool			Request::parseLengthBody() {
+	if (buffer.size() < body.contentLength)
+		return true;
+	body.rawBody = buffer.substr(0, body.contentLength);
+	bodyParsed = true;
+	return true;
+}
+
+bool			Request::parseRequestBody() {
+	bool			ContentLength = headerExists("Content-Length");
+	bool			TransferEncoding = headerExists("Transfer-Encoding");
+	
+	if (bodyParsed)
+		return true;
+	
+	if (!ContentLength && !TransferEncoding)
+		return false;
+	
+	if (TransferEncoding && header.transferEncoding == "chunked")
+		return parseChunkedBody();
+	else if (TransferEncoding && header.transferEncoding != "chunked")
+		return false;
+	
+	if (ContentLength && body.contentLength > 0)
+		return parseLengthBody();
+	else if (ContentLength && body.contentLength < 0)
+		return false;
+	
+	return false;
+}
+
+bool			Request::storeHeadersInVector() {
 	size_t						rpos;
 	std::string					line;
+	std::string					toParse;
 	size_t						opos = 0;
-
-	while (_rawRequest[opos]) {
-		rpos = _rawRequest.find("\r\n", opos);
+	
+	toParse = extractHeadersFromBuffer();
+	if (toParse.empty())
+		return false;
+	while (toParse[opos]) {
+		rpos = toParse.find("\r\n", opos);
 		if (rpos == std::string::npos)
 			return false;
-		line = _rawRequest.substr(opos, rpos - opos);
+		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
 		rawRequest.push_back(line);
 		opos = rpos + 2;
 	}
-	if ((opos = rpos + 2) && _rawRequest[opos])
-		body.rawBody = _rawRequest.substr(opos);
-	
-	requestLine.rawRequestLine = rawRequest[0];
-	return parseRequestLine()
-			&& parseHeaders();
+	return true;
 }
 
+bool			Request::parseRequestLineAndHeaders() {
+	if (headersParsed || !headersReceived())
+		return true;
+	
+	storeHeadersInVector();
+	parseRequestLine();
+	parseHeaders();
+	headersParsed = true;
+}
 
+// CONTROL CENTER
+bool			Request::requestParseControl() {
+	parseRequestLineAndHeaders();
+	parseRequestBody();
+	parsingFinished = true;
+}
 
+bool			Request::headerExists(const std::string& key) {
+	std::map<std::string, std::string>::iterator it;
+	it = header.headersMap.find(key);
+	if (it == header.headersMap.end())
+		return false;
+	return true;
+}
 
+bool			Request::headersReceived() {
+	size_t			pos;
+	
+	pos = buffer.find("\r\n\r\n");
+	if (pos == std::string::npos)
+		return false;
+	return true;
+}
 
+std::string		Request::extractHeadersFromBuffer() {
+	size_t			CRLF;
+	std::string		header;
+	
+	CRLF = buffer.find("\r\n\r\n");
+	if (CRLF == std::string::npos)
+		return "";
+	header = buffer.substr(0, CRLF) + "\r\n\r\n";
+	buffer = buffer.substr(CRLF + 4);
+	return header;
+}
+
+bool			Request::chunkReceived() {
+	size_t			cpos = 0;
+	size_t			crlfpos = 0;
+	std::string		chunkSizeStr;
+
+	crlfpos = buffer.find("\r\n");
+	if (crlfpos == std::string::npos)
+		return false;
+	
+	chunkSizeStr = buffer.substr(cpos, crlfpos - cpos);
+	if (!isHexa(chunkSizeStr))
+		return false;
+	
+	if (buffer.find("\r\n", crlfpos + 2) != std::string::npos)
+		return true;
+	return false;
+}
 
 
 
