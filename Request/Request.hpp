@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 18:18:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 18:43:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,9 @@ class Request {
 		// bool						getBodyParsed() { return bodyParsed; };
 		// bool						getParsingFinished() { return parsingFinished; };
 		bool						isValidFieldLine(const std::string& fieldline);
+		bool						isValidMethod(const std::string& method);
+		bool						isValidURI(const std::string& uri);
+		bool						isValidHTTPVersion(const std::string& httpversion);
 };
 
 bool			stringIsDigit(const std::string& str);

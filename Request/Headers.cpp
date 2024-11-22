@@ -6,12 +6,12 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 18:27:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 19:16:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
+//		return (setStatusCode(400), false);
 
 bool			Request::headerExists(const std::string& key) {
 	std::map<std::string, std::string>::iterator it;
@@ -38,36 +38,36 @@ std::string		Request::extractHeadersFromBuffer() {
 	if (CRLF == std::string::npos)
 		return "";
 	header = buffer.substr(0, CRLF) + "\r\n\r\n";
-	buffer = buffer.substr(CRLF + 4);
+	buffer = buffer.erase(0, CRLF + 4);
 	bufferSize -= (CRLF + 4);
 	return header;
 }
 
-bool			isValidMethod(const std::string& method) {
+bool			Request::isValidMethod(const std::string& method) {
+	// if (method != "GET" && method != "POST" && method != "DELETE" &&
+	// 	method != "HEAD" && method != "PUT" && method != "CONNECT" &&
+	// 	method != "OPTIONS" && method != "TRACE" && method != "PATCH")
+	// 	return false;
 	if (method != "GET" && method != "POST" && method != "DELETE")
-		return false;
+		return (setStatusCode(405), false);
 	return true;
 }
 
-bool			isValidURI(const std::string& uri) {
-	if (uri.size() > 2048) {
-		// URI too long
-		return false;
-	}
+bool			Request::isValidURI(const std::string& uri) {
+	if (uri.size() > 2048)
+		return (setStatusCode(414), false);
 
-	std::string	specialChars = "-._~:/?#[]@!$&'()*+,;=%";
-	for (size_t i = 0; i < uri.size(); i++) {
-		if (specialChars.find(uri[i]) == std::string::npos
-			&& isdigit(uri[i]) && !isalpha(uri[i])) {
-			return false;
-		}
-	}
+	std::string	allowedURIChars 
+		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._~:/?#[]@!$&'()*+,;=%";
+	for (size_t i = 0; i < uri.size(); i++)
+		if (allowedURIChars.find(uri[i]) == std::string::npos)
+			return (setStatusCode(400), false);
 	return true;
 }
 
-bool			isValidHTTPVersion(const std::string& httpversion) {
+bool			Request::isValidHTTPVersion(const std::string& httpversion) {
 	if (httpversion != "HTTP/1.0" && httpversion != "HTTP/1.1")
-		return false;
+		return (setStatusCode(505), false);
 	return true;
 }
 
@@ -77,21 +77,17 @@ bool			Request::isValidFieldLine(const std::string& fieldline) {
 
 	colonPos = line.find(':');
 	if (colonPos == std::string::npos)
-		return false;
+		return (setStatusCode(400), false);
 	
 	std::string			fieldName = line.substr(0, colonPos);
 	if (fieldName.empty() || headerExists(fieldName))
-		return false;
+		return (setStatusCode(400), false);
 	
-	// check for fieldName invalid characters?
-
-	std::string			fieldValue = line.substr(colonPos + 1);
-	// if (fieldValue.empty())
-	// 	return false;
-	// if (fieldValue[0] == ' ' || fieldValue[0] == '\t')
-	// 	fieldValue.erase(0, 1);
-	
-	// check for fieldValue invalid characters?
+	std::string allowedChars 
+		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
+	for (size_t i = 0; i < fieldName.size(); i++)
+		if (allowedChars.find(fieldName[i]) == std::string::npos)
+			return (setStatusCode(400), false);
 	return true;
 }
 
@@ -146,13 +142,13 @@ bool			Request::parseRequestLine() {
 		if (requestLine.rawRequestLine[i] == ' ')
 			spaceCount++;
 	if (spaceCount != 2)
-		return false;
+		return (setStatusCode(400), false);
 	while (ss >> token && tokenCount < 3) {
 		tokens[tokenCount++] = token;
-		token = "";
+		// token = "";
 	}
 	if (!token.empty())
-		return false;
+		return (setStatusCode(400), false);
 	
 	requestLine.uri = tokens[1];
 	requestLine.method = tokens[0];
@@ -170,11 +166,11 @@ bool			Request::storeHeadersInVector() {
 	
 	toParse = extractHeadersFromBuffer();
 	if (toParse.empty())
-		return false;
+		return (setStatusCode(500), false);
 	while (toParse[opos]) {
 		rpos = toParse.find("\r\n", opos);
 		if (rpos == std::string::npos)
-			return false;
+			return (setStatusCode(400), false);
 		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
@@ -189,25 +185,25 @@ bool			Request::validateRequestHeaders() {
 	bool			TransferEncoding = headerExists("Transfer-Encoding");
 
 	if (ContentLength == TransferEncoding)
-		return false;
+		return (setStatusCode(400), false);
 	
 	if (TransferEncoding && header.transferEncoding == "chunked")
 		isEncoded = true;
 	else if (TransferEncoding && header.transferEncoding != "chunked")
-		return false; // NOT IMPLEMENTED
+		return (setStatusCode(501), false);
 
 	if (ContentLength && body.contentLength == -1)
-		return false;
+		return (setStatusCode(400), false);
 	
 	if (!headerExists("Host") || !headerExists("Connection"))
-		return false;
+		return (setStatusCode(400), false);
 	
 	if (header.host.empty() || header.connection.empty())
-		return false;
+		return (setStatusCode(400), false);
 
 	int pos = header.contentType.find("multipart/form-data; boundary=") + 30;
 	if (headerExists("Content-Type") && pos != 30)
-		return false;
+		return (setStatusCode(501), false);
 	else if (headerExists("Content-Type") && pos == 30 && header.contentType[pos])
 		body.boundaryBegin = "--" + header.contentType.substr(pos), body.boundaryEnd = body.boundaryBegin + "--", isMultipart = true;
 
@@ -223,9 +219,6 @@ bool			Request::parseRequestLineAndHeaders() {
 		std::cout << "[ERROR!]\tparseRequestLine();" << std::endl;
 	if (!parseHeaders())
 		std::cout << "[ERROR!]\tparseHeaders();" << std::endl;
-	// printParsedRequest();
-	if (requestLine.method == "GET")
-		pState = PARSING_FINISHED;
 	if (!validateRequestHeaders())
 		std::cout << "[ERROR!]\tvalidateRequestHeaders();" << std::endl;
 	pState = HEADERS_FINISHED;

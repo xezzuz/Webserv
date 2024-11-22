@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 18:17:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 19:37:11 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
 
 // PARSING CONTROL CENTER
 bool			Request::parseControlCenter() {
+	setRequestState();
 	switch (pState) {
 		case HEADERS_RECEIVED:
 			parseRequestLineAndHeaders();
