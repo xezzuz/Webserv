@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 10:20:05 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 16:47:56 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,14 +110,14 @@ bool		Server::pollServerSocket(pollfd&	pollServerSock) {
 
 bool		Server::pollClientSocket(pollfd&	pollClientSock) {
 	if (pollClientSock.revents & POLLIN) {
-		char				buffer[BUFFER_SIZE];
+		char				buffer[BUFFER_SIZE + 1];
 		int	clientSocket = 	pollClientSock.fd;
 
-		memset(buffer, 0, BUFFER_SIZE);
+		memset(buffer, 0, BUFFER_SIZE + 1);
 		int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
 		if (bytesReceived > 0) {
-			std::cout << "[SERVER]\tReceived [" << bytesReceived << "] bytes from Client "
-					  << clientSocket << "..." << std::endl;
+			// std::cout << "[SERVER]\tReceived [" << bytesReceived << "] bytes from Client "
+			// 		  << clientSocket << "..." << std::endl;
 			// std::cout << "---------------------------------------------------------\n";
 			// write(1, buffer, bytesReceived);
 			// std::cout << "---------------------------------------------------------\n";

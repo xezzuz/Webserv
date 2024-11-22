@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 15:51:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 18:27:43 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,6 @@ std::string		Request::extractHeadersFromBuffer() {
 	header = buffer.substr(0, CRLF) + "\r\n\r\n";
 	buffer = buffer.substr(CRLF + 4);
 	bufferSize -= (CRLF + 4);
-	// std::cout << "[REQUEST]\tRequest got Splitted! NewBufferSize = " << bufferSize << std::endl;
-	// for (size_t i = 0; i < bufferSize; i++) {
-	// 	std::cout << buffer[i];
-	// }
-	// std::cout << "|" << std::endl;
 	return header;
 }
 
@@ -221,11 +216,6 @@ bool			Request::validateRequestHeaders() {
 
 // HEADERS CONTROL CENTER
 bool			Request::parseRequestLineAndHeaders() {
-	if (pState == HEADERS_FINISHED || !bufferContainHeaders()) {
-		std::cout << "[REQUEST]\tParsing Headers POSTPONED OR FINISHED..." << std::endl;
-		return true;
-	}
-	
 	std::cout << "[REQUEST]\tParsing Headers..." << std::endl;
 	if (!storeHeadersInVector())
 		std::cout << "[ERROR!]\tstoreHeadersInVector();" << std::endl;

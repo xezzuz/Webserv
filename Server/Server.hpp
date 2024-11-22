@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 19:35:59 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 17:19:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@
 #define POLL_BLOCK -1
 #define POLL_NONBLOCK 0
 
-#define BUFFER_SIZE 4096
+// #define BUFFER_SIZE 4096
+#define BUFFER_SIZE 102400
 
 class Server {
 	private:

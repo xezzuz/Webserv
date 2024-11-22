@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 19:08:49 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 18:18:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,10 @@
 
 enum e_parsingState {
 	PARSING_INIT,
+	HEADERS_RECEIVED,
 	HEADERS_FINISHED,
-	BODY_DECODED,
+	BODY_RECEIVED,
+	BODY_FINISHED,
 	PARSING_FINISHED
 };
 
@@ -94,6 +96,7 @@ class Request {
 		void						feedRequest(char *recvBuffer, int bufferSize);
 
 		bool						parseControlCenter();
+		void						setRequestState();
 		bool						parseRequestLineAndHeaders();
 		bool						storeHeadersInVector();
 		bool						parseRequestLine();
@@ -120,8 +123,9 @@ class Request {
 		t_body&						getBodySt();
 		t_header&					getHeaderSt();
 		t_requestline&				getRequestLineSt();
-
 		e_parsingState				getParsingState() { return pState; } ;
+
+		void						setStatusCode(int code);
 		// bool						getHeadersParsed() { return headersParsed; };
 		// bool						getBodyParsed() { return bodyParsed; };
 		// bool						getParsingFinished() { return parsingFinished; };
