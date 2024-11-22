@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 17:10:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/22 20:10:51 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,76 +25,64 @@ void			Request::putRequestBodyInFile() {
 
 bool			Request::bufferContainChunk() {
 	size_t			cpos = 0;
-	size_t			crlfpos = 0;
+	size_t			CRLFpos = 0;
 	std::string		chunkSizeStr;
 
-	crlfpos = buffer.find("\r\n");
-	if (crlfpos == std::string::npos)
+	CRLFpos = buffer.find("\r\n");
+	if (CRLFpos == std::string::npos)
 		return false;
 	
-	chunkSizeStr = buffer.substr(cpos, crlfpos - cpos);
+	chunkSizeStr = buffer.substr(cpos, CRLFpos - cpos);
 	if (!isHexa(chunkSizeStr))
 		return false;
 	
-	if (buffer.find("\r\n", crlfpos + 2) == std::string::npos)
+	if (buffer.find("\r\n", CRLFpos + 2) == std::string::npos)
 		return false;
 	return true;
 }
 
+bool			Request::parseLengthBody() {
+	if (!bufferSize)
+		return true;
+	
+	body.rawBody += buffer.substr(0, bufferSize);
+	body.bodySize += bufferSize;
+}
+
+// unchunks available chunks and send them to rawBody
 bool			Request::decodeChunkedBody() {
 
 	while (bufferContainChunk()) {
-		// std::cout << "[INFO]\tBuffer Contain A Chunk..." << std::endl;
 		std::string		chunkSizeStr;
 		size_t			currPos = 0, CRLFpos = 0;
 		
-		CRLFpos = buffer.find("\r\n");
-		if (CRLFpos == std::string::npos || CRLFpos == currPos)
-			return false;
+		// CRLFpos = buffer.find("\r\n");
+		// if (CRLFpos == std::string::npos || CRLFpos == currPos)
+		// 	return false;
 		
 		chunkSizeStr = buffer.substr(currPos, CRLFpos - currPos);
 		if (!isHexa(chunkSizeStr))
-			return false;
+			return (setStatusCode(400), false);
 		
 		int chunkSize = hexToInt(chunkSizeStr);
-		// std::cout << "=========================> [INFO]\tChunk Size = " << chunkSize << "..." << std::endl;
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == "\r\n\r\n") {
-			// std::cout << "[INFO]\tReceived Last Chunk..." << std::endl;
-			std::cout << "[INFO]\tTransfer Done..." << std::endl;
-			buffer.erase(0, bufferSize);
-			bufferSize = 0;
-			pState = BODY_DECODED;
+			std::cout << "[INFO]\tBody Decoding is Done..." << std::endl;
+			buffer.clear(), bufferSize = 0;
 			return true;
-		}
+		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != "\r\n\r\n")
+			return (setStatusCode(400), false);
 
 		currPos = CRLFpos + 2;
-		if (bufferSize > currPos + chunkSize + 2)
-			bufferSize -= currPos + chunkSize + 2;
-		else {
-			// std::cout << "[CHUNKS]\tNot Enough Data in Buffer" << std::endl;
+		if (bufferSize < currPos + chunkSize + 2)
 			return true;
-		}
-		if (bufferSize < 0) {
-			std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*> TMEJNINAAAAAAAAAAAAA" << bufferSize << "<-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << std::endl;
-			std::cout << buffer << std::endl;
-			std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*> TMEJNINAAAAAAAAAAAAA" << bufferSize << "<-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << std::endl;
-			bufferSize = 0;
-		}
+
 		body.rawBody += buffer.substr(currPos, chunkSize);
 		body.bodySize += chunkSize;
-		// if (buffer.substr(currPos + chunkSize, 2) != "\r\n")
+		// if (buffer.substr(currPos + chunkSize, 2) != "\r\n") // malformed chunk
 		// 	return false;
 		buffer.erase(0, currPos + chunkSize + 2);
+		bufferSize -= currPos + chunkSize + 2;
 	}
-	if (!bufferSize) {
-		return false;
-	}
-	// std::cout << "[INFO]\tBuffer DOESN'T Contain A Chunk..." << std::endl;
-	// std::cout << "WRITE TO DEBUG" << std::endl;
-	// write(debugFD, "HelloDataRecv!\n", 15);
-	// write(debugFD, buffer.c_str(), bufferSize);
-	// write(debugFD, "----HelloDataRecv!\n", 19);
-	// std::cout << "[INFO]\t------Buffer DOESN'T Contain A Chunk..." << std::endl;
 	return true;
 }
 
@@ -177,25 +165,26 @@ bool			Request::processMultipartFormData() {
 }
 
 bool			Request::processRequestRawBody() {
+	if (body.bodySize > body.contentLength)
+		return (setStatusCode(400), false);
+	if (!body.bodySize)
+		return true;
 	while (!body.rawBody.empty()) {
-		if (isMultipart) {
+		if (isMultipart)
 			processMultipartFormData();
-		}
 	}
 	return true;
 }
 
 // BODY CONTROL CENTER
-bool			Request::parseRequestBody() {
-	if (!isEncoded)
-		pState = BODY_DECODED;
-
-	if (isEncoded && pState != BODY_DECODED)
-		decodeChunkedBody();
-	
-	processRequestRawBody();
-	// if (pState == BODY_DECODED)
-	// {
-	// }
-	return false;
+bool			Request::parseRequestBody() {		// store request body in rawBody
+	if (isEncoded) {
+		if (!decodeChunkedBody())
+			return false;
+	}
+	else if (!isEncoded) {
+		if (parseLengthBody())
+			return false;
+	}	
+	return processRequestRawBody();
 }
