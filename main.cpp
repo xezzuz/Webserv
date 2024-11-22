@@ -6,12 +6,12 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/16 11:45:49 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/21 19:51:48 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "Request.hpp"
-#include "Server.hpp"
+#include "./Server/Server.hpp"
 
 int main(void) {
 	std::string		httpRequest = 
@@ -34,7 +34,7 @@ int main(void) {
 	// recv request
 	// parse request
 	// Request		receivedRequest(httpRequest);
-	Server		Webserv(133742);
+	Server		Webserv(55559);
 	
 	if (!Webserv.getStatus())
 		return 1;
