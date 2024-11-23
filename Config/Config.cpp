@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 19:47:20 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 20:01:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <sstream>
 
 Config::Config() {
-		
+	
 }
 
 Config::Config(const std::string& configFileName) {
@@ -24,10 +24,10 @@ Config::Config(const std::string& configFileName) {
 	}
 	
 	if (!parseConfigFile()) {
-		std::cerr << "Config File is not valid..." << std::endl;
+		std::cerr << RED << "Config File is not valid..." << std::endl;
 		return ;
 	}
-	std::cerr << "Config File is valid..." << std::endl;
+	std::cerr << GREEN << "Config File is valid..." << std::endl;
 }
 
 Config::~Config() {

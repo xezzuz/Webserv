@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 19:36:31 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 19:55:04 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ bool					isValidHost(const std::string& host) {
 	int							bytesCount = 0;
 
 	while (std::getline(ss, byte, '.')) {
-		if (++bytesCount > 3)
+		if (++bytesCount > 4)
 			return false;
 		if (byte.empty() || byte.size() > 3)
 			return false;
@@ -46,7 +46,7 @@ bool					isValidHost(const std::string& host) {
 		if (byteDecimal < 0 || byteDecimal > 255)
 			return false;
 	}
-	return bytesCount == 3;
+	return bytesCount == 4;
 }
 
 bool					isValidServerName(const std::string& serverName) {

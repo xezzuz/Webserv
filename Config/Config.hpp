@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 18:54:01 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 19:56:25 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 #include <map>
 // #include <pair>
 #include <fstream>
+
+#define RED "\033[31m"
+#define GREEN "\033[32m"
 
 typedef struct								LocationConfig {
 	
