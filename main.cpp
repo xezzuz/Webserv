@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 17:07:38 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 11:40:39 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int main(void) {
 	// recv request
 	// parse request
 	// Request		receivedRequest(httpRequest);
-	Server		Webserv(55559);
+	Server		Webserv(55558);
 	
 	if (!Webserv.getStatus())
 		return 1;

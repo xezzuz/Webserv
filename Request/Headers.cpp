@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 19:16:08 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 11:49:03 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ bool			Request::parseRequestLine() {
 		return (setStatusCode(400), false);
 	while (ss >> token && tokenCount < 3) {
 		tokens[tokenCount++] = token;
-		// token = "";
+		token = "";
 	}
 	if (!token.empty())
 		return (setStatusCode(400), false);
@@ -221,6 +221,9 @@ bool			Request::parseRequestLineAndHeaders() {
 		std::cout << "[ERROR!]\tparseHeaders();" << std::endl;
 	if (!validateRequestHeaders())
 		std::cout << "[ERROR!]\tvalidateRequestHeaders();" << std::endl;
-	pState = HEADERS_FINISHED;
+	if (statusCode == 200)
+		pState = HEADERS_FINISHED;
+	else
+		pState = PARSING_FINISHED;
 	return true;
 }

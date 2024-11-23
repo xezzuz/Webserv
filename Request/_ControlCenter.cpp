@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 19:37:11 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 11:48:16 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,12 @@
 
 void			Request::setStatusCode(int code) {
 	statusCode = code;
-	pState = PARSING_FINISHED;
+	if (code != 200)
+		pState = PARSING_FINISHED;
 }
 
 void			Request::setRequestState() {
+	// if (statusCode)
 	// if we haven't received completed headers
 	if (pState == PARSING_INIT && bufferContainHeaders())
 		pState = HEADERS_RECEIVED;
@@ -25,7 +27,7 @@ void			Request::setRequestState() {
 		pState = BODY_RECEIVED;
 	else if (pState == BODY_FINISHED)
 		pState = PARSING_FINISHED;
-
+	
 	if (pState == HEADERS_FINISHED && requestLine.method == "GET")
 		pState = PARSING_FINISHED;
 }
@@ -43,14 +45,20 @@ bool			Request::parseControlCenter() {
 	switch (pState) {
 		case HEADERS_RECEIVED:
 			parseRequestLineAndHeaders();
+			std::cout << "pState = " << pState << std::endl;
 			break;
 		case BODY_RECEIVED:
 			parseRequestBody();
+			std::cout << "pState = " << pState << std::endl;
 			break;
 		case PARSING_FINISHED:
+			std::cout << "pState = " << pState << std::endl;
 			break;
 		default:
+			std::cout << "pState = default" << pState << std::endl;
 			break;
 	}
+	setRequestState();
+	std::cout << "[SERVER]\tResponse " << statusCode << std::endl;
 	return true;
 }

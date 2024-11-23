@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 18:43:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/23 11:01:12 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@
 #include <unistd.h>
 
 enum e_parsingState {
-	PARSING_INIT,
-	HEADERS_RECEIVED,
-	HEADERS_FINISHED,
-	BODY_RECEIVED,
-	BODY_FINISHED,
-	PARSING_FINISHED
+	PARSING_INIT,		// 0
+	HEADERS_RECEIVED,	// 1
+	HEADERS_FINISHED,	// 2
+	BODY_RECEIVED,		// 3
+	BODY_FINISHED,		// 4
+	PARSING_FINISHED	// 5
 };
 
 typedef struct								s_requestline {
@@ -105,8 +105,9 @@ class Request {
 		bool						decodeChunkedBody();
 		bool						processRequestRawBody();
 		bool						processMultipartFormData();
-		bool						processNewPart();
-		bool						processOldPart();
+		bool						processMultipartHeaders();
+		bool						processMultipartData();
+		bool						processBinaryBody();
 		bool						parseLengthBody();
 		bool						parseContentType();
 		bool						parseMultipartFormData();
