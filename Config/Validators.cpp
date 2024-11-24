@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 19:55:04 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:01:51 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,95 @@ bool					isValidServerName(const std::string& serverName) {
 	return subCount >= 2;
 }
 
-bool					isValidErrorPage(const std::string& errorPage) {
+bool					isValidClientMaxBodySize(const std::string& client_max_body_size) {
 	return true;
+}
+
+bool					isValidLocation(const std::string& location) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(location);
+	while (ss >> token)
+		count++;
+	return count == 1;
+}
+
+bool					isValidRoot(const std::string& root) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(root);
+	while (ss >> token)
+		count++;
+	return count == 1;
+}
+
+bool					isValidErrorPage(const std::string& errorPage) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(errorPage);
+	while (ss >> token)
+		count++;
+	return count == 2;
+}
+
+bool					isValidIndex(const std::string& index) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(index);
+	while (ss >> token)
+		count++;
+	return count >= 1;
+}
+
+bool					isValidMethods(const std::string& methods) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(methods);
+	while (ss >> token) {
+		if (token != "GET" && token != "POST" && token != "DELETE")
+			return false;
+		count++;
+	}
+	return count >= 1;
+}
+
+bool					isValidUploadStore(const std::string& upload_store) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(upload_store);
+	while (ss >> token)
+		count++;
+	return count == 1;
+}
+
+bool					isValidRedirect(const std::string& redirect) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(redirect);
+	while (ss >> token)
+		count++;
+	// first arg should be decimal
+	// status code should be correct
+	return count == 2;
+}
+
+bool					isValidAutoIndex(const std::string& autoindex) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(autoindex);
+	while (ss >> token) {
+		if (token != "on" && token != "off")
+			return false;
+		count++;
+	}
+	return count == 1;
+}
+
+bool					isValidCgiPass(const std::string& cgi_pass) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(cgi_pass);
+	while (ss >> token)
+		count++;
+	return count == 1;
 }
