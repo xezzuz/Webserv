@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:25:48 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:38:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 	
 	
 	if (directives.find("server_name") == directives.end())
-		currentServer.server_name = "";
+		currentServer.server_name = "none";
 	else if (isValidServerName(directives["server_name"]))
 		currentServer.server_name = directives["server_name"];
 	else
@@ -105,7 +105,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 	
 	
 	if (directives.find("error_page") == directives.end())
-		currentServer.errorPage = "";
+		currentServer.errorPage = "none";
 	else if (isValidErrorPage(directives["error_page"]))
 		currentServer.errorPage = directives["error_page"];
 	else
@@ -113,9 +113,9 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 
 	
 	if (directives.find("client_max_body_size") == directives.end())
-		currentServer.clientMaxBodySize = 1337; // default
-	else if (isValidClientMaxBodySize(directives["client_max_body_size"]))
-		return false;
+		currentServer.clientMaxBodySize = 0; // default, need to be adjusted
+	else if (isValidClientMaxBodySize(directives["client_max_body_size"])) // need to change its value to bytes
+		currentServer.clientMaxBodySize = std::atoi(directives["client_max_body_size"].c_str());
 	else
 		return false;
 	
@@ -141,42 +141,42 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 		return false;
 	
 	if (directives.find("index") == directives.end())
-		newLocation.index = "default";
+		newLocation.index = "index.html";
 	else if (isValidIndex(directives["index"]))
 		newLocation.index = directives["index"];
 	else
 		return false;
 	
 	if (directives.find("methods") == directives.end())
-		newLocation.methods = "default";
+		newLocation.methods = "GET POST DELETE";
 	else if (isValidMethods(directives["methods"]))
 		newLocation.methods = directives["methods"];
 	else
 		return false;
 	
 	if (directives.find("upload_store") == directives.end())
-		newLocation.upload_store = "default";
+		newLocation.upload_store = "/Users/nazouz/goinfre";
 	else if (isValidUploadStore(directives["upload_store"]))
 		newLocation.upload_store = directives["upload_store"];
 	else
 		return false;
 	
 	if (directives.find("redirect") == directives.end())
-		newLocation.redirect = "default";
+		newLocation.redirect = "none";
 	else if (isValidRedirect(directives["redirect"]))
 		newLocation.redirect = directives["redirect"];
 	else
 		return false;
 	
 	if (directives.find("autoindex") == directives.end())
-		newLocation.autoindex = "default";
+		newLocation.autoindex = "off";
 	else if (isValidAutoIndex(directives["autoindex"]))
 		newLocation.autoindex = directives["autoindex"];
 	else
 		return false;
 	
 	if (directives.find("cgi_pass") == directives.end())
-		newLocation.cgi_pass = "default";
+		newLocation.cgi_pass = "none";
 	else if (isValidCgiPass(directives["cgi_pass"]))
 		newLocation.cgi_pass = directives["cgi_pass"];
 	else
