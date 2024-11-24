@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:23:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:53:46 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,4 +32,8 @@ Config::Config(const std::string& configFileName) {
 
 Config::~Config() {
 	
+}
+
+void				Config::Logger(const std::string& error) {
+	std::cerr << RED << error << RESET << std::endl;
 }

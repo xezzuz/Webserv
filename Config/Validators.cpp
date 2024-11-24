@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:01:51 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:41:55 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ bool					isValidMethods(const std::string& methods) {
 			return false;
 		count++;
 	}
+	// std::cout << count << std::endl;
 	return count >= 1;
 }
 
