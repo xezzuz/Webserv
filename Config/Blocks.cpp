@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:23:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:25:48 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,59 @@ bool				Config::validateAllServerBlocks() {
 			return false;
 		servers.push_back(newServer);
 	}
+	return true;
+}
+
+bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& currentServer) {
+	std::map<std::string, std::string>		directives;
+	std::string								allowedDirectives[5] = {"host", "port", "server_name", "error_page", "client_max_body_size"};
+	for (size_t i = start + 1; i < end; i++) {
+		// if it is a location block
+		if (configFileVector[i] == "[location]") {
+			if (!validateSingleLocationBlock(i, getBlockEndIndex(i, "[location]").first, currentServer))
+				return false;
+		}
+		// if it is a directive
+		size_t	equalsPos = configFileVector[i].find('=');
+		if (equalsPos == std::string::npos)
+			return false;
+		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
+		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
+		if (key.empty() || value.empty())
+			return false;
+		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
+			&& key != allowedDirectives[2] && key != allowedDirectives[3]
+			&& key != allowedDirectives[4])
+			return false;
+		directives[key] = value;
+	}
+	if (!validateServerBlockDirectives(directives, currentServer))
+		return false;
+	std::cout << "validateSingleServerBlock(true)" << std::endl;
+	return true;
+}
+
+bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
+	std::map<std::string, std::string>		directives;
+	std::string								allowedDirectives[8] = {"location", "root", "index", "methods", "upload_store", "redirect", "autoindex", "cgi_pass"};
+	for (size_t i = start + 1; i < end; i++) {
+		size_t	equalsPos = configFileVector[i].find('=');
+		if (equalsPos == std::string::npos)
+			return false;
+		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
+		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
+		if (key.empty() || value.empty())
+			return false;
+		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
+			&& key != allowedDirectives[2] && key != allowedDirectives[3]
+			&& key != allowedDirectives[4] && key != allowedDirectives[5]
+			&& key != allowedDirectives[6] && key != allowedDirectives[7])
+			return false;
+		directives[key] = value;
+	}
+	if (!validateLocationBlockDirectives(directives, currentServer))
+		return false;
+	std::cout << "validateSingleLocationBlock(true)" << std::endl;
 	return true;
 }
 
@@ -67,35 +120,6 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 		return false;
 	
 	
-	return true;
-}
-
-bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& currentServer) {
-	std::map<std::string, std::string>		directives;
-	std::string								allowedDirectives[5] = {"host", "port", "server_name", "error_page", "client_max_body_size"};
-	for (size_t i = start + 1; i < end; i++) {
-		// if it is a location block
-		if (configFileVector[i] == "[location]") {
-			if (!validateSingleLocationBlock(i, getBlockEndIndex(i, "[location]").first, currentServer))
-				return false;
-		}
-		// if it is a directive
-		size_t	equalsPos = configFileVector[i].find('=');
-		if (equalsPos == std::string::npos)
-			return false;
-		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
-		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
-		if (key.empty() || value.empty())
-			return false;
-		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
-			&& key != allowedDirectives[2] && key != allowedDirectives[3]
-			&& key != allowedDirectives[4])
-			return false;
-		directives[key] = value;
-	}
-	if (!validateServerBlockDirectives(directives, currentServer))
-		return false;
-	std::cout << "validateSingleServerBlock(true)" << std::endl;
 	return true;
 }
 
@@ -160,29 +184,5 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	
 	currentServer.locations[newLocation.location] = newLocation;
 	
-	return true;
-}
-
-bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
-	std::map<std::string, std::string>		directives;
-	std::string								allowedDirectives[8] = {"location", "root", "index", "methods", "upload_store", "redirect", "autoindex", "cgi_pass"};
-	for (size_t i = start + 1; i < end; i++) {
-		size_t	equalsPos = configFileVector[i].find('=');
-		if (equalsPos == std::string::npos)
-			return false;
-		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
-		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
-		if (key.empty() || value.empty())
-			return false;
-		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
-			&& key != allowedDirectives[2] && key != allowedDirectives[3]
-			&& key != allowedDirectives[4] && key != allowedDirectives[5]
-			&& key != allowedDirectives[6] && key != allowedDirectives[7])
-			return false;
-		directives[key] = value;
-	}
-	if (!validateLocationBlockDirectives(directives, currentServer))
-		return false;
-	std::cout << "validateSingleLocationBlock(true)" << std::endl;
 	return true;
 }
