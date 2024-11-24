@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:02:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/24 20:17:25 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ class Config {
 bool					isValidPort(const std::string& port);
 bool					isValidHost(const std::string& host);
 bool					isValidServerName(const std::string& serverName);
+bool					isValidClientMaxBodySize(const std::string& client_max_body_size);
 bool					isValidLocation(const std::string& location);
 bool					isValidRoot(const std::string& root);
 bool					isValidErrorPage(const std::string& errorPage);
