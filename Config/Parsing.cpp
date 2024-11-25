@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 17:59:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:45:11 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,10 @@ bool				Config::storeConfigFileInVector() {
 	while (std::getline(configFile, line)) {
 		if (line.empty())
 			continue;
-		if (stringtrim(line, " \t").empty())
+		line = stringtrim(line, " \t");
+		if (line.empty())
 			continue;
-		if (stringtrim(line, " \t")[0] == '#')
+		if (line[0] == '#')
 			continue;
 		configFileVector.push_back(line);
 		if (configFile.eof())

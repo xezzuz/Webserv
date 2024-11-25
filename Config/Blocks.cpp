@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   newBlocks.cpp                                      :+:      :+:    :+:   */
+/*   Blocks.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 15:57:29 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 18:34:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:41:58 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,8 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 }
 
 bool				Config::validateLocationBlockDirectives(std::map<std::string, std::string>& directives) {
-	// if (directives.find("location") == directives.end())
-	// 	return (Logger("'location' directive is missing in 'location block'"), false);
+	if (directives.find("location") == directives.end())
+		return (Logger("'location' directive is missing in 'location block'"), false);
 	
 	if (directives.find("location") != directives.end() && !isValidPath(directives["location"]))
 		return (Logger("'location' directive is invalid in 'location block' :  \'" + directives["location"] + "\'"), false);
@@ -154,11 +154,11 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 bool				Config::isAllowedDirective(const std::string& directive, const std::string& blockType) {
 	if (blockType == "server") {
 		if (defaultServerDirectives.find(directive) == defaultServerDirectives.end())
-			return (Config::Logger("unknow directive '" + directive + "' directive in 'server block'"), false);
+			return false;
 		return true;
 	} else if (blockType == "location") {
 		if (defaultLocationDirectives.find(directive) == defaultLocationDirectives.end())
-			return (Config::Logger("unknow directive '" + directive + "' directive in 'location block'"), false);
+			return false;
 		return true;
 	}
 	return false;
