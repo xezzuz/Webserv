@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:30:39 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:51:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& cu
 
 bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer) {
 	if (directives.find("port") == directives.end())
-		currentServer.port = 80;
+		currentServer.port = std::atoi(defaultServerDirectives["port"].c_str());
 	else if (isValidPort(directives["port"]))
 		currentServer.port = std::atoi(directives["port"].c_str());
 	else
@@ -88,7 +88,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 	
 	
 	if (directives.find("host") == directives.end())
-		currentServer.host = "0.0.0.0";
+		currentServer.host = defaultServerDirectives["host"];
 	else if (isValidHost(directives["host"]))
 		currentServer.host = directives["host"];
 	else
@@ -96,7 +96,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 	
 	
 	if (directives.find("server_name") == directives.end())
-		currentServer.server_name = "none";
+		currentServer.server_name = defaultServerDirectives["server_name"];
 	else if (isValidServerName(directives["server_name"]))
 		currentServer.server_name = directives["server_name"];
 	else
@@ -104,7 +104,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 	
 	
 	if (directives.find("error_page") == directives.end())
-		currentServer.errorPage = "none";
+		currentServer.errorPage = defaultServerDirectives["error_page"];
 	else if (isValidErrorPage(directives["error_page"]))
 		currentServer.errorPage = directives["error_page"];
 	else
@@ -112,7 +112,7 @@ bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>
 
 	
 	if (directives.find("client_max_body_size") == directives.end())
-		currentServer.clientMaxBodySize = 0; // default, need to be adjusted
+		currentServer.clientMaxBodySize = std::atoi(defaultServerDirectives["client_max_body_size"].c_str()); // default, need to be adjusted
 	else if (isValidClientMaxBodySize(directives["client_max_body_size"])) // need to change its value to bytes
 		currentServer.clientMaxBodySize = std::atoi(directives["client_max_body_size"].c_str());
 	else
@@ -140,42 +140,42 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 		return (Logger("'root' directive is invalid in 'location block' :  \'" + directives["root"] + "\'"), false);
 	
 	if (directives.find("index") == directives.end())
-		newLocation.index = "index.html";
+		newLocation.index = defaultLocationDirectives["index"];
 	else if (isValidIndex(directives["index"]))
 		newLocation.index = directives["index"];
 	else
 		return (Logger("'index' directive is invalid in 'location block' :  \'" + directives["index"] + "\'"), false);
 	
 	if (directives.find("methods") == directives.end())
-		newLocation.methods = "GET POST DELETE";
+		newLocation.methods = defaultLocationDirectives["methods"];
 	else if (isValidMethods(directives["methods"]))
 		newLocation.methods = directives["methods"];
 	else
 		return (Logger("'methods' directive is invalid in 'location block' :  \'" + directives["methods"] + "\'"), false);
 	
 	if (directives.find("upload_store") == directives.end())
-		newLocation.upload_store = "/Users/nazouz/goinfre";
+		newLocation.upload_store = defaultLocationDirectives["upload_store"];
 	else if (isValidPath(directives["upload_store"]))
 		newLocation.upload_store = directives["upload_store"];
 	else
 		return (Logger("'upload_store' directive is invalid in 'location block' :  \'" + directives["upload_store"] + "\'"), false);
 	
 	if (directives.find("redirect") == directives.end())
-		newLocation.redirect = "none";
+		newLocation.redirect = defaultLocationDirectives["redirect"];
 	else if (isValidRedirect(directives["redirect"]))
 		newLocation.redirect = directives["redirect"];
 	else
 		return (Logger("'redirect' directive is invalid in 'location block' :  \'" + directives["redirect"] + "\'"), false);
 	
 	if (directives.find("autoindex") == directives.end())
-		newLocation.autoindex = "off";
+		newLocation.autoindex = defaultLocationDirectives["autoindex"];
 	else if (isValidAutoIndex(directives["autoindex"]))
 		newLocation.autoindex = directives["autoindex"];
 	else
 		return (Logger("'autoindex' directive is invalid in 'location block' :  \'" + directives["autoindex"] + "\'"), false);
 	
 	if (directives.find("cgi_pass") == directives.end())
-		newLocation.cgi_pass = "none";
+		newLocation.cgi_pass = defaultLocationDirectives["cgi_pass"];
 	else if (isValidCgiPass(directives["cgi_pass"]))
 		newLocation.cgi_pass = directives["cgi_pass"];
 	else
@@ -186,16 +186,13 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	return true;
 }
 
-bool				isAllowedDirective(const std::string& directive, const std::string& blockType) {
-	std::set<std::string>			allowedServerDirectives		= {"host", "port", "server_name", "error_page", "client_max_body_size"};
-	std::set<std::string>			allowedLocationDirectives	= {"location", "root", "index", "methods", "upload_store", "redirect", "autoindex", "cgi_pass"};
-
+bool				Config::isAllowedDirective(const std::string& directive, const std::string& blockType) {
 	if (blockType == "server") {
-		if (allowedServerDirectives.find(directive) == allowedServerDirectives.end())
+		if (defaultServerDirectives.find(directive) == defaultServerDirectives.end())
 			return (Config::Logger("unknow directive '" + directive + "' directive in 'server block'"), false);
 		return true;
 	} else if (blockType == "location") {
-		if (allowedLocationDirectives.find(directive) == allowedLocationDirectives.end())
+		if (defaultLocationDirectives.find(directive) == defaultLocationDirectives.end())
 			return (Config::Logger("unknow directive '" + directive + "' directive in 'location block'"), false);
 		return true;
 	}

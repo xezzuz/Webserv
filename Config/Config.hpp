@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:30:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:41:25 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ class Config {
 		std::vector<std::string>			configFileVector;
 		std::vector< std::pair<int, int> >	serverBlocksIndexes;
 		std::vector< std::pair<int, int> >	locationBlocksIndexes;
+		std::map<std::string, std::string>	defaultServerDirectives;
+		std::map<std::string, std::string>	defaultLocationDirectives;
 
 		std::vector<ServerConfig>			servers;
 		
@@ -98,6 +100,7 @@ class Config {
 		~Config();
 
 		bool						openConfigFile(const std::string& configFileName);
+		void						fillDefaultDirectives();
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
 		bool						basicBlocksCountCheck();
@@ -110,6 +113,7 @@ class Config {
 		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
 		bool						validateSingleLocationBlock(int start, int end, ServerConfig& currentServer);
 		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
+		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
 		static void					Logger(const std::string& error);
 
 };

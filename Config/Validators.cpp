@@ -6,11 +6,20 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:29:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:32:45 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
+
+int						tokensCounter(const std::string& string) {
+	size_t					count = 0;
+	std::string				token;
+	std::stringstream		ss(string);
+	while (ss >> token)
+		count++;
+	return count;
+}
 
 bool			isValidPort(const std::string& port) {
 	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5)
@@ -164,13 +173,4 @@ bool					isValidCgiPass(const std::string& cgi_pass) {
 	if (tokensCounter(cgi_pass) != 1)
 		return false;
 	return true;
-}
-
-int						tokensCounter(const std::string& string) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(string);
-	while (ss >> token)
-		count++;
-	return count;
 }
