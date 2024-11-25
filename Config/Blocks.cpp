@@ -1,45 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Blocks.cpp                                         :+:      :+:    :+:   */
+/*   newBlocks.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 14:09:08 by nazouz           ###   ########.fr       */
+/*   Created: 2024/11/25 15:57:29 by nazouz            #+#    #+#             */
+/*   Updated: 2024/11/25 18:34:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
-bool				Config::validateAllServerBlocks() {
-	ServerConfig		newServer;
+bool				Config::parseAllServerBlocks() {
 
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
-		int start, end;
+		int						start, end;
+		ServerConfigParser		newServerParser;
+		
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
-		if (!validateSingleServerBlock(start, end, newServer)) {
+		if (!parseSingleServerBlock(start, end, newServerParser)) {
 			Logger("'server' block isn't valid (ignored)");
 			continue;
 		}
 		Logger("'server' block is valid");
-		servers.push_back(newServer);
+		Parser.push_back(newServerParser);
 	}
-	return servers.size() < 1;
+	return Parser.size() >= 1;
 }
 
-bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& currentServer) {
-	std::map<std::string, std::string>		directives;
-
+bool				Config::parseSingleServerBlock(int start, int end, ServerConfigParser& currentServerParser) {
 	for (size_t i = start + 1; i < end; i++) {
 		if (configFileVector[i] == "[location]") {
-			if (!validateSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServer))
+			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServerParser))
 				return false;
 			i = getBlockEndIndex(i, "[location]").second;
 			continue;
 		}
-		
+
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
 			return (Logger("'server' invalid line syntax : '" + configFileVector[i] + "'"), false);
@@ -47,18 +46,17 @@ bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& curr
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
 			return (Logger("'server' invalid line syntax : '" + configFileVector[i] + "'"), false);
-		if (directives.find(key) != directives.end())
-			return (Logger("'server' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		if (!isAllowedDirective(key, "server"))
 			return (Logger("'server' unknown '" + key + "' directive : '" + configFileVector[i] + "'"), false);
-		directives[key] = value;
+		if (!addToServerParserServerDirectives(key, value, currentServerParser.serverDirectives))
+			return (Logger("'server' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 	}
-	return validateServerBlockDirectives(directives, currentServer);
+	return validateServerBlockDirectives(currentServerParser.serverDirectives);
 }
 
-bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
-	std::map<std::string, std::string>		directives;
-
+bool				Config::parseSingleLocationBlock(int start, int end, ServerConfigParser& currentServerParser) {
+	std::map<std::string, std::string>		newLocationMap;
+	
 	for (size_t i = start + 1; i < end; i++) {
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
@@ -67,119 +65,88 @@ bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& cu
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
 			return (Logger("'location' invalid line syntax : '" + configFileVector[i] + "'"), false);
-		if (directives.find(key) != directives.end())
-			return (Logger("'location' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		if (!isAllowedDirective(key, "location"))
 			return (Logger("'location' unknown '" + key + "' directive : '" + configFileVector[i] + "'"), false);
-		directives[key] = value;
+		if (!addToServerParserLocationDirectives(key, value, newLocationMap))
+			return (Logger("'location' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 	}
-	return validateLocationBlockDirectives(directives, currentServer);
+	currentServerParser.locationDirectives.push_back(newLocationMap);
+	return validateLocationBlockDirectives(currentServerParser.locationDirectives.back());
 }
 
-bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer) {
-	if (directives.find("port") == directives.end())
-		currentServer.port = std::atoi(defaultServerDirectives["port"].c_str());
-	else if (isValidPort(directives["port"]))
-		currentServer.port = std::atoi(directives["port"].c_str());
-	else
+bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>& directives) {
+	if (directives.find("port") != directives.end() && !isValidPort(directives["port"]))
 		return (Logger("'port' directive is invalid in 'server block' :  \'" + directives["port"] + "\'"), false);
 	
-	
-	if (directives.find("host") == directives.end())
-		currentServer.host = defaultServerDirectives["host"];
-	else if (isValidHost(directives["host"]))
-		currentServer.host = directives["host"];
-	else
+	if (directives.find("host") != directives.end() && !isValidHost(directives["host"]))
 		return (Logger("'host' directive is invalid in 'server block' :  \'" + directives["host"] + "\'"), false);
 	
-	
-	if (directives.find("server_name") == directives.end())
-		currentServer.server_name = defaultServerDirectives["server_name"];
-	else if (isValidServerName(directives["server_name"]))
-		currentServer.server_name = directives["server_name"];
-	else
+	if (directives.find("server_name") != directives.end() && !isValidServerName(directives["server_name"]))
 		return (Logger("'server_name' directive is invalid in 'server block' :  \'" + directives["server_name"] + "\'"), false);
 	
-	
-	if (directives.find("error_page") == directives.end())
-		currentServer.errorPage = defaultServerDirectives["error_page"];
-	else if (isValidErrorPage(directives["error_page"]))
-		currentServer.errorPage = directives["error_page"];
-	else
+	if (directives.find("error_page") != directives.end() && !isValidErrorPage(directives["error_page"]))
 		return (Logger("'error_page' directive is invalid in 'server block' :  \'" + directives["error_page"] + "\'"), false);
-
 	
-	if (directives.find("client_max_body_size") == directives.end())
-		currentServer.clientMaxBodySize = std::atoi(defaultServerDirectives["client_max_body_size"].c_str()); // default, need to be adjusted
-	else if (isValidClientMaxBodySize(directives["client_max_body_size"])) // need to change its value to bytes
-		currentServer.clientMaxBodySize = std::atoi(directives["client_max_body_size"].c_str());
-	else
+	if (directives.find("client_max_body_size") != directives.end() && !isValidClientMaxBodySize(directives["client_max_body_size"]))
 		return (Logger("'client_max_body_size' directive is invalid in 'server block' :  \'" + directives["client_max_body_size"] + "\'"), false);
 	
+	if (directives.find("root") != directives.end() && !isValidPath(directives["root"]))
+		return (Logger("'root' directive is invalid in 'server block' :  \'" + directives["root"] + "\'"), false);
+	
+	if (directives.find("index") != directives.end() && !isValidIndex(directives["index"]))
+		return (Logger("'index' directive is invalid in 'server block' :  \'" + directives["index"] + "\'"), false);
+	
+	if (directives.find("methods") != directives.end() && !isValidMethods(directives["methods"]))
+		return (Logger("'methods' directive is invalid in 'server block' :  \'" + directives["methods"] + "\'"), false);
+	
+	if (directives.find("upload_store") != directives.end() && !isValidPath(directives["upload_store"]))
+		return (Logger("'upload_store' directive is invalid in 'server block' :  \'" + directives["upload_store"] + "\'"), false);
+	
+	if (directives.find("redirect") != directives.end() && !isValidRedirect(directives["redirect"]))
+		return (Logger("'redirect' directive is invalid in 'server block' :  \'" + directives["redirect"] + "\'"), false);
+	
+	if (directives.find("autoindex") != directives.end() && !isValidAutoIndex(directives["autoindex"]))
+		return (Logger("'autoindex' directive is invalid in 'server block' :  \'" + directives["autoindex"] + "\'"), false);
+	
+	if (directives.find("cgi_pass") != directives.end() && !isValidCgiPass(directives["cgi_pass"]))
+		return (Logger("'cgi_pass' directive is invalid in 'server block' :  \'" + directives["cgi_pass"] + "\'"), false);
 	
 	return true;
 }
 
-bool				Config::validateLocationBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer) {
-	LocationConfig		newLocation;
+bool				Config::validateLocationBlockDirectives(std::map<std::string, std::string>& directives) {
+	// if (directives.find("location") == directives.end())
+	// 	return (Logger("'location' directive is missing in 'location block'"), false);
 	
-	if (directives.find("location") == directives.end())
-		return (Logger("'location' directive is missing in 'location block'"), false);
-	else if (isValidPath(directives["location"]))
-		newLocation.location = directives["location"];
-	else
+	if (directives.find("location") != directives.end() && !isValidPath(directives["location"]))
 		return (Logger("'location' directive is invalid in 'location block' :  \'" + directives["location"] + "\'"), false);
 	
-	if (directives.find("root") == directives.end())
-		return (Logger("'root' directive is missing in 'location block'"), false);
-	else if (isValidPath(directives["root"]))
-		newLocation.root = directives["root"];
-	else
+	if (directives.find("error_page") != directives.end() && !isValidErrorPage(directives["error_page"]))
+		return (Logger("'error_page' directive is invalid in 'location block' :  \'" + directives["error_page"] + "\'"), false);
+	
+	if (directives.find("client_max_body_size") != directives.end() && !isValidClientMaxBodySize(directives["client_max_body_size"]))
+		return (Logger("'client_max_body_size' directive is invalid in 'location block' :  \'" + directives["client_max_body_size"] + "\'"), false);
+	
+	if (directives.find("root") != directives.end() && !isValidPath(directives["root"]))
 		return (Logger("'root' directive is invalid in 'location block' :  \'" + directives["root"] + "\'"), false);
 	
-	if (directives.find("index") == directives.end())
-		newLocation.index = defaultLocationDirectives["index"];
-	else if (isValidIndex(directives["index"]))
-		newLocation.index = directives["index"];
-	else
-		return (Logger("'index' directive is invalid in 'location block' :  \'" + directives["index"] + "\'"), false);
+	if (directives.find("index") != directives.end() && !isValidIndex(directives["index"]))
+		return (Logger("'index' directive is invalid in 'server block' :  \'" + directives["index"] + "\'"), false);
 	
-	if (directives.find("methods") == directives.end())
-		newLocation.methods = defaultLocationDirectives["methods"];
-	else if (isValidMethods(directives["methods"]))
-		newLocation.methods = directives["methods"];
-	else
+	if (directives.find("methods") != directives.end() && !isValidMethods(directives["methods"]))
 		return (Logger("'methods' directive is invalid in 'location block' :  \'" + directives["methods"] + "\'"), false);
 	
-	if (directives.find("upload_store") == directives.end())
-		newLocation.upload_store = defaultLocationDirectives["upload_store"];
-	else if (isValidPath(directives["upload_store"]))
-		newLocation.upload_store = directives["upload_store"];
-	else
+	if (directives.find("upload_store") != directives.end() && !isValidPath(directives["upload_store"]))
 		return (Logger("'upload_store' directive is invalid in 'location block' :  \'" + directives["upload_store"] + "\'"), false);
 	
-	if (directives.find("redirect") == directives.end())
-		newLocation.redirect = defaultLocationDirectives["redirect"];
-	else if (isValidRedirect(directives["redirect"]))
-		newLocation.redirect = directives["redirect"];
-	else
+	if (directives.find("redirect") != directives.end() && !isValidRedirect(directives["redirect"]))
 		return (Logger("'redirect' directive is invalid in 'location block' :  \'" + directives["redirect"] + "\'"), false);
 	
-	if (directives.find("autoindex") == directives.end())
-		newLocation.autoindex = defaultLocationDirectives["autoindex"];
-	else if (isValidAutoIndex(directives["autoindex"]))
-		newLocation.autoindex = directives["autoindex"];
-	else
+	if (directives.find("autoindex") != directives.end() && !isValidAutoIndex(directives["autoindex"]))
 		return (Logger("'autoindex' directive is invalid in 'location block' :  \'" + directives["autoindex"] + "\'"), false);
 	
-	if (directives.find("cgi_pass") == directives.end())
-		newLocation.cgi_pass = defaultLocationDirectives["cgi_pass"];
-	else if (isValidCgiPass(directives["cgi_pass"]))
-		newLocation.cgi_pass = directives["cgi_pass"];
-	else
+	if (directives.find("cgi_pass") != directives.end() && !isValidCgiPass(directives["cgi_pass"]))
 		return (Logger("'cgi_pass' directive is invalid in 'location block' :  \'" + directives["cgi_pass"] + "\'"), false);
-	
-	currentServer.locations[newLocation.location] = newLocation;
 	
 	return true;
 }
@@ -195,4 +162,30 @@ bool				Config::isAllowedDirective(const std::string& directive, const std::stri
 		return true;
 	}
 	return false;
+}
+
+bool				Config::addToServerParserServerDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives) {
+	bool				isPresent = directives.find(key) != directives.end();
+
+	if (isPresent) {
+		if (key == "host" || key == "port")
+			return false;
+		if (key == "server_name")
+			return (directives["server_name"] += " " + value, true);
+	}
+	directives[key] = value;
+	return true;
+}
+
+bool				Config::addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives) {
+	bool										isPresent = directives.find(key) != directives.end();
+
+	if (isPresent) {
+		if (key == "location")
+			return false;
+		// if (key == "methods")
+		// 	return (directives["methods"] += " " + value, true);
+	}
+	directives[key] = value;
+	return true;
 }

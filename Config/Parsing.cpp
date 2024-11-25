@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 14:08:04 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 17:59:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ bool				Config::parseConfigFile() {
 	fillServerBlocksIndexes();
 	if (!validateBlocksIndexes())
 		return (Logger("'server/location' blocks opening and closing mismatch"), false);
-	return validateAllServerBlocks();
+	return parseAllServerBlocks();
 }
 
 bool				Config::storeConfigFileInVector() {

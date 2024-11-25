@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 14:11:18 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:31:54 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,30 +53,38 @@ typedef struct								LocationConfig {
 	std::string 							redirect;
 	std::string								autoindex;
 	std::string 							cgi_pass;
+	std::string								error_page;
+	std::string								client_max_body_size;
 }											LocationConfig;
 
 typedef struct								ServerConfig {
 	int										port;
 	std::string								host;
 	std::string								server_name;
-	// std::vector<std::string>				serverNames;
-	std::string								errorPage;
-	size_t									clientMaxBodySize;
 	std::map<std::string, LocationConfig>	locations;
 }											ServerConfig;
+
+typedef struct												ServerConfigParser {
+	std::map<std::string, std::string>						serverDirectives;
+	std::vector< std::map<std::string, std::string> >		locationDirectives;
+}															ServerConfigParser;
 
 class Config {
 	private:
 		std::ifstream						configFile;
 		std::vector<std::string>			configFileVector;
+		
 		std::vector< std::pair<int, int> >	serverBlocksIndexes;
 		std::vector< std::pair<int, int> >	locationBlocksIndexes;
+		
 		std::map<std::string, std::string>	defaultServerDirectives;
 		std::map<std::string, std::string>	defaultLocationDirectives;
 
+
 		int									errorLog;
 
-		std::vector<ServerConfig>			servers;
+		std::vector<ServerConfig>			Servers;
+		std::vector<ServerConfigParser>		Parser;
 		
 	public:
 		Config();
@@ -92,11 +100,13 @@ class Config {
 		std::pair<int, int>			getBlockEndIndex(int blockStart, const std::string startBlockStr);
 		bool						validateBlocksIndexes();
 		bool						locationBlockIsInsideAServerBlock(int locationStart, int locationEnd);
-		bool						validateAllServerBlocks();
-		bool						validateSingleServerBlock(int start, int end, ServerConfig& currentServer);
-		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
-		bool						validateSingleLocationBlock(int start, int end, ServerConfig& currentServer);
-		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
+		bool						parseAllServerBlocks();
+		bool						parseSingleServerBlock(int start, int end, ServerConfigParser& currentServer);
+		bool						addToServerParserServerDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
+		bool						addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
+		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives);
+		bool						parseSingleLocationBlock(int start, int end, ServerConfigParser& currentServer);
+		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives);
 		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
 		void						Logger(std::string error);
 

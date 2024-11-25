@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 14:12:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 16:49:24 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,13 @@ void				Config::fillDefaultDirectives() {
 	defaultServerDirectives["server_name"] = "none";
 	defaultServerDirectives["error_page"] = "none";
 	defaultServerDirectives["client_max_body_size"] = "none";
+	defaultServerDirectives["root"] = "none";
+	defaultServerDirectives["index"] = "index.html";
+	defaultServerDirectives["methods"] = "GET POST DELETE";
+	defaultServerDirectives["upload_store"] = "none";
+	defaultServerDirectives["redirect"] = "none";
+	defaultServerDirectives["autoindex"] = "off";
+	defaultServerDirectives["cgi_pass"] = "none";
 
 	defaultLocationDirectives["location"] = "none";
 	defaultLocationDirectives["root"] = "none";
@@ -49,6 +56,8 @@ void				Config::fillDefaultDirectives() {
 	defaultLocationDirectives["redirect"] = "none";
 	defaultLocationDirectives["autoindex"] = "off";
 	defaultLocationDirectives["cgi_pass"] = "none";
+	defaultLocationDirectives["error_page"] = "none";
+	defaultLocationDirectives["client_max_body_size"] = "none";
 }
 
 void				Config::Logger(std::string error) {

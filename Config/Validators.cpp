@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:32:45 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:09:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,8 @@ int						tokensCounter(const std::string& string) {
 }
 
 bool			isValidPort(const std::string& port) {
-	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5)
+	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5 || !stringIsDigit(port))
 		return false;
-	for (size_t i = 0; i < port.size(); i++) {
-		if (!isdigit(port[i]))
-			return false;
-	}
 	
 	int		portDecimal = std::atoi(port.c_str());	
 	if (portDecimal > 0 && portDecimal < 65535)
