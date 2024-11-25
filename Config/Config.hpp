@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:55:46 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:30:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <set>
 // #include <pair>
 #include <fstream>
 
@@ -96,7 +97,6 @@ class Config {
 		Config(const std::string& configFileName);
 		~Config();
 
-		void						Logger(const std::string& error);
 		bool						openConfigFile(const std::string& configFileName);
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
@@ -110,22 +110,22 @@ class Config {
 		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
 		bool						validateSingleLocationBlock(int start, int end, ServerConfig& currentServer);
 		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
+		static void					Logger(const std::string& error);
 
 };
 
 bool					isValidPort(const std::string& port);
 bool					isValidHost(const std::string& host);
 bool					isValidServerName(const std::string& serverName);
-bool					isValidClientMaxBodySize(const std::string& client_max_body_size);
-bool					isValidLocation(const std::string& location);
-bool					isValidRoot(const std::string& root);
 bool					isValidErrorPage(const std::string& errorPage);
+bool					isValidClientMaxBodySize(std::string& client_max_body_size);
+bool					isValidPath(const std::string& path);
 bool					isValidIndex(const std::string& index);
 bool					isValidMethods(const std::string& methods);
-bool					isValidUploadStore(const std::string& upload_store);
 bool					isValidRedirect(const std::string& redirect);
 bool					isValidAutoIndex(const std::string& autoindex);
 bool					isValidCgiPass(const std::string& cgi_pass);
 std::string				stringtrim(const std::string& str, const std::string& set);
+bool					stringIsDigit(const std::string& str);
 
 #endif

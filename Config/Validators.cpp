@@ -6,14 +6,14 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 20:41:55 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:29:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
 bool			isValidPort(const std::string& port) {
-	if (port.empty() || port.size() > 5)
+	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5)
 		return false;
 	for (size_t i = 0; i < port.size(); i++) {
 		if (!isdigit(port[i]))
@@ -31,6 +31,8 @@ bool					isValidHost(const std::string& host) {
 	std::stringstream			ss(host);
 	int							bytesCount = 0;
 
+	if (host.empty() || tokensCounter(host) != 1)
+		return false;
 	while (std::getline(ss, byte, '.')) {
 		if (++bytesCount > 4)
 			return false;
@@ -54,7 +56,7 @@ bool					isValidServerName(const std::string& serverName) {
 	std::stringstream		ss(serverName);
 	int						subCount = 0;
 	
-	if (serverName.empty() || serverName.size() > 253)
+	if (serverName.empty() || tokensCounter(serverName) < 1 || serverName.size() > 253)
 		return false;
 	
 	while (std::getline(ss, sub, '.')) {
@@ -72,96 +74,103 @@ bool					isValidServerName(const std::string& serverName) {
 	return subCount >= 2;
 }
 
-bool					isValidClientMaxBodySize(const std::string& client_max_body_size) {
+bool					isValidErrorPage(const std::string& errorPage) {
+	if (tokensCounter(errorPage) < 2)
+		return false;
 	return true;
 }
 
-bool					isValidLocation(const std::string& location) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(location);
-	while (ss >> token)
-		count++;
-	return count == 1;
+bool					isValidClientMaxBodySize(std::string& client_max_body_size) {
+	if (tokensCounter(client_max_body_size) != 1)
+		return false;
+	
+	bool				isUnit = false;
+	char				unit = 'c';
+	if (isalpha(client_max_body_size[client_max_body_size.size() - 1]))
+		isUnit = true, unit = std::toupper(client_max_body_size[client_max_body_size.size() - 1]);
+	
+	size_t				value;
+	if (isUnit) {
+		if (unit == 'G' || unit == 'M' || unit == 'K' || !stringIsDigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
+			return false;
+		value = std::atoi(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str());
+		if (unit == 'K')
+			value = value * 1024;
+		else if (unit == 'M')
+			value = value * 1024 * 1024;
+		else if (unit == 'G')
+			value = value * 1024 * 1024 * 1024;
+
+		std::stringstream	ss;
+		ss << value;
+		client_max_body_size = ss.str();
+	} else if (!isUnit) {
+		if (!stringIsDigit(client_max_body_size))
+			return false;
+	}
+	return true;
 }
 
-bool					isValidRoot(const std::string& root) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(root);
-	while (ss >> token)
-		count++;
-	return count == 1;
-}
-
-bool					isValidErrorPage(const std::string& errorPage) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(errorPage);
-	while (ss >> token)
-		count++;
-	return count == 2;
-}
-
-bool					isValidIndex(const std::string& index) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(index);
-	while (ss >> token)
-		count++;
-	return count >= 1;
+bool					isValidPath(const std::string& path) {
+	if (tokensCounter(path) != 1)
+		return false;
+	return true;
 }
 
 bool					isValidMethods(const std::string& methods) {
-	size_t					count = 0;
+	if (tokensCounter(methods) < 1 || tokensCounter(methods) > 3)
+		return false;
+
 	std::string				token;
 	std::stringstream		ss(methods);
-	while (ss >> token) {
+	while (ss >> token)
 		if (token != "GET" && token != "POST" && token != "DELETE")
 			return false;
-		count++;
-	}
-	// std::cout << count << std::endl;
-	return count >= 1;
+	return true;
 }
 
-bool					isValidUploadStore(const std::string& upload_store) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(upload_store);
-	while (ss >> token)
-		count++;
-	return count == 1;
+bool					isValidIndex(const std::string& index) {
+	if (tokensCounter(index) < 1)
+		return false;
+	return true;
 }
 
 bool					isValidRedirect(const std::string& redirect) {
-	size_t					count = 0;
-	std::string				token;
-	std::stringstream		ss(redirect);
-	while (ss >> token)
-		count++;
-	// first arg should be decimal
-	// status code should be correct
-	return count == 2;
+	if (tokensCounter(redirect) != 2)
+		return false;
+	
+	std::string			token;
+	std::stringstream	ss(redirect);
+	
+	ss >> token;
+	if (!stringIsDigit(token) || std::atoi(token.c_str()) < 300 || std::atoi(token.c_str()) > 308)
+		return false;
+	return true;
 }
 
 bool					isValidAutoIndex(const std::string& autoindex) {
-	size_t					count = 0;
+	if (tokensCounter(autoindex) != 1)
+		return false;
+	
 	std::string				token;
 	std::stringstream		ss(autoindex);
-	while (ss >> token) {
+	while (ss >> token)
 		if (token != "on" && token != "off")
 			return false;
-		count++;
-	}
-	return count == 1;
+	return true;
 }
 
 bool					isValidCgiPass(const std::string& cgi_pass) {
+	if (tokensCounter(cgi_pass) != 1)
+		return false;
+	return true;
+}
+
+int						tokensCounter(const std::string& string) {
 	size_t					count = 0;
 	std::string				token;
-	std::stringstream		ss(cgi_pass);
+	std::stringstream		ss(string);
 	while (ss >> token)
 		count++;
-	return count == 1;
+	return count;
 }

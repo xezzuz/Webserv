@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/24 21:05:32 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 12:30:39 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ bool				Config::validateAllServerBlocks() {
 
 bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& currentServer) {
 	std::map<std::string, std::string>		directives;
-	std::string								allowedDirectives[5] = {"host", "port", "server_name", "error_page", "client_max_body_size"};
+
 	for (size_t i = start + 1; i < end; i++) {
 		// if it is a location block
 		if (configFileVector[i] == "[location]") {
@@ -43,9 +43,7 @@ bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& curr
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
 			return false;
-		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
-			&& key != allowedDirectives[2] && key != allowedDirectives[3]
-			&& key != allowedDirectives[4])
+		if (!isAllowedDirective(key, "server"))
 			return false;
 		directives[key] = value;
 	}
@@ -59,7 +57,7 @@ bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& curr
 
 bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
 	std::map<std::string, std::string>		directives;
-	std::string								allowedDirectives[8] = {"location", "root", "index", "methods", "upload_store", "redirect", "autoindex", "cgi_pass"};
+
 	for (size_t i = start + 1; i < end; i++) {
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
@@ -68,10 +66,7 @@ bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& cu
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
 			return false;
-		if (key != allowedDirectives[0] && key != allowedDirectives[1] 
-			&& key != allowedDirectives[2] && key != allowedDirectives[3]
-			&& key != allowedDirectives[4] && key != allowedDirectives[5]
-			&& key != allowedDirectives[6] && key != allowedDirectives[7])
+		if (!isAllowedDirective(key, "location"))
 			return false;
 		directives[key] = value;
 	}
@@ -132,14 +127,14 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	
 	if (directives.find("location") == directives.end())
 		return (Logger("'location' directive is missing in 'location block' : "), false);
-	else if (isValidLocation(directives["location"]))
+	else if (isValidPath(directives["location"]))
 		newLocation.location = directives["location"];
 	else
 		return (Logger("'location' directive is invalid in 'location block' :  \'" + directives["location"] + "\'"), false);
 	
 	if (directives.find("root") == directives.end())
 		return (Logger("'root' directive is missing in 'location block' : "), false);
-	else if (isValidRoot(directives["root"]))
+	else if (isValidPath(directives["root"]))
 		newLocation.root = directives["root"];
 	else
 		return (Logger("'root' directive is invalid in 'location block' :  \'" + directives["root"] + "\'"), false);
@@ -160,7 +155,7 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	
 	if (directives.find("upload_store") == directives.end())
 		newLocation.upload_store = "/Users/nazouz/goinfre";
-	else if (isValidUploadStore(directives["upload_store"]))
+	else if (isValidPath(directives["upload_store"]))
 		newLocation.upload_store = directives["upload_store"];
 	else
 		return (Logger("'upload_store' directive is invalid in 'location block' :  \'" + directives["upload_store"] + "\'"), false);
@@ -189,4 +184,20 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	currentServer.locations[newLocation.location] = newLocation;
 	
 	return true;
+}
+
+bool				isAllowedDirective(const std::string& directive, const std::string& blockType) {
+	std::set<std::string>			allowedServerDirectives		= {"host", "port", "server_name", "error_page", "client_max_body_size"};
+	std::set<std::string>			allowedLocationDirectives	= {"location", "root", "index", "methods", "upload_store", "redirect", "autoindex", "cgi_pass"};
+
+	if (blockType == "server") {
+		if (allowedServerDirectives.find(directive) == allowedServerDirectives.end())
+			return (Config::Logger("unknow directive '" + directive + "' directive in 'server block'"), false);
+		return true;
+	} else if (blockType == "location") {
+		if (allowedLocationDirectives.find(directive) == allowedLocationDirectives.end())
+			return (Config::Logger("unknow directive '" + directive + "' directive in 'location block'"), false);
+		return true;
+	}
+	return false;
 }

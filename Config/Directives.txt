@@ -1,11 +1,13 @@
 Server block:
-	listen
+	host
+	port
 	server_name
 	error_page
 	client_max_body_size
 Location block:
+	location		(mandatory)
+	root			(mandatory)
 	methods
-	root
 	index
 	autoindex
 	redirect
