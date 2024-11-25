@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 13:49:55 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 14:11:18 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,26 +44,6 @@
 #define BG_CYAN    "\033[46m"
 #define BG_WHITE   "\033[47m"
 
-// typedef struct								DefaultLocationConfig {
-// 	std::string 							root;
-//     std::string 							index;
-//     std::vector<std::string> 				methods;
-//     std::string 							upload_store;
-//     std::string 							redirect;
-//     std::string 							cgi_pass;
-// }											DefaultLocationConfig;
-
-// typedef struct								DefaultServerConfig {
-// 	int										isValid;
-// 	int										port;
-// 	std::string								host;
-// 	std::string								server_name;
-// 	std::vector<std::string>				serverNames;
-// 	std::string								errorPage;
-// 	size_t									clientMaxBodySize;
-// 	std::map<std::string, LocationConfig>	locations;
-// }											DefaultServerConfig;
-
 typedef struct								LocationConfig {
 	std::string								location;
 	std::string 							root;
@@ -94,7 +74,7 @@ class Config {
 		std::map<std::string, std::string>	defaultServerDirectives;
 		std::map<std::string, std::string>	defaultLocationDirectives;
 
-		int							errorLog;
+		int									errorLog;
 
 		std::vector<ServerConfig>			servers;
 		

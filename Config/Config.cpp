@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 13:49:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 14:12:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ Config::Config(const std::string& configFileName) {
 }
 
 Config::~Config() {
-	
+	if (configFile.is_open())
+		configFile.close();
+	close(errorLog);
 }
 
 void				Config::fillDefaultDirectives() {
