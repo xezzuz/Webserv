@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:51:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 13:09:58 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,11 @@ bool				Config::validateAllServerBlocks() {
 		int start, end;
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
-		if (!validateSingleServerBlock(start, end, newServer))
-			return false;
+		if (!validateSingleServerBlock(start, end, newServer)) {
+			Logger("'server' is not valid (ignored)");
+			continue;
+		}
+		Logger("'server' is valid");
 		servers.push_back(newServer);
 	}
 	return true;
@@ -30,18 +33,21 @@ bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& curr
 	std::map<std::string, std::string>		directives;
 
 	for (size_t i = start + 1; i < end; i++) {
-		// if it is a location block
 		if (configFileVector[i] == "[location]") {
 			if (!validateSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServer))
 				return false;
+			i = getBlockEndIndex(i, "[location]").second;
+			continue;
 		}
-		// if it is a directive
+		
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
 			return false;
 		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
+			return false;
+		if (directives.find(key) != directives.end())
 			return false;
 		if (!isAllowedDirective(key, "server"))
 			return false;
@@ -65,6 +71,8 @@ bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& cu
 		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
+			return false;
+		if (directives.find(key) != directives.end())
 			return false;
 		if (!isAllowedDirective(key, "location"))
 			return false;
@@ -126,14 +134,14 @@ bool				Config::validateLocationBlockDirectives(std::map<std::string, std::strin
 	LocationConfig		newLocation;
 	
 	if (directives.find("location") == directives.end())
-		return (Logger("'location' directive is missing in 'location block' : "), false);
+		return (Logger("'location' directive is missing in 'location block'"), false);
 	else if (isValidPath(directives["location"]))
 		newLocation.location = directives["location"];
 	else
 		return (Logger("'location' directive is invalid in 'location block' :  \'" + directives["location"] + "\'"), false);
 	
 	if (directives.find("root") == directives.end())
-		return (Logger("'root' directive is missing in 'location block' : "), false);
+		return (Logger("'root' directive is missing in 'location block'"), false);
 	else if (isValidPath(directives["root"]))
 		newLocation.root = directives["root"];
 	else
