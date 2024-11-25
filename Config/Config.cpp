@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:45:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 13:49:58 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,14 @@ Config::Config() {
 }
 
 Config::Config(const std::string& configFileName) {
-	if (!openConfigFile(configFileName)) {
-		std::cerr << "Error Opening Config File..." << std::endl;
+	errorLog = open("../Logs/error.log", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (errorLog == -1)
+		std::cerr << BOLD << "Webserv: can't create error.log!" << RESET << std::endl;
+
+	if (!openConfigFile(configFileName))
 		return ;
-	}
 	
 	fillDefaultDirectives();
-
-	if (!parseConfigFile()) {
-		std::cerr << RED << "Config File is not valid..." << std::endl;
-		return ;
-	}
-	std::cerr << GREEN << "Config File is valid..." << std::endl;
 }
 
 Config::~Config() {
@@ -53,6 +49,8 @@ void				Config::fillDefaultDirectives() {
 	defaultLocationDirectives["cgi_pass"] = "none";
 }
 
-void				Config::Logger(const std::string& error) {
-	std::cerr << RED << error << RESET << std::endl;
+void				Config::Logger(std::string error) {
+	std::cerr << BOLD << RED << "Webserv: see error.log" << RESET << std::endl;
+	error += "\n";
+	write(errorLog, error.c_str(), error.length());
 }

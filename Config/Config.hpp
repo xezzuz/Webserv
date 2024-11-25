@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 12:41:25 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 13:49:55 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <fcntl.h>
+#include <unistd.h>
 // #include <pair>
 #include <fstream>
 
@@ -92,6 +94,8 @@ class Config {
 		std::map<std::string, std::string>	defaultServerDirectives;
 		std::map<std::string, std::string>	defaultLocationDirectives;
 
+		int							errorLog;
+
 		std::vector<ServerConfig>			servers;
 		
 	public:
@@ -114,7 +118,7 @@ class Config {
 		bool						validateSingleLocationBlock(int start, int end, ServerConfig& currentServer);
 		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer);
 		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
-		static void					Logger(const std::string& error);
+		void						Logger(std::string error);
 
 };
 

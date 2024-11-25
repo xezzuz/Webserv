@@ -1,0 +1,4 @@
+'server' duplicate 'port' directive : 'port = 8080'
+'server' block isn't valid (ignored)
+'location' duplicate 'location' directive : 'location = /'
+'server' block isn't valid (ignored)

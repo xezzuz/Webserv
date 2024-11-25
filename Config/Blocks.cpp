@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:22:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 13:09:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 14:09:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,13 @@ bool				Config::validateAllServerBlocks() {
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
 		if (!validateSingleServerBlock(start, end, newServer)) {
-			Logger("'server' is not valid (ignored)");
+			Logger("'server' block isn't valid (ignored)");
 			continue;
 		}
-		Logger("'server' is valid");
+		Logger("'server' block is valid");
 		servers.push_back(newServer);
 	}
-	return true;
+	return servers.size() < 1;
 }
 
 bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& currentServer) {
@@ -42,23 +42,18 @@ bool				Config::validateSingleServerBlock(int start, int end, ServerConfig& curr
 		
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
-			return false;
+			return (Logger("'server' invalid line syntax : '" + configFileVector[i] + "'"), false);
 		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
-			return false;
+			return (Logger("'server' invalid line syntax : '" + configFileVector[i] + "'"), false);
 		if (directives.find(key) != directives.end())
-			return false;
+			return (Logger("'server' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		if (!isAllowedDirective(key, "server"))
-			return false;
+			return (Logger("'server' unknown '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		directives[key] = value;
 	}
-	if (!validateServerBlockDirectives(directives, currentServer)) {
-		std::cout << "validateServerBlockDirectives(false)" << std::endl;
-		return false;
-	}
-	std::cout << "validateSingleServerBlock(true)" << std::endl;
-	return true;
+	return validateServerBlockDirectives(directives, currentServer);
 }
 
 bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
@@ -67,23 +62,18 @@ bool				Config::validateSingleLocationBlock(int start, int end, ServerConfig& cu
 	for (size_t i = start + 1; i < end; i++) {
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
-			return false;
+			return (Logger("'location' invalid line syntax : '" + configFileVector[i] + "'"), false);
 		std::string key = stringtrim(configFileVector[i].substr(0, equalsPos), " \t");
 		std::string value = stringtrim(configFileVector[i].substr(equalsPos + 1), " \t");
 		if (key.empty() || value.empty())
-			return false;
+			return (Logger("'location' invalid line syntax : '" + configFileVector[i] + "'"), false);
 		if (directives.find(key) != directives.end())
-			return false;
+			return (Logger("'location' duplicate '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		if (!isAllowedDirective(key, "location"))
-			return false;
+			return (Logger("'location' unknown '" + key + "' directive : '" + configFileVector[i] + "'"), false);
 		directives[key] = value;
 	}
-	if (!validateLocationBlockDirectives(directives, currentServer)) {
-		std::cout << "validateLocationBlockDirectives(false)" << std::endl;
-		return false;
-	}
-	std::cout << "validateSingleLocationBlock(true)" << std::endl;
-	return true;
+	return validateLocationBlockDirectives(directives, currentServer);
 }
 
 bool				Config::validateServerBlockDirectives(std::map<std::string, std::string>& directives, ServerConfig& currentServer) {
