@@ -6,14 +6,13 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 15:57:29 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 18:41:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:53:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
 bool				Config::parseAllServerBlocks() {
-
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
 		int						start, end;
 		ServerConfigParser		newServerParser;

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 16:34:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 13:43:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 19:44:38 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	std::cout << BOLD << "Webserv: " << argv[1] << " is valid to run Webserv!" << std::endl;
+
+	// configfile.
 	
 	return 0;
 }

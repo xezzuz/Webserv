@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 18:31:54 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 19:53:43 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,25 +44,25 @@
 #define BG_CYAN    "\033[46m"
 #define BG_WHITE   "\033[47m"
 
-typedef struct								LocationConfig {
-	std::string								location;
-	std::string 							root;
-	std::string 							index;
-	std::string 							methods;
-	std::string 							upload_store;
-	std::string 							redirect;
-	std::string								autoindex;
-	std::string 							cgi_pass;
-	std::string								error_page;
-	std::string								client_max_body_size;
-}											LocationConfig;
+typedef struct												LocationConfig {
+	std::string												location;
+	std::string 											root;
+	std::vector<std::string> 								index;
+	std::vector<std::string> 								methods;
+	std::string 											upload_store;
+	std::vector<std::string> 								redirect;
+	std::string												autoindex;
+	std::string 											cgi_pass;
+	std::vector<std::string>								error_page;
+	std::string												client_max_body_size;
+}															LocationConfig;
 
-typedef struct								ServerConfig {
-	int										port;
-	std::string								host;
-	std::string								server_name;
-	std::map<std::string, LocationConfig>	locations;
-}											ServerConfig;
+typedef struct												ServerConfig {
+	int														port;
+	std::string												host;
+	std::vector<std::string>								server_name;
+	std::map<std::string, LocationConfig>					locations;
+}															ServerConfig;
 
 typedef struct												ServerConfigParser {
 	std::map<std::string, std::string>						serverDirectives;
@@ -95,20 +95,26 @@ class Config {
 		void						fillDefaultDirectives();
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
+		
 		bool						basicBlocksCountCheck();
 		void						fillServerBlocksIndexes();
 		std::pair<int, int>			getBlockEndIndex(int blockStart, const std::string startBlockStr);
 		bool						validateBlocksIndexes();
 		bool						locationBlockIsInsideAServerBlock(int locationStart, int locationEnd);
+		
 		bool						parseAllServerBlocks();
 		bool						parseSingleServerBlock(int start, int end, ServerConfigParser& currentServer);
 		bool						addToServerParserServerDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
-		bool						addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
 		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives);
 		bool						parseSingleLocationBlock(int start, int end, ServerConfigParser& currentServer);
+		bool						addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
 		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives);
 		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
 		void						Logger(std::string error);
+
+		bool						constructServers();
+		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& directives, ServerConfig& Server);
+		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& directives, ServerConfig& Server);
 
 };
 
