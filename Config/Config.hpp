@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 19:53:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/25 20:02:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,8 @@ class Config {
 		void						Logger(std::string error);
 
 		bool						constructServers();
-		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& directives, ServerConfig& Server);
-		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& directives, ServerConfig& Server);
+		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, ServerConfig& Server);
+		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, std::map<std::string, std::string>& locationDirectives, ServerConfig& Server);
 
 };
 
