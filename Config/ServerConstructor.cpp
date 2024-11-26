@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 20:08:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/26 18:32:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,43 @@ bool				Config::fillLocationConfigByParserDirectives(std::map<std::string, std::
 		newLocation.root = defaultServerDirectives["client_max_body_size"];
 	
 	// index
-
+	if (locationDirectives.find("index") == locationDirectives.end())
+		newLocation.index.push_back(defaultLocationDirectives["index"]);
+	else if (locationDirectives.find("index") != locationDirectives.end()) {
+		std::string			token;
+		std::stringstream	ss(locationDirectives["index"]);
+		while (ss >> token)
+			newLocation.index.push_back(token);
+	}
+	
 	// methods
-
+	if (locationDirectives.find("methods") == locationDirectives.end())
+		newLocation.methods.push_back(defaultLocationDirectives["methods"]);
+	else if (locationDirectives.find("methods") != locationDirectives.end()) {
+		std::string			token;
+		std::stringstream	ss(locationDirectives["methods"]);
+		while (ss >> token)
+			newLocation.methods.push_back(token);
+	}
+	
 	// redirect
-
+	if (locationDirectives.find("redirect") == locationDirectives.end())
+		newLocation.redirect.push_back(defaultLocationDirectives["redirect"]);
+	else if (locationDirectives.find("redirect") != locationDirectives.end()) {
+		std::string			token;
+		std::stringstream	ss(locationDirectives["redirect"]);
+		while (ss >> token)
+			newLocation.redirect.push_back(token);
+	}
+	
 	// error_page
+	if (locationDirectives.find("error_page") == locationDirectives.end())
+		newLocation.error_page.push_back(defaultLocationDirectives["error_page"]);
+	else if (locationDirectives.find("error_page") != locationDirectives.end()) {
+		std::string			token;
+		std::stringstream	ss(locationDirectives["error_page"]);
+		while (ss >> token)
+			newLocation.error_page.push_back(token);
+	}
+	return true;
 }
