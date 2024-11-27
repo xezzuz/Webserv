@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 20:05:32 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 20:16:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,17 @@ bool			Webserv::startWebserv() {
 		addToPoll(Servers[i].getServerSocket(), POLLIN, 0);
 	}
 	return true;
+}
+
+bool			Webserv::monitorWebserv() {
+	while (true) {
+		int		pollReturn = poll(&pollSockets[0], pollSockets.size(), POLL_BLOCK);
+		if (pollReturn == -1) {
+			std::cerr << "[ERROR]\tPolling failed..." << std::endl;
+			std::cerr << "[ERROR]\t";
+			// here
+		}
+	}
 }
 
 void			Webserv::addToPoll(int fd, short events, short revents) {

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:07:53 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 19:59:47 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 20:14:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@ class Webserv {
 
 		bool			configurateWebserv();
 		bool			startWebserv();
-		Config&			getWebservConfig();
+		bool			monitorWebserv();
 
 		void			addToPoll(int fd, short events, short revents);
+		
+		Config&			getWebservConfig();
 };
