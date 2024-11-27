@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 16:17:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 19:43:16 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ Server::Server(ServerConfig& config) : config(config) {
 	status = initServer();
 }
 
-Server::Server(const int _port) : port(_port) {
-	std::cout << "init server by port" << std::endl;
-	status = initServer();
-}
+// Server::Server(const int _port) : port(_port) {
+// 	std::cout << "init server by port" << std::endl;
+// 	status = initServer();
+// }
 
 Server::~Server() {
 	close(serverSocket);
@@ -35,33 +35,32 @@ void		Server::stopWebserv() {
 }
 
 bool		Server::initServer() {
-	std::cout << "[SERVER]\tStarting the Webserv..." << std::endl;
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverSocket == -1) {
-		std::cerr << "[ERROR!]\tCreating a Socket failed..." << std::endl;
-		std::cerr << "[ERROR!]\t";
+		std::cerr << "[SERVER]\tCreating a Socket failed..." << std::endl;
+		std::cerr << "[SERVER]\t";
 		return (perror("socket"), false);
 	}
 	
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(port);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = parseIPv4(config.host);
 	
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
-		std::cerr << "[ERROR!]\tBinding failed..." << std::endl;
-		std::cerr << "[ERROR!]\t";
+		std::cerr << "[SERVER]\tBinding failed..." << std::endl;
+		std::cerr << "[SERVER]\t";
 		close(serverSocket);
 		return (perror("bind"), false);
 	}
 	
-	if (listen(serverSocket, 128)) {
-		std::cerr << "[ERROR!]\tListening failed..." << std::endl;
-		std::cerr << "[ERROR!]\t";
+	if (listen(serverSocket, 128) == -1) {
+		std::cerr << "[SERVER]\tListening failed..." << std::endl;
+		std::cerr << "[SERVER]\t";
 		close(serverSocket);
 		return (perror("listen"), false);
 	}
 	
-	std::cout << "[SERVER]\tWebserv is listening on port " << port << "..." << std::endl;
+	std::cout << "[SERVER]\tListening on " << config.host << ":" << config.port << "..." << std::endl;
 	return true;
 }
 
@@ -73,8 +72,8 @@ bool		Server::acceptConnections() {
 	while (true) {
 		int	pollReturn = poll(&pollSockets[0], pollSockets.size(), POLL_BLOCK);
 		if (pollReturn == -1) {
-			std::cerr << "[ERROR!]\tPolling failed..." << std::endl;
-			std::cerr << "[ERROR!]\t";
+			std::cerr << "[ERROR]\tPolling failed..." << std::endl;
+			std::cerr << "[ERROR]\t";
 			// close(serverSocket);
 			return (perror("poll"), false);
 		}
@@ -98,8 +97,8 @@ bool		Server::pollServerSocket(pollfd&	pollServerSock) {
 	if (pollServerSock.revents & POLLIN) {
 		int	newSocket = accept(serverSocket, NULL, NULL);
 		if (newSocket == -1) {
-			std::cerr << "[ERROR!]\tAccepting failed..." << std::endl;
-			std::cerr << "[ERROR!]\t";
+			std::cerr << "[ERROR]\tAccepting failed..." << std::endl;
+			std::cerr << "[ERROR]\t";
 			perror("accept");
 			return false;
 		}
@@ -136,8 +135,8 @@ bool		Server::pollClientSocket(pollfd&	pollClientSock) {
 			rmFromPoll(pollClientSock);
 			return false;
 		} else if (bytesReceived == -1) {
-			std::cerr << "[ERROR!]\tReceiving failed..." << std::endl;
-			std::cerr << "[ERROR!]\t";
+			std::cerr << "[ERROR]\tReceiving failed..." << std::endl;
+			std::cerr << "[ERROR]\t";
 			// recv failed
 			// close socket
 			// remove from pollSockets
@@ -201,4 +200,3 @@ void		Server::rmFromClientsMap(int key) {
 		return ;
 	clients.erase(it);
 }
-

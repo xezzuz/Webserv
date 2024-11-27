@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:07:53 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 16:17:46 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 19:59:47 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ class Webserv {
 		Config							WebservConfig;
 
 		std::vector<Server>				Servers;
+		std::vector<pollfd> 			pollSockets;
 		
 	public:
 		Webserv(const std::string& configFileName);
@@ -27,4 +28,6 @@ class Webserv {
 		bool			configurateWebserv();
 		bool			startWebserv();
 		Config&			getWebservConfig();
+
+		void			addToPoll(int fd, short events, short revents);
 };

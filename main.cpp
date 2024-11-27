@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 16:00:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 19:38:52 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 
 	if (!Main.configurateWebserv())
 		return 1;
-	
+	Main.startWebserv();
 	
 	
 	return 0;

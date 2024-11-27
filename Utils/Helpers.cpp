@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 14:46:47 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 19:28:53 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,3 +105,25 @@ int				hexToInt(const std::string& num) {
 	return result;
 }
 
+unsigned int	parseIPv4(const std::string& ipAddress) {
+	std::stringstream	ss(ipAddress);
+	unsigned int		octets;
+	unsigned char		*ptr = (unsigned char *)&octets;
+
+	std::string			token;
+	while (std::getline(ss, token, '.')) {
+		*ptr = std::atoi(token.c_str());
+		ptr++;
+	}
+	return octets;
+}
+
+// #include <arpa/inet.h>
+// int main() {
+// 	unsigned int my = parseIPv4("192.168.1.1");
+// 	printf("mine = %d\n", my);
+// 	printf("mine = %d\n", htonl(my));
+// 	unsigned int ip = 0;
+// 	inet_pton(AF_INET, "192.168.1.1", &ip);
+// 	printf("ip = %d\n", ip);
+// }

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 11:49:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 19:32:10 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,13 +214,13 @@ bool			Request::validateRequestHeaders() {
 bool			Request::parseRequestLineAndHeaders() {
 	std::cout << "[REQUEST]\tParsing Headers..." << std::endl;
 	if (!storeHeadersInVector())
-		std::cout << "[ERROR!]\tstoreHeadersInVector();" << std::endl;
+		std::cout << "[ERROR]\tstoreHeadersInVector();" << std::endl;
 	if (!parseRequestLine())
-		std::cout << "[ERROR!]\tparseRequestLine();" << std::endl;
+		std::cout << "[ERROR]\tparseRequestLine();" << std::endl;
 	if (!parseHeaders())
-		std::cout << "[ERROR!]\tparseHeaders();" << std::endl;
+		std::cout << "[ERROR]\tparseHeaders();" << std::endl;
 	if (!validateRequestHeaders())
-		std::cout << "[ERROR!]\tvalidateRequestHeaders();" << std::endl;
+		std::cout << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
 	if (statusCode == 200)
 		pState = HEADERS_FINISHED;
 	else

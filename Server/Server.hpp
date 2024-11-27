@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 16:16:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 20:03:04 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Server {
 		int									serverSocket;
 		sockaddr_in							serverAddress;
 		std::vector<pollfd> 				pollSockets;
+		
 		ServerConfig						config;
 
 		std::map<int, Client>				clients;
@@ -60,13 +61,20 @@ class Server {
 		
 	public:
 		Server(ServerConfig& config);
-		Server(const int _port);
+		// Server(const int _port);
 		~Server();
 
 		void	startWebserv();
 		void	stopWebserv();
 
-		bool	getStatus() { return status; };
+		bool						getStatus() { return status; };
+		int							getPort() { return port; };
+		int							getServerSocket() { return serverSocket; };
+		sockaddr_in					getServerAddress() { return serverAddress; };
+		std::map<int, Client>		getClients() { return clients; };
+		
 };
+
+unsigned int	parseIPv4(const std::string& ipAddress);
 
 #endif
