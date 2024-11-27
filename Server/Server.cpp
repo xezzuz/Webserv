@@ -6,13 +6,19 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 16:47:56 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 16:17:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
+Server::Server(ServerConfig& config) : config(config) {
+	port = config.port;
+	status = initServer();
+}
+
 Server::Server(const int _port) : port(_port) {
+	std::cout << "init server by port" << std::endl;
 	status = initServer();
 }
 
@@ -25,7 +31,7 @@ void		Server::startWebserv() {
 }
 
 void		Server::stopWebserv() {
-
+	
 }
 
 bool		Server::initServer() {

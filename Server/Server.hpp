@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/22 17:19:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 16:16:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <poll.h>
 
 #include "../Request/Request.hpp"
+#include "../Config/Config.hpp"
 #include "Client.hpp"
 
 #define PORT 133742
@@ -40,6 +41,7 @@ class Server {
 		int									serverSocket;
 		sockaddr_in							serverAddress;
 		std::vector<pollfd> 				pollSockets;
+		ServerConfig						config;
 
 		std::map<int, Client>				clients;
 		
@@ -57,6 +59,7 @@ class Server {
 		void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
+		Server(ServerConfig& config);
 		Server(const int _port);
 		~Server();
 

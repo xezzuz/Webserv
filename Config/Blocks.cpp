@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 15:57:29 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 18:53:14 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 15:52:25 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ bool				Config::parseAllServerBlocks() {
 			Logger("'server' block isn't valid (ignored)");
 			continue;
 		}
-		Logger("'server' block is valid");
+		// Logger("'server' block is valid");
 		Parser.push_back(newServerParser);
 	}
 	return Parser.size() >= 1;

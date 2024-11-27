@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 12:40:42 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 15:35:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@ Config::Config() {
 }
 
 Config::Config(const std::string& configFileName) {
-	errorLog = open("../Logs/error.log", O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (errorLog == -1)
+	this->configFileName = configFileName;
+	
+	logs = open("Logs/webserv.log", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (logs == -1)
 		std::cerr << BOLD << "Webserv: can't create error.log!" << RESET << std::endl;
 
-	if (!openConfigFile(configFileName))
-		return ;
+	// if (!openConfigFile())
+	// 	return ;
 	
 	fillDefaultDirectives();
 }
@@ -31,7 +33,7 @@ Config::Config(const std::string& configFileName) {
 Config::~Config() {
 	if (configFile.is_open())
 		configFile.close();
-	close(errorLog);
+	close(logs);
 }
 
 void				Config::fillDefaultDirectives() {
@@ -63,7 +65,7 @@ void				Config::fillDefaultDirectives() {
 void				Config::Logger(std::string error) {
 	std::cerr << BOLD << RED << "Webserv: see error.log" << RESET << std::endl;
 	error += "\n";
-	write(errorLog, error.c_str(), error.length());
+	write(logs, error.c_str(), error.length());
 }
 
 void				Config::printServersConfigs() {
@@ -97,4 +99,44 @@ void				Config::printServersConfigs() {
 		}
 		printf("----------------- END SERVER -----------------\n");
 	}
+}
+
+int&										Config::getLogs() {
+	return this->logs;
+}
+
+std::vector<ServerConfig>&					Config::getServers() {
+	return this->Servers;
+}
+
+std::vector<ServerConfigParser>&			Config::getParser() {
+	return this->Parser;
+}
+
+std::ifstream&								Config::getConfigFile() {
+	return this->configFile;
+}
+
+std::string&								Config::getConfigFileName() {
+	return this->configFileName;
+}
+
+std::vector<std::string>&					Config::getConfigFileVector() {
+	return this->configFileVector;
+}
+
+std::vector< std::pair<int, int> >&			Config::getServerBlocksIndexes() {
+	return this->serverBlocksIndexes;
+}
+
+std::vector< std::pair<int, int> >&			Config::getLocationBlocksIndexes() {
+	return this->locationBlocksIndexes;
+}
+
+std::map<std::string, std::string>&			Config::getDefaultServerDirectives() {
+	return this->defaultServerDirectives;
+}
+
+std::map<std::string, std::string>&			Config::getDefaultLocationDirectives() {
+	return this->defaultServerDirectives;
 }

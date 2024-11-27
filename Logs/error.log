@@ -1,3 +1,0 @@
-'server' block is valid
-'location' unknown 'port' directive : 'port = 7070'
-'server' block isn't valid (ignored)

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 12:00:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 15:22:23 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ typedef struct												ServerConfigParser {
 
 class Config {
 	private:
+		std::string							configFileName;
 		std::ifstream						configFile;
 		std::vector<std::string>			configFileVector;
 		
@@ -82,7 +83,7 @@ class Config {
 		std::map<std::string, std::string>	defaultLocationDirectives;
 
 
-		int									errorLog;
+		int									logs;
 
 		std::vector<ServerConfig>			Servers;
 		std::vector<ServerConfigParser>		Parser;
@@ -92,7 +93,7 @@ class Config {
 		Config(const std::string& configFileName);
 		~Config();
 
-		bool						openConfigFile(const std::string& configFileName);
+		bool						openConfigFile();
 		void						fillDefaultDirectives();
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
@@ -118,6 +119,17 @@ class Config {
 		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, std::map<std::string, std::string>& locationDirectives, ServerConfig& Server);
 
 		void						printServersConfigs();
+
+		int&								getLogs();
+		std::vector<ServerConfig>&			getServers();
+		std::vector<ServerConfigParser>&	getParser();
+		std::ifstream&						getConfigFile();
+		std::string&						getConfigFileName();
+		std::vector<std::string>&			getConfigFileVector();
+		std::vector< std::pair<int, int> >&	getServerBlocksIndexes();
+		std::vector< std::pair<int, int> >&	getLocationBlocksIndexes();
+		std::map<std::string, std::string>&	getDefaultServerDirectives();
+		std::map<std::string, std::string>&	getDefaultLocationDirectives();
 
 };
 

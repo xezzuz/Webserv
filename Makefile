@@ -6,7 +6,7 @@
 #    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2024/11/21 15:47:03 by nazouz           ###   ########.fr        #
+#    Updated: 2024/11/27 15:43:22 by nazouz           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,12 @@ INCLUDE			=		\
 
 
 SRCS			= 		\
+						./Main/Webserv.cpp \
+						./Config/Config.cpp \
+						./Config/Parsing.cpp \
+						./Config/Blocks.cpp \
+						./Config/ServerConstructor.cpp \
+						./Config/Validators.cpp \
 						./Request/Request.cpp \
 						./Request/_ControlCenter.cpp \
 						./Request/Headers.cpp \
@@ -35,7 +41,6 @@ SRCS			= 		\
 OBJS			= 		$(SRCS:.cpp=.o)
 
 all : $(NAME)
-	./$(NAME)
 
 %.o : %.cpp $(INCLUDE)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
