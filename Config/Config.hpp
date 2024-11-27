@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/25 20:02:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 12:00:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@ typedef struct												ServerConfig {
 	int														port;
 	std::string												host;
 	std::vector<std::string>								server_name;
-	std::map<std::string, LocationConfig>					locations;
+	std::vector<LocationConfig>								locations;
+	// std::map<std::string, LocationConfig>					locations;
 }															ServerConfig;
 
 typedef struct												ServerConfigParser {
@@ -115,6 +116,8 @@ class Config {
 		bool						constructServers();
 		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, ServerConfig& Server);
 		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, std::map<std::string, std::string>& locationDirectives, ServerConfig& Server);
+
+		void						printServersConfigs();
 
 };
 

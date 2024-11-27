@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/26 18:32:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/27 12:38:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ bool				Config::constructServers() {
 		ServerConfig		newServer;
 
 		fillServerConfigByParserDirectives(Parser[i].serverDirectives, newServer);
-		for (size_t j = 0; Parser[i].locationDirectives.size(); j++) {
-			LocationConfig		newLocation;
+		for (size_t j = 0; j < Parser[i].locationDirectives.size(); j++) {
 			fillLocationConfigByParserDirectives(Parser[i].serverDirectives, Parser[i].locationDirectives[j], newServer);
 		}
+		Servers.push_back(newServer);
 	}
 	return true;
 }
@@ -64,32 +64,32 @@ bool				Config::fillLocationConfigByParserDirectives(std::map<std::string, std::
 		newLocation.root = defaultServerDirectives["root"];
 	
 	if (locationDirectives.find("upload_store") != locationDirectives.end())
-		newLocation.root = locationDirectives["upload_store"];
+		newLocation.upload_store = locationDirectives["upload_store"];
 	else if (serverDirectives.find("upload_store") != serverDirectives.end())
-		newLocation.root = serverDirectives["upload_store"];
+		newLocation.upload_store = serverDirectives["upload_store"];
 	else if (defaultServerDirectives.find("upload_store") != defaultServerDirectives.end())
-		newLocation.root = defaultServerDirectives["upload_store"];
+		newLocation.upload_store = defaultServerDirectives["upload_store"];
 	
 	if (locationDirectives.find("autoindex") != locationDirectives.end())
-		newLocation.root = locationDirectives["autoindex"];
+		newLocation.autoindex = locationDirectives["autoindex"];
 	else if (serverDirectives.find("autoindex") != serverDirectives.end())
-		newLocation.root = serverDirectives["autoindex"];
+		newLocation.autoindex = serverDirectives["autoindex"];
 	else if (defaultServerDirectives.find("autoindex") != defaultServerDirectives.end())
-		newLocation.root = defaultServerDirectives["autoindex"];
+		newLocation.autoindex = defaultServerDirectives["autoindex"];
 	
 	if (locationDirectives.find("cgi_pass") != locationDirectives.end())
-		newLocation.root = locationDirectives["cgi_pass"];
+		newLocation.cgi_pass = locationDirectives["cgi_pass"];
 	else if (serverDirectives.find("cgi_pass") != serverDirectives.end())
-		newLocation.root = serverDirectives["cgi_pass"];
+		newLocation.cgi_pass = serverDirectives["cgi_pass"];
 	else if (defaultServerDirectives.find("cgi_pass") != defaultServerDirectives.end())
-		newLocation.root = defaultServerDirectives["cgi_pass"];
+		newLocation.cgi_pass = defaultServerDirectives["cgi_pass"];
 	
 	if (locationDirectives.find("client_max_body_size") != locationDirectives.end())
-		newLocation.root = locationDirectives["client_max_body_size"];
+		newLocation.client_max_body_size = locationDirectives["client_max_body_size"];
 	else if (serverDirectives.find("client_max_body_size") != serverDirectives.end())
-		newLocation.root = serverDirectives["client_max_body_size"];
+		newLocation.client_max_body_size = serverDirectives["client_max_body_size"];
 	else if (defaultServerDirectives.find("client_max_body_size") != defaultServerDirectives.end())
-		newLocation.root = defaultServerDirectives["client_max_body_size"];
+		newLocation.client_max_body_size = defaultServerDirectives["client_max_body_size"];
 	
 	// index
 	if (locationDirectives.find("index") == locationDirectives.end())
@@ -130,5 +130,7 @@ bool				Config::fillLocationConfigByParserDirectives(std::map<std::string, std::
 		while (ss >> token)
 			newLocation.error_page.push_back(token);
 	}
+
+	Server.locations.push_back(newLocation);
 	return true;
 }
