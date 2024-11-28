@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:07:53 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 20:14:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/28 13:57:31 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class Webserv {
 		bool			monitorWebserv();
 
 		void			addToPoll(int fd, short events, short revents);
+
+		bool			isServerSocket(const int socket);
 		
 		Config&			getWebservConfig();
 };

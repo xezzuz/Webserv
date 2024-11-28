@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 20:16:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/28 14:00:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ bool			Webserv::startWebserv() {
 	
 	for (size_t i = 0; i < WebservConfig.getServers().size(); i++) {
 		Servers.push_back(Server(WebservConfig.getServers()[i]));
+		Servers.back().initServer();
 		if (!Servers.back().getStatus()) {
 			std::cout << "[WEBSERV]\tProblem occured during server" << i << " startup..." << std::endl;
 			continue;
@@ -50,9 +51,28 @@ bool			Webserv::monitorWebserv() {
 		if (pollReturn == -1) {
 			std::cerr << "[ERROR]\tPolling failed..." << std::endl;
 			std::cerr << "[ERROR]\t";
-			// here
+			// close all sockets?
+			return (perror("poll"), false);
+		}
+
+		for (size_t i = 0; i < pollSockets.size(); i++) {
+			if (isServerSocket(pollSockets[i].fd)) {
+				if (!handleServerSocketEvents(pollSockets[i]))
+					continue;
+			} else {
+				if (!handleClientSocketEvents(pollSockets[i]))
+					i--;
+			}
 		}
 	}
+}
+
+bool			Webserv::handleServerSocketEvents(pollfd&	serverPollfd) {
+	
+}
+
+bool			Webserv::handleClientSocketEvents(pollfd&	clientPollfd) {
+	
 }
 
 void			Webserv::addToPoll(int fd, short events, short revents) {
@@ -62,6 +82,14 @@ void			Webserv::addToPoll(int fd, short events, short revents) {
 	toAdd.events = events;
 	toAdd.revents = revents;
 	pollSockets.push_back(toAdd);
+}
+
+bool			Webserv::isServerSocket(const int socket) {
+	for (size_t i = 0; i < Servers.size(); i++) {
+		if (Servers[i].getServerSocket() == socket)
+			return true;
+	}
+	return false;
 }
 
 Config&			Webserv::getWebservConfig() {

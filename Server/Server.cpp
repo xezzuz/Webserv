@@ -6,24 +6,36 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 19:43:16 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/28 13:52:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(ServerConfig& config) : config(config) {
-	port = config.port;
-	status = initServer();
+	serverSocket = -1;
+	// printf("Server::Consctructor | %p\n", this);
 }
 
-// Server::Server(const int _port) : port(_port) {
-// 	std::cout << "init server by port" << std::endl;
-// 	status = initServer();
-// }
+Server::Server(const Server& original) {
+	*this = original;
+}
+
+Server&		Server::operator=(const Server& original) {
+	if (this != &original) {
+		this->port = original.port;
+		this->status = original.status;
+		this->serverSocket = original.serverSocket;
+		this->config = original.config;
+		this->clients = original.clients;
+	}
+	return *this;
+}
+
 
 Server::~Server() {
-	close(serverSocket);
+	// printf("Server::Desctructor | %p\n", this);
+	// close(serverSocket);
 }
 
 void		Server::startWebserv() {

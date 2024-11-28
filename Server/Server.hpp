@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 20:03:04 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/28 13:38:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ class Server {
 
 		std::map<int, Client>				clients;
 		
-		bool	initServer();
 		
 		bool	acceptConnections();
 
@@ -61,9 +60,11 @@ class Server {
 		
 	public:
 		Server(ServerConfig& config);
-		// Server(const int _port);
+		Server(const Server& original);
+		Server&		operator=(const Server& original);
 		~Server();
 
+		bool	initServer();
 		void	startWebserv();
 		void	stopWebserv();
 
