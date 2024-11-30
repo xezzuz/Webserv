@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/28 13:38:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/30 16:23:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,22 +40,24 @@ class Server {
 		bool								status;
 		int									serverSocket;
 		sockaddr_in							serverAddress;
-		std::vector<pollfd> 				pollSockets;
+		// std::vector<pollfd> 				pollSockets;
 		
 		ServerConfig						config;
 
-		std::map<int, Client>				clients;
+		std::map<int, Client>				Clients;
 		
 		
-		bool	acceptConnections();
+		// bool	acceptConnections();
 
-		bool	pollServerSocket(pollfd&	pollServerSock);
-		bool	pollClientSocket(pollfd&	pollClientSock);
+		bool	handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd>& pollSockets);
+		bool	handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets);
 		
-		pollfd&	addToPoll(pollfd& toAdd, int fd, short events, short revents);
-		void	rmFromPoll(pollfd&	toRemove);
+		void	addToPoll(int fd, short events, short revents, std::vector<pollfd>& pollSockets);
+		void	rmFromPoll(int fd, std::vector<pollfd>& pollSockets);
+		void	addToClientsMap(int key);
 		void	rmFromClientsMap(int key);
 		
+
 		void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
@@ -64,15 +66,17 @@ class Server {
 		Server&		operator=(const Server& original);
 		~Server();
 
-		bool	initServer();
-		void	startWebserv();
-		void	stopWebserv();
+		bool						initServer();
+		void						startWebserv();
+		void						stopWebserv();
+
+		bool						handleEvent(pollfd& event, std::vector<pollfd>& pollSockets);
 
 		bool						getStatus() { return status; };
 		int							getPort() { return port; };
 		int							getServerSocket() { return serverSocket; };
 		sockaddr_in					getServerAddress() { return serverAddress; };
-		std::map<int, Client>		getClients() { return clients; };
+		std::map<int, Client>&		getClients() { return Clients; };
 		
 };
 

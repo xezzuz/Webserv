@@ -6,13 +6,14 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/28 13:52:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/30 16:26:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(ServerConfig& config) : config(config) {
+	status = false;
 	serverSocket = -1;
 	// printf("Server::Consctructor | %p\n", this);
 }
@@ -27,7 +28,7 @@ Server&		Server::operator=(const Server& original) {
 		this->status = original.status;
 		this->serverSocket = original.serverSocket;
 		this->config = original.config;
-		this->clients = original.clients;
+		this->Clients = original.Clients;
 	}
 	return *this;
 }
@@ -39,7 +40,7 @@ Server::~Server() {
 }
 
 void		Server::startWebserv() {
-	acceptConnections();
+	// acceptConnections();
 }
 
 void		Server::stopWebserv() {
@@ -55,7 +56,7 @@ bool		Server::initServer() {
 	}
 	
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(port);
+	serverAddress.sin_port = htons(config.port);
 	serverAddress.sin_addr.s_addr = parseIPv4(config.host);
 	
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
@@ -72,40 +73,28 @@ bool		Server::initServer() {
 		return (perror("listen"), false);
 	}
 	
+	status = true;
 	std::cout << "[SERVER]\tListening on " << config.host << ":" << config.port << "..." << std::endl;
 	return true;
 }
 
-bool		Server::acceptConnections() {
-	pollfd			pollSock;
-	
-	addToPoll(pollSock, serverSocket, POLLIN, 0);
-
-	while (true) {
-		int	pollReturn = poll(&pollSockets[0], pollSockets.size(), POLL_BLOCK);
-		if (pollReturn == -1) {
-			std::cerr << "[ERROR]\tPolling failed..." << std::endl;
-			std::cerr << "[ERROR]\t";
-			// close(serverSocket);
-			return (perror("poll"), false);
+bool		Server::handleEvent(pollfd& event, std::vector<pollfd>& pollSockets) {
+	std::cout << "This is server " << config.port << std::endl;
+	if (event.fd == serverSocket) {
+		std::cout << "Server socket " << config.port << std::endl;
+		if (!handleServerSocketEvent(event, pollSockets)) {
+			
 		}
-
-		for (size_t i = 0; i < pollSockets.size(); i++) {
-			if (pollSockets[i].fd == serverSocket) {
-				// if event on server socket
-				if (!pollServerSocket(pollSockets[i]))
-					continue;
-			}
-			else {
-				// if event on client socket
-				if (!pollClientSocket(pollSockets[i]))
-					i--;
-			}
+	} else {
+		std::cout << "Client socket " << config.port << std::endl;
+		if (!handleClientSocketEvent(event, pollSockets)) {
+			
 		}
 	}
+	return true;
 }
 
-bool		Server::pollServerSocket(pollfd&	pollServerSock) {
+bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd>& pollSockets) {
 	if (pollServerSock.revents & POLLIN) {
 		int	newSocket = accept(serverSocket, NULL, NULL);
 		if (newSocket == -1) {
@@ -114,37 +103,33 @@ bool		Server::pollServerSocket(pollfd&	pollServerSock) {
 			perror("accept");
 			return false;
 		}
-		pollfd		newEntry;
 		
-		addToPoll(newEntry, newSocket, POLLIN, 0);
+		addToPoll(newSocket, POLLIN, 0, pollSockets);
+		addToClientsMap(newSocket);
 
 		std::cout << "[SERVER]\tAccepted Connection from Client "
-				  << newEntry.fd << "..." << std::endl;
+				  << newSocket << "..." << std::endl;
+	} else {
+		std::cout << "Another event besides POLLIN" << std::endl;
 	}
 	// handle other revents
 	return true;
 }
 
-bool		Server::pollClientSocket(pollfd&	pollClientSock) {
+bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets) {
 	if (pollClientSock.revents & POLLIN) {
 		char				buffer[BUFFER_SIZE + 1];
-		int	clientSocket = 	pollClientSock.fd;
+		int					clientSocket = pollClientSock.fd;
 
 		memset(buffer, 0, BUFFER_SIZE + 1);
-		int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+		int	bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
 		if (bytesReceived > 0) {
-			// std::cout << "[SERVER]\tReceived [" << bytesReceived << "] bytes from Client "
-			// 		  << clientSocket << "..." << std::endl;
-			// std::cout << "---------------------------------------------------------\n";
-			// write(1, buffer, bytesReceived);
-			// std::cout << "---------------------------------------------------------\n";
 			handleRequest(buffer, bytesReceived, clientSocket);
 		} else if (bytesReceived == 0) {
 			std::cout << "[SERVER]\tClient " << clientSocket
 					  << " disconnected..." << std::endl;
-			// client disconnected
 			rmFromClientsMap(clientSocket);
-			rmFromPoll(pollClientSock);
+			rmFromPoll(clientSocket, pollSockets);
 			return false;
 		} else if (bytesReceived == -1) {
 			std::cerr << "[ERROR]\tReceiving failed..." << std::endl;
@@ -152,63 +137,61 @@ bool		Server::pollClientSocket(pollfd&	pollClientSock) {
 			// recv failed
 			// close socket
 			// remove from pollSockets
-			rmFromPoll(pollClientSock);
+			rmFromPoll(clientSocket, pollSockets);
 			perror("recv");
 			return false;
 		}
+	} else {
+		std::cout << "Another event besides POLLIN" << std::endl;
 	}
-	// handle other revents
+	// handle other events
 	return true;
 }
 
-pollfd&		Server::addToPoll(pollfd& toAdd, int fd, short events, short revents) {
+void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket) {
+	std::map<int, Client>::iterator	it = Clients.find(clientSocket);
+
+	// could be optimized using iterators
+	if (it == Clients.end()) {
+		// new client
+		Clients[clientSocket] = Client(clientSocket);
+		Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
+	} else {
+		// old client
+		if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
+			return ;
+		Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
+	}
+}
+
+void		Server::addToPoll(int fd, short events, short revents, std::vector<pollfd>& pollSockets) {
+	pollfd			toAdd;
+
 	toAdd.fd = fd;
 	toAdd.events = events;
 	toAdd.revents = revents;
 	pollSockets.push_back(toAdd);
-	return toAdd;
 }
 
-void		Server::rmFromPoll(pollfd&	toRemove) {
+void			Server::rmFromPoll(int fd, std::vector<pollfd>& pollSockets) {
 	for (size_t i = 0; i < pollSockets.size(); i++) {
-		if (&pollSockets[i] == &toRemove) {
+		if (pollSockets[i].fd == fd) {
 			close(pollSockets[i].fd);
-			std::vector<pollfd>::iterator	it = pollSockets.begin() + i;
-			pollSockets.erase(it);
+			pollSockets.erase(pollSockets.begin() + i);
 			return ;
 		}
 	}
 }
 
-void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket) {
-	std::map<int, Client>::iterator	it = clients.find(clientSocket);
-	if (it == clients.end()) {
-		// create a newEntry
-		// std::cout << "[REQUEST]\tParsing a new Client Request " << clientSocket << "..." << std::endl;
-		// clients.insert(std::make_pair(clientSocket, Request(buffer)));
-		clients.insert(std::make_pair(clientSocket, Client(clientSocket)));
-		clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
-	} else {
-		// update the old request
-		// std::cout << "[REQUEST]\tParsing a old Client Request " << clientSocket << "..." << std::endl;
-		// if ( it->second.getRequest().getHeadersParsed() && 
-		// 	 it->second.getRequest().getRequestLineSt().rawRequestLine == "GET")
-		// 	return ;
-		// if (it->second.getRequest().getBodyParsed())
-		// 	return ;
-		if (it->second.getRequest().getParsingState() == PARSING_FINISHED)
-			return ;
-		it->second.getRequest().feedRequest(buffer, bufferSize);
-		// it->second.getRequest().setBuffer( it->second.getRequest().getBuffer().append(buffer) );
-		// it->second.getRequest().parseControlCenter();
-	}
+void		Server::addToClientsMap(int key) {
+	Clients[key] = Client(key);
 }
 
 void		Server::rmFromClientsMap(int key) {
 	std::map<int, Client>::iterator	it;
 
-	it = clients.find(key);
-	if (it == clients.end())
+	it = Clients.find(key);
+	if (it == Clients.end())
 		return ;
-	clients.erase(it);
+	Clients.erase(it);
 }

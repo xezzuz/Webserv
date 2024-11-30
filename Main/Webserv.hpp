@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:07:53 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/28 13:57:31 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/30 16:07:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ class Webserv {
 		Config							WebservConfig;
 
 		std::vector<Server>				Servers;
+		std::map<int, Client>			Clients;
 		std::vector<pollfd> 			pollSockets;
 		
 	public:
@@ -29,7 +30,14 @@ class Webserv {
 		bool			startWebserv();
 		bool			monitorWebserv();
 
+		Server*			getResponsibleServer(int fd);
+		bool			handleServerSocketEvents(pollfd&	pollServerSock);
+		bool			handleClientSocketEvents(pollfd&	pollClientSock);
+		void			handleRequest(char *buffer, int bufferSize, int clientSocket);
+
 		void			addToPoll(int fd, short events, short revents);
+		void			rmFromPoll(int fd);
+		void			rmFromClientsMap(int key);
 
 		bool			isServerSocket(const int socket);
 		

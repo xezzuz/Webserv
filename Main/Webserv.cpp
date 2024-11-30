@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/28 14:00:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/30 16:31:24 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,13 @@ bool			Webserv::startWebserv() {
 		Servers.push_back(Server(WebservConfig.getServers()[i]));
 		Servers.back().initServer();
 		if (!Servers.back().getStatus()) {
-			std::cout << "[WEBSERV]\tProblem occured during server" << i << " startup..." << std::endl;
+			Servers.pop_back();
+			std::cout << "[WEBSERV]\tProblem occured during server " << i << " startup..." << std::endl;
 			continue;
 		}
-		addToPoll(Servers[i].getServerSocket(), POLLIN, 0);
+		addToPoll(Servers.back().getServerSocket(), POLLIN, 0);
 	}
+	std::cout << "Webserv could run " << Servers.size() << " servers!" << std::endl;
 	return true;
 }
 
@@ -56,23 +58,30 @@ bool			Webserv::monitorWebserv() {
 		}
 
 		for (size_t i = 0; i < pollSockets.size(); i++) {
-			if (isServerSocket(pollSockets[i].fd)) {
-				if (!handleServerSocketEvents(pollSockets[i]))
-					continue;
-			} else {
-				if (!handleClientSocketEvents(pollSockets[i]))
-					i--;
+			if (!pollSockets[i].revents)
+				continue;
+			Server*		respServer = getResponsibleServer(pollSockets[i].fd);
+			
+			if (!respServer) {
+				std::cout << "no responsible server!" << std::endl;
+				return false;
 			}
+			respServer->handleEvent(pollSockets[i], pollSockets);
 		}
 	}
+	return true;
 }
 
-bool			Webserv::handleServerSocketEvents(pollfd&	serverPollfd) {
-	
-}
-
-bool			Webserv::handleClientSocketEvents(pollfd&	clientPollfd) {
-	
+Server*			Webserv::getResponsibleServer(int eventSocket) {
+	std::cout << "searching for responsible server of socket " << eventSocket << std::endl;
+	for (size_t i = 0; i < Servers.size(); i++) {
+		if (Servers[i].getServerSocket() == eventSocket)
+			return &Servers[i];
+		std::map<int, Client>::iterator		it = Servers[i].getClients().find(eventSocket);
+		if (it != Servers[i].getClients().end())
+			return &Servers[i];
+	}
+	return NULL;
 }
 
 void			Webserv::addToPoll(int fd, short events, short revents) {
@@ -82,6 +91,27 @@ void			Webserv::addToPoll(int fd, short events, short revents) {
 	toAdd.events = events;
 	toAdd.revents = revents;
 	pollSockets.push_back(toAdd);
+}
+
+void			Webserv::rmFromPoll(int fd) {
+	for (size_t i = 0; i < pollSockets.size(); i++) {
+		if (pollSockets[i].fd == fd) {
+			close(pollSockets[i].fd);
+			pollSockets.erase(pollSockets.begin() + i);
+			return ;
+		}
+	}
+}
+
+void			Webserv::rmFromClientsMap(int key) {
+	std::map<int, Client>::iterator		it;
+
+	it = Clients.find(key);
+	if (it == Clients.end()) {
+		std::cout << "Client to remove was not found!" << std::endl;
+		return ;
+	}
+	Clients.erase(it);
 }
 
 bool			Webserv::isServerSocket(const int socket) {
