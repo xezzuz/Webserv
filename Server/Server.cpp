@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/30 16:26:14 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/11/30 17:26:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ bool		Server::initServer() {
 }
 
 bool		Server::handleEvent(pollfd& event, std::vector<pollfd>& pollSockets) {
-	std::cout << "This is server " << config.port << std::endl;
+	std::cout << "This is server " << config.host << ":" << config.port << std::endl;
 	if (event.fd == serverSocket) {
 		std::cout << "Server socket " << config.port << std::endl;
 		if (!handleServerSocketEvent(event, pollSockets)) {
