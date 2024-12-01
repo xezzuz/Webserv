@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 16:48:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:08:51 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,14 @@ bool			Webserv::startWebserv() {
 	
 	std::map< std::string, std::vector<ServerConfig> >::iterator it;
 	for (it = vServersConfigs.begin(); it != vServersConfigs.end(); it++) {
-		std::cout << it->first << " has " << it->second.size() << " configs" << std::endl;
+		// std::cout << it->first << " has " << it->second.size() << " configs" << std::endl;
 
 		vServers.push_back(Server(it->second));
 		vServers.back().initServer();
 		addToPoll(vServers.back().getServerSocket(), POLLIN, 0);
 	}
-
-	std::cout << "Webserv could run " << vServers.size() << " vServers!" << std::endl;
+	
+	// std::cout << "Webserv could run " << vServers.size() << " vServers!" << std::endl;
 	return true;
 }
 
@@ -90,7 +90,7 @@ bool			Webserv::monitorWebserv() {
 }
 
 Server*			Webserv::getResponsibleServer(int eventSocket) {
-	std::cout << "searching for responsible server of socket " << eventSocket << std::endl;
+	// std::cout << "searching for responsible server of socket " << eventSocket << std::endl;
 	for (size_t i = 0; i < vServers.size(); i++) {
 		if (vServers[i].getServerSocket() == eventSocket)
 			return &vServers[i];
@@ -120,16 +120,16 @@ void			Webserv::rmFromPoll(int fd) {
 	}
 }
 
-void			Webserv::rmFromClientsMap(int key) {
-	std::map<int, Client>::iterator		it;
+// void			Webserv::rmFromClientsMap(int key) {
+// 	std::map<int, Client>::iterator		it;
 
-	it = Clients.find(key);
-	if (it == Clients.end()) {
-		std::cout << "Client to remove was not found!" << std::endl;
-		return ;
-	}
-	Clients.erase(it);
-}
+// 	it = Clients.find(key);
+// 	if (it == Clients.end()) {
+// 		std::cout << "Client to remove was not found!" << std::endl;
+// 		return ;
+// 	}
+// 	Clients.erase(it);
+// }
 
 bool			Webserv::isServerSocket(const int socket) {
 	for (size_t i = 0; i < vServers.size(); i++) {

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/21 10:19:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 18:22:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,10 @@ Client::~Client() {
 
 Request&		Client::getRequest() {
 	return _Request;
+}
+
+Response&		Client::getResponse() {
+	return _Response;
 }
 
 int				Client::getSocket() {

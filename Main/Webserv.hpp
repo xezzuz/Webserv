@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:07:53 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 15:23:11 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 19:50:15 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ class Webserv {
 		Config							WebservConfig;
 
 		std::vector<Server>				vServers;
-		std::map<int, Client>			Clients;
+		// std::map<int, Client>			Clients;
 		std::vector<pollfd> 			pollSockets;
 		
 	public:

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 16:28:28 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 19:41:46 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@ class Server {
 		void	rmFromClientsMap(int key);
 		
 
-		void	handleRequest(char *buffer, int bufferSize, int clientSocket);
+		void	handleRequest(char *buffer, int bufferSize, int clientSocket, pollfd& pollClientSock);
+		// void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
 		Server(std::vector<ServerConfig>& allConfigs);

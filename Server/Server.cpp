@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 16:45:57 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:43:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,17 +33,8 @@ Server&		Server::operator=(const Server& original) {
 
 
 Server::~Server() {
-	// printf("Server::Desctructor | %p\n", this);
 	// close(serverSocket);
 }
-
-// void		Server::startWebserv() {
-// 	// acceptConnections();
-// }
-
-// void		Server::stopWebserv() {
-	
-// }
 
 bool		Server::initServer() {
 	defaultConfig = vServerConfigs[0];
@@ -81,14 +72,11 @@ bool		Server::initServer() {
 }
 
 bool		Server::handleEvent(pollfd& event, std::vector<pollfd>& pollSockets) {
-	std::cout << "This is server " << defaultConfig.host << ":" << defaultConfig.port << std::endl;
 	if (event.fd == serverSocket) {
-		std::cout << "Server socket " << defaultConfig.port << std::endl;
 		if (!handleServerSocketEvent(event, pollSockets)) {
 			
 		}
 	} else {
-		std::cout << "Client socket " << defaultConfig.port << std::endl;
 		if (!handleClientSocketEvent(event, pollSockets)) {
 			
 		}
@@ -119,14 +107,14 @@ bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd
 }
 
 bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets) {
+	int					clientSocket = pollClientSock.fd;
 	if (pollClientSock.revents & POLLIN) {
 		char				buffer[BUFFER_SIZE + 1];
-		int					clientSocket = pollClientSock.fd;
 
 		memset(buffer, 0, BUFFER_SIZE + 1);
 		int	bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
 		if (bytesReceived > 0) {
-			handleRequest(buffer, bytesReceived, clientSocket);
+			handleRequest(buffer, bytesReceived, clientSocket, pollClientSock);
 		} else if (bytesReceived == 0) {
 			std::cout << "[SERVER]\tClient " << clientSocket
 					  << " disconnected..." << std::endl;
@@ -143,26 +131,34 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 			perror("recv");
 			return false;
 		}
-	} else {
-		std::cout << "Another event besides POLLIN" << std::endl;
+	} else if (pollClientSock.revents & POLLOUT) {
+		std::cout << "Client socket ready to write!" << std::endl;
+		Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
+		Clients[clientSocket].getResponse().setResponsibleConfig();
+		Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
+		if (Clients[clientSocket].getResponse().getResponseIsReady())
+			send(clientSocket, Clients[clientSocket].getResponse().getRawResponse().c_str(), Clients[clientSocket].getResponse().getRawResponse().size(), 0);
+		close(clientSocket);
 	}
 	// handle other events
 	return true;
 }
 
-void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket) {
+void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, pollfd& pollClientSock) {
 	std::map<int, Client>::iterator	it = Clients.find(clientSocket);
 
-	// could be optimized using iterators
 	if (it == Clients.end()) {
-		// new client
-		Clients[clientSocket] = Client(clientSocket);
-		Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
-	} else {
-		// old client
-		if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
-			return ;
-		Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
+		std::cout << "client was not found!" << std::endl;
+		return ;
+	}
+	// could be optimized using iterators
+	Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
+	Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
+	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED) {
+		pollClientSock.events = POLLOUT;
+		return ;
+		// Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
+		// Clients[clientSocket].getResponse().setResponsibleConfig();
 	}
 }
 

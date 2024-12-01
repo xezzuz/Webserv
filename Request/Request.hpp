@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 11:01:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:20:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,10 @@ typedef struct								s_body {
 
 class Request {
 	private:
-		int								rawBodyFD;
-		int								bufferFD;
-		int								debugFD;
+		// int								rawBodyFD;
+		// int								bufferFD;
+		// int								debugFD;
+		
 		/*			 PARSING BUFFRER			*/
 		std::string						buffer;
 		int								bufferSize;
@@ -120,6 +121,7 @@ class Request {
 		std::string&				getBuffer() { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 
+		size_t						getStatusCode();
 		std::vector<std::string>&	getRawRequest();
 		t_body&						getBodySt();
 		t_header&					getHeaderSt();
@@ -127,9 +129,6 @@ class Request {
 		e_parsingState				getParsingState() { return pState; } ;
 
 		void						setStatusCode(int code);
-		// bool						getHeadersParsed() { return headersParsed; };
-		// bool						getBodyParsed() { return bodyParsed; };
-		// bool						getParsingFinished() { return parsingFinished; };
 		bool						isValidFieldLine(const std::string& fieldline);
 		bool						isValidMethod(const std::string& method);
 		bool						isValidURI(const std::string& uri);

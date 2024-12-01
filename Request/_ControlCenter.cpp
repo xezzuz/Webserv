@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/23 11:48:16 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:08:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,17 @@ bool			Request::parseControlCenter() {
 	switch (pState) {
 		case HEADERS_RECEIVED:
 			parseRequestLineAndHeaders();
-			std::cout << "pState = " << pState << std::endl;
+			// std::cout << "pState = " << pState << std::endl;
 			break;
 		case BODY_RECEIVED:
 			parseRequestBody();
-			std::cout << "pState = " << pState << std::endl;
+			// std::cout << "pState = " << pState << std::endl;
 			break;
 		case PARSING_FINISHED:
-			std::cout << "pState = " << pState << std::endl;
+			// std::cout << "pState = " << pState << std::endl;
 			break;
 		default:
-			std::cout << "pState = default" << pState << std::endl;
+			// std::cout << "pState = default" << pState << std::endl;
 			break;
 	}
 	setRequestState();
