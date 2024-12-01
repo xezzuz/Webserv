@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/30 17:26:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 13:55:51 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,9 @@ bool		Server::initServer() {
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(config.port);
 	serverAddress.sin_addr.s_addr = parseIPv4(config.host);
+	
+	int reUseAddr = 1;
+	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reUseAddr, sizeof(reUseAddr)); // check return value?
 	
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
 		std::cerr << "[SERVER]\tBinding failed..." << std::endl;
