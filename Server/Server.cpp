@@ -6,16 +6,14 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 13:55:51 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 16:45:57 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(ServerConfig& config) : config(config) {
-	status = false;
-	serverSocket = -1;
-	// printf("Server::Consctructor | %p\n", this);
+Server::Server(std::vector<ServerConfig>& Configs) : vServerConfigs(Configs), status(false), serverSocket(-1) {
+	
 }
 
 Server::Server(const Server& original) {
@@ -27,7 +25,7 @@ Server&		Server::operator=(const Server& original) {
 		this->port = original.port;
 		this->status = original.status;
 		this->serverSocket = original.serverSocket;
-		this->config = original.config;
+		this->vServerConfigs = original.vServerConfigs;
 		this->Clients = original.Clients;
 	}
 	return *this;
@@ -39,15 +37,16 @@ Server::~Server() {
 	// close(serverSocket);
 }
 
-void		Server::startWebserv() {
-	// acceptConnections();
-}
+// void		Server::startWebserv() {
+// 	// acceptConnections();
+// }
 
-void		Server::stopWebserv() {
+// void		Server::stopWebserv() {
 	
-}
+// }
 
 bool		Server::initServer() {
+	defaultConfig = vServerConfigs[0];
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverSocket == -1) {
 		std::cerr << "[SERVER]\tCreating a Socket failed..." << std::endl;
@@ -56,8 +55,8 @@ bool		Server::initServer() {
 	}
 	
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(config.port);
-	serverAddress.sin_addr.s_addr = parseIPv4(config.host);
+	serverAddress.sin_port = htons(defaultConfig.port);
+	serverAddress.sin_addr.s_addr = parseIPv4(defaultConfig.host);
 	
 	int reUseAddr = 1;
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reUseAddr, sizeof(reUseAddr)); // check return value?
@@ -77,19 +76,19 @@ bool		Server::initServer() {
 	}
 	
 	status = true;
-	std::cout << "[SERVER]\tListening on " << config.host << ":" << config.port << "..." << std::endl;
+	std::cout << "[SERVER]\tListening on " << defaultConfig.host << ":" << defaultConfig.port << "..." << std::endl;
 	return true;
 }
 
 bool		Server::handleEvent(pollfd& event, std::vector<pollfd>& pollSockets) {
-	std::cout << "This is server " << config.host << ":" << config.port << std::endl;
+	std::cout << "This is server " << defaultConfig.host << ":" << defaultConfig.port << std::endl;
 	if (event.fd == serverSocket) {
-		std::cout << "Server socket " << config.port << std::endl;
+		std::cout << "Server socket " << defaultConfig.port << std::endl;
 		if (!handleServerSocketEvent(event, pollSockets)) {
 			
 		}
 	} else {
-		std::cout << "Client socket " << config.port << std::endl;
+		std::cout << "Client socket " << defaultConfig.port << std::endl;
 		if (!handleClientSocketEvent(event, pollSockets)) {
 			
 		}

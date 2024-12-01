@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/30 16:31:24 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 16:48:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,17 +33,34 @@ bool			Webserv::configurateWebserv() {
 bool			Webserv::startWebserv() {
 	std::cout << BOLD << "[WEBSERV]\tStarting the Webserv..." << RESET << std::endl;
 	
-	for (size_t i = 0; i < WebservConfig.getServers().size(); i++) {
-		Servers.push_back(Server(WebservConfig.getServers()[i]));
-		Servers.back().initServer();
-		if (!Servers.back().getStatus()) {
-			Servers.pop_back();
-			std::cout << "[WEBSERV]\tProblem occured during server " << i << " startup..." << std::endl;
-			continue;
+	std::map< std::string, std::vector<ServerConfig> >		vServersConfigs;
+	std::vector<ServerConfig>								allConfigs = WebservConfig.getServers();
+	
+	for (size_t i = 0; i < allConfigs.size(); i++) {
+		std::stringstream	ss;
+		ss << allConfigs[i].port;
+		std::string	vs_port = ss.str();
+		std::string	vs_host = allConfigs[i].host;
+
+		std::map< std::string, std::vector<ServerConfig> >::iterator it = vServersConfigs.find(vs_host + ":" + vs_port);
+		if (it == vServersConfigs.end()) {
+			std::vector<ServerConfig>	temp(1, allConfigs[i]);
+			vServersConfigs[vs_host + ":" + vs_port] = temp;
+		} else if (it != vServersConfigs.end()) {
+			it->second.push_back(allConfigs[i]);
 		}
-		addToPoll(Servers.back().getServerSocket(), POLLIN, 0);
 	}
-	std::cout << "Webserv could run " << Servers.size() << " servers!" << std::endl;
+	
+	std::map< std::string, std::vector<ServerConfig> >::iterator it;
+	for (it = vServersConfigs.begin(); it != vServersConfigs.end(); it++) {
+		std::cout << it->first << " has " << it->second.size() << " configs" << std::endl;
+
+		vServers.push_back(Server(it->second));
+		vServers.back().initServer();
+		addToPoll(vServers.back().getServerSocket(), POLLIN, 0);
+	}
+
+	std::cout << "Webserv could run " << vServers.size() << " vServers!" << std::endl;
 	return true;
 }
 
@@ -74,12 +91,12 @@ bool			Webserv::monitorWebserv() {
 
 Server*			Webserv::getResponsibleServer(int eventSocket) {
 	std::cout << "searching for responsible server of socket " << eventSocket << std::endl;
-	for (size_t i = 0; i < Servers.size(); i++) {
-		if (Servers[i].getServerSocket() == eventSocket)
-			return &Servers[i];
-		std::map<int, Client>::iterator		it = Servers[i].getClients().find(eventSocket);
-		if (it != Servers[i].getClients().end())
-			return &Servers[i];
+	for (size_t i = 0; i < vServers.size(); i++) {
+		if (vServers[i].getServerSocket() == eventSocket)
+			return &vServers[i];
+		std::map<int, Client>::iterator		it = vServers[i].getClients().find(eventSocket);
+		if (it != vServers[i].getClients().end())
+			return &vServers[i];
 	}
 	return NULL;
 }
@@ -115,8 +132,8 @@ void			Webserv::rmFromClientsMap(int key) {
 }
 
 bool			Webserv::isServerSocket(const int socket) {
-	for (size_t i = 0; i < Servers.size(); i++) {
-		if (Servers[i].getServerSocket() == socket)
+	for (size_t i = 0; i < vServers.size(); i++) {
+		if (vServers[i].getServerSocket() == socket)
 			return true;
 	}
 	return false;

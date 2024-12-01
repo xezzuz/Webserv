@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/30 16:23:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 16:28:28 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,12 @@ class Server {
 		bool								status;
 		int									serverSocket;
 		sockaddr_in							serverAddress;
-		// std::vector<pollfd> 				pollSockets;
 		
-		ServerConfig						config;
+		ServerConfig						defaultConfig;
+		std::vector<ServerConfig>			vServerConfigs;
 
 		std::map<int, Client>				Clients;
 		
-		
-		// bool	acceptConnections();
 
 		bool	handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd>& pollSockets);
 		bool	handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets);
@@ -61,14 +59,14 @@ class Server {
 		void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
-		Server(ServerConfig& config);
+		Server(std::vector<ServerConfig>& allConfigs);
 		Server(const Server& original);
 		Server&		operator=(const Server& original);
 		~Server();
 
 		bool						initServer();
-		void						startWebserv();
-		void						stopWebserv();
+		// void						startWebserv();
+		// void						stopWebserv();
 
 		bool						handleEvent(pollfd& event, std::vector<pollfd>& pollSockets);
 
