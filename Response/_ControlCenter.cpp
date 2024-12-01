@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 18:39:51 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:42:24 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:47:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ bool			Response::generateResponse() {
 	
 	rawResponse = statusLine.httpversion + " " + statusLine.status_code + " " + statusLine.reason_phrase + "\r\n";
 	rawResponse += "Connection: close\r\n\r\n";
+	rawResponse += "<p>" + statusLine.status_code + " " + statusLine.reason_phrase + "</p>";
 	isReady = true;
 	return true;
 }

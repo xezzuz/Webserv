@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 16:56:42 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/01 20:45:11 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ bool			Request::storeHeadersInVector() {
 }
 
 bool			Request::validateRequestHeaders() {
-	return true;
+	// return true;
 	bool			ContentLength = headerExists("Content-Length");
 	bool			TransferEncoding = headerExists("Transfer-Encoding");
 
