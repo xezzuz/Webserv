@@ -6,13 +6,14 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 17:54:07 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:38:55 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/02 19:33:54 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#include <sys/stat.h>
 #include "../Request/Request.hpp"
 #include "../Config/Config.hpp"
 
@@ -34,10 +35,15 @@ typedef struct								s_statusline {
 class Response {
 	private:
 		bool								isReady;
+		int									statusCode;
 		
+		std::string							requestedResource;
+
 		Request*							_Request;
 		ServerConfig						_Config;
 		std::vector<ServerConfig>			vServerConfigs;
+
+		LocationConfig						*locationBlock;
 
 		t_statusline						statusLine;
 
@@ -45,10 +51,30 @@ class Response {
 		
 	public:
 		Response();
+		Response(const Response& original);
+		Response&	operator=(const Response& original);
 		~Response();
 
 		void				feedResponse(Request* _Request);
 		bool				generateResponse();
+		void				setMatchingLocationBlock();
+		void				findExactMatchingLocationBlock();
+		void				findLongestMatchingPrefixLocationBlock();
+		bool				locationHasRedirection();
+		bool				isMethodAllowed();
+
+		void				handleResponseByMethod();
+		void				handleGET();
+		// void				handlePOST();
+		// void				handleDELETE();
+		
+		void				handleFileResource();
+		void				handleDirectoryResource();
+		bool				directoryContainsIndexFile();
+		void				setRequestedResource();
+		std::string			getRequestedResourceType();
+
+		bool				decodeURI();
 		
 		bool				getResponseIsReady();
 		std::string&		getRawResponse();

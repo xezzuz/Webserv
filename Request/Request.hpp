@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:20:08 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/02 12:24:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,6 @@ class Request {
 		bool						processMultipartData();
 		bool						processBinaryBody();
 		bool						parseLengthBody();
-		bool						parseContentType();
-		bool						parseMultipartFormData();
-		bool						bodyHasHeaders();
-		bool						parseFormUrlEncoded();
 		bool						validateRequestHeaders();
 
 		void						putRequestBodyInFile();
@@ -129,6 +125,7 @@ class Request {
 		e_parsingState				getParsingState() { return pState; } ;
 
 		void						setStatusCode(int code);
+		bool						decodeURI();
 		bool						isValidFieldLine(const std::string& fieldline);
 		bool						isValidMethod(const std::string& method);
 		bool						isValidURI(const std::string& uri);

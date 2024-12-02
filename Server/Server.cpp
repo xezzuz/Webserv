@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:43:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/02 19:34:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,11 +133,11 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 		}
 	} else if (pollClientSock.revents & POLLOUT) {
 		std::cout << "Client socket ready to write!" << std::endl;
-		Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
-		Clients[clientSocket].getResponse().setResponsibleConfig();
-		Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
-		if (Clients[clientSocket].getResponse().getResponseIsReady())
-			send(clientSocket, Clients[clientSocket].getResponse().getRawResponse().c_str(), Clients[clientSocket].getResponse().getRawResponse().size(), 0);
+		// Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
+		// Clients[clientSocket].getResponse().setResponsibleConfig();
+		// Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
+		// if (Clients[clientSocket].getResponse().getResponseIsReady())
+		// 	send(clientSocket, Clients[clientSocket].getResponse().getRawResponse().c_str(), Clients[clientSocket].getResponse().getRawResponse().size(), 0);
 		close(clientSocket);
 	}
 	// handle other events
@@ -153,12 +153,12 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	}
 	// could be optimized using iterators
 	Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
-	Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
 	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED) {
 		pollClientSock.events = POLLOUT;
+		Clients[clientSocket].getResponse().setRequest(&Clients[clientSocket].getRequest());
+		Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
+		Clients[clientSocket].getResponse().generateResponse();
 		return ;
-		// Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
-		// Clients[clientSocket].getResponse().setResponsibleConfig();
 	}
 }
 
@@ -182,7 +182,8 @@ void			Server::rmFromPoll(int fd, std::vector<pollfd>& pollSockets) {
 }
 
 void		Server::addToClientsMap(int key) {
-	Clients[key] = Client(key);
+	Clients.insert(std::make_pair(key, Client(key)));
+	// Clients[key] = Client(key);
 }
 
 void		Server::rmFromClientsMap(int key) {

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:45:11 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/02 12:28:37 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,26 @@ std::string		Request::extractHeadersFromBuffer() {
 	buffer = buffer.erase(0, CRLF + 4);
 	bufferSize -= (CRLF + 4);
 	return header;
+}
+
+bool			Request::decodeURI() {
+	std::string			encodedURI = requestLine.uri;
+	std::string			decodedURI;
+
+	// std::cout << "Encoded URI: " << encodedURI << std::endl;
+	for (size_t i = 0; i < encodedURI.size(); i++) {
+		if (encodedURI[i] == '%' && i + 2 < encodedURI.size() && isHexa(encodedURI.substr(i + 1, 2))) {
+			decodedURI += hexToInt(encodedURI.substr(i + 1, 2));
+			i += 2;
+		} else if (encodedURI[i] == '+') {
+			decodedURI += ' ';
+		} else {
+			decodedURI += encodedURI[i];
+		}
+	}
+	// std::cout << "Decoded URI: " << decodedURI << std::endl;
+	requestLine.uri = decodedURI;
+	return true;
 }
 
 bool			Request::isValidMethod(const std::string& method) {
@@ -155,7 +175,8 @@ bool			Request::parseRequestLine() {
 	requestLine.httpversion = tokens[2];
 	return     isValidMethod(requestLine.method)
 			&& isValidURI(requestLine.uri)
-			&& isValidHTTPVersion(requestLine.httpversion);
+			&& isValidHTTPVersion(requestLine.httpversion)
+			&& decodeURI();
 }
 
 bool			Request::storeHeadersInVector() {
@@ -181,7 +202,7 @@ bool			Request::storeHeadersInVector() {
 }
 
 bool			Request::validateRequestHeaders() {
-	// return true;
+	return true;
 	bool			ContentLength = headerExists("Content-Length");
 	bool			TransferEncoding = headerExists("Transfer-Encoding");
 

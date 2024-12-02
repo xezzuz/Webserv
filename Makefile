@@ -6,7 +6,7 @@
 #    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2024/12/01 19:23:05 by nazouz           ###   ########.fr        #
+#    Updated: 2024/12/02 19:00:58 by nazouz           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,10 @@ SRCS			= 		\
 						./Request/Body.cpp \
 						./Response/Response.cpp \
 						./Response/_ControlCenter.cpp \
+						./Response/Location.cpp \
+						./Response/Methods/GET.cpp \
+						./Response/Methods/POST.cpp \
+						./Response/Methods/DELETE.cpp \
 						./Server/Server.cpp \
 						./Server/Client.cpp \
 						./Utils/Helpers.cpp \
