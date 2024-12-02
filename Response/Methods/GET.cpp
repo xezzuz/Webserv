@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 16:36:38 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/02 19:38:28 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/12/02 19:54:38 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,23 @@ void				Response::handleFileResource() {
 	
 }
 
-// bool				Response::directoryContainsIndexFile() {
-// 	std::string			path = 
-// }
+bool				Response::directoryContainsIndexFile() {
+	for (size_t i = 0; i < locationBlock->index.size(); i++) {
+		std::string		indexPath = requestedResource + locationBlock->index[i];
+		
+		struct stat	indexPathStats;
+	
+		if (stat(indexPath.c_str(), &indexPathStats) != 0)
+			continue;
+		if (S_ISREG(indexPathStats.st_mode)) {
+			requestedResource = indexPath;
+			return true;
+		}
+		else if (S_ISDIR(indexPathStats.st_mode))
+			continue;
+	}
+	return false;
+}
 
 void				Response::handleDirectoryResource() {
 	if (requestedResource[requestedResource.size() - 1] != '/') {
@@ -41,9 +55,23 @@ void				Response::handleDirectoryResource() {
 		return ;
 	}
 	
-	// if (directoryContainsIndexFile()) {
-		
-	// }
+	if (directoryContainsIndexFile()) {
+		std::cout << "HTTP/1.1 " << 200 << " " << "OK" << std::endl;
+		std::cout << "Server will serve: " << requestedResource << std::endl;
+		return ;
+	}
+	
+	if (locationBlock->autoindex == "on") {
+		std::cout << "HTTP/1.1 " << 200 << " " << "OK" << std::endl;
+		std::cout << "Server will list all files in: " << requestedResource << std::endl;
+		return ;
+	}
+	
+	if (locationBlock->autoindex == "off") {
+		std::cout << "HTTP/1.1 " << 404 << " " << "Not Found" << std::endl;
+		std::cout << "Server will not list files in: " << requestedResource << std::endl;
+		return ;
+	}
 }
 
 void				Response::handleGET() {
