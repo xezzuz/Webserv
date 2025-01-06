@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/02 19:30:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/06 16:09:18 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,23 @@ Client::Client() {
 
 Client::Client(int socket) : socket(socket) {
 	// std::cout << "Client::Param Constructor Called" << std::endl;
+}
+
+Client::Client(const Client& rhs)
+{
+	*this = rhs;
+}
+
+
+Client& Client::operator=(const Client& rhs)
+{
+	if (this != &rhs)
+	{
+		this->socket = rhs.socket;
+		this->_Request = rhs._Request;
+		this->_Response = rhs._Response;
+	}
+	return (*this);
 }
 
 Client::~Client() {
@@ -35,4 +52,3 @@ Response&		Client::getResponse() {
 int				Client::getSocket() {
 	return socket;
 }
-

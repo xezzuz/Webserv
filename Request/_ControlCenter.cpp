@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:08:29 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/04 15:29:56 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,14 @@ void			Request::setRequestState() {
 	// if (statusCode)
 	// if we haven't received completed headers
 	if (pState == PARSING_INIT && bufferContainHeaders())
+    {
 		pState = HEADERS_RECEIVED;
+    }
 	else if (pState == HEADERS_FINISHED && bufferSize != 0)
+    {
+        std::cout << buffer << std::endl;
 		pState = BODY_RECEIVED;
+    }
 	else if (pState == BODY_FINISHED)
 		pState = PARSING_FINISHED;
 	
@@ -48,6 +53,7 @@ bool			Request::parseControlCenter() {
 			// std::cout << "pState = " << pState << std::endl;
 			break;
 		case BODY_RECEIVED:
+            std::cout << "AA" << std::endl;
 			parseRequestBody();
 			// std::cout << "pState = " << pState << std::endl;
 			break;

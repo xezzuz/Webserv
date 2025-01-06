@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/08 20:20:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/06 17:25:58 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(std::vector<ServerConfig>& Configs) : vServerConfigs(Configs), status(false), serverSocket(-1) {
+Server::Server(std::vector<ServerConfig>& Configs) : status(false), serverSocket(-1), vServerConfigs(Configs) {
 	
 }
 
@@ -132,13 +132,23 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 			return false;
 		}
 	} else if (pollClientSock.revents & POLLOUT) {
-		std::cout << "Client socket ready to write!" << std::endl;
-		// Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
-		// Clients[clientSocket].getResponse().setResponsibleConfig();
-		// Clients[clientSocket].getResponse().feedResponse(&Clients[clientSocket].getRequest());
+
 		// if (Clients[clientSocket].getResponse().getResponseIsReady())
+		int retVal = Clients[clientSocket].getResponse().sendResponse(clientSocket);
+		if(retVal == -1) // can be || (retval == 1 && client.(connection header is "close"))
+		{
+			//disconnectClient();
+			rmFromClientsMap(clientSocket);
+			rmFromPoll(clientSocket, pollSockets);
+		}
+		else if (retVal == 1)
+		{
+			pollClientSock.events = 0;
+		}
+		
 		// 	send(clientSocket, Clients[clientSocket].getResponse().getRawResponse().c_str(), Clients[clientSocket].getResponse().getRawResponse().size(), 0);
-		close(clientSocket);
+		// close(clientSocket);
+        
 	}
 	// handle other events
 	return true;
@@ -153,10 +163,18 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	}
 	// could be optimized using iterators
 	Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
-	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED) {
+	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
+    {
 		pollClientSock.events = POLLOUT;
-		Clients[clientSocket].getResponse().setRequest(&Clients[clientSocket].getRequest());
-		Clients[clientSocket].getResponse().setvServerConfigs(vServerConfigs);
+		// Clients[clientSocket].getResponse().setRequest(&Clients[clientSocket].getRequest());
+		// Clients[clientSocket].getResponse().setResponsibleConfig(vServerConfigs);
+		
+		// this evantually should be a large function that accounts for location block and all that stuff
+		Clients[clientSocket].getResponse().setComponents(
+			Clients[clientSocket].getRequest().getRequestLineSt().method,
+			Clients[clientSocket].getRequest().getRequestLineSt().uri,
+			Clients[clientSocket].getRequest().getStatusCode(),
+			Clients[clientSocket].getRequest().getHeaderSt());
 		Clients[clientSocket].getResponse().generateResponse();
 		return ;
 	}
@@ -181,7 +199,8 @@ void			Server::rmFromPoll(int fd, std::vector<pollfd>& pollSockets) {
 	}
 }
 
-void		Server::addToClientsMap(int key) {
+void		Server::addToClientsMap(int key)
+{
 	Clients.insert(std::make_pair(key, Client(key)));
 	// Clients[key] = Client(key);
 }

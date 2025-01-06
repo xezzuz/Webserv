@@ -13,7 +13,7 @@
 #include "Config.hpp"
 
 bool				Config::openConfigFile() {
-	int					pos = configFileName.find(".conf");
+	size_t				pos = configFileName.find(".conf");
 	if (pos == 0 || pos == std::string::npos || configFileName.substr(pos) != ".conf") {
 		std::cerr << BOLD << RED << "Webserv: invalid config file extention! " << configFileName << RESET << std::endl;
 		return false;
@@ -80,7 +80,7 @@ bool				Config::basicBlocksCountCheck() {
 }
 
 std::pair<int, int>		Config::getBlockEndIndex(int blockStart, const std::string startBlockStr) {
-	int						i = blockStart;
+	size_t					i = blockStart;
 	std::string				endBlock;
 	std::pair<int, int>		toReturn(blockStart, -1);
 	
@@ -131,7 +131,7 @@ bool				Config::validateBlocksIndexes() {
 	}
 	if (!locationBlocksIndexes.size())
 		return true;
-	for (size_t i = 0; i < static_cast<int>(locationBlocksIndexes.size() - 1); i++) {
+	for (int i = 0; i < static_cast<int>(locationBlocksIndexes.size() - 1); i++) {
 		a = locationBlocksIndexes[i].first;
 		b = locationBlocksIndexes[i].second;
 		c = locationBlocksIndexes[i + 1].first;

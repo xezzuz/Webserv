@@ -18,7 +18,7 @@ void			Request::putRequestBodyInFile() {
 	write(fd, body.rawBody.c_str(), body.bodySize);
 
 	std::cout << "******************** BODY ********************\n";
-	for (size_t i = 0; i <= (int)body.bodySize; i++)
+	for (int i = 0; i <= (int)body.bodySize; i++)
 		std::cout << body.rawBody[i];
 	std::cout << "\n**********************************************\n";
 }
@@ -61,7 +61,7 @@ bool			Request::decodeChunkedBody() {
 
 	while (bufferContainChunk()) {
 		std::string		chunkSizeStr;
-		size_t			currPos = 0, CRLFpos = 0;
+		int			currPos = 0, CRLFpos = 0;
 		
 		CRLFpos = buffer.find("\r\n");
 		// if (CRLFpos == std::string::npos || CRLFpos == currPos)

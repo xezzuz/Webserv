@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 20:08:51 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/03 17:57:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,10 @@ bool			Webserv::monitorWebserv() {
 			if (!pollSockets[i].revents)
 				continue;
 			Server*		respServer = getResponsibleServer(pollSockets[i].fd);
-			
+
 			if (!respServer) {
 				std::cout << "no responsible server!" << std::endl;
-				return false;
+				return false; // should not return false / should delete the fd from poll list
 			}
 			respServer->handleEvent(pollSockets[i], pollSockets);
 		}

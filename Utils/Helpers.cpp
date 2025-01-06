@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 19:28:53 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/06 15:21:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include <sstream>
-#include "../Request/Request.hpp"
+#include "Helpers.hpp"
 
 bool			Request::printParsedRequest() {
 	std::cout << "*********************************************" << std::endl;
@@ -117,6 +115,42 @@ unsigned int	parseIPv4(const std::string& ipAddress) {
 	}
 	return octets;
 }
+
+size_t	fileLength(std::string& path)
+{
+	std::ifstream	file(path);
+	std::streampos	len;
+
+	file.seekg(0, std::ios::end);
+	len = file.tellg();
+	file.seekg(0, std::ios::beg);
+	return (static_cast<size_t>(len));
+}
+
+std::string	contentType(const std::string& target, std::map<std::string, std::string>& mimeTypes)
+{
+	std::map<std::string, std::string>::iterator it;
+	std::string ext;
+	std::string file = target.substr(target.find_last_of('/') + 1);
+	ext = file.substr(file.find('.'));
+	it = mimeTypes.find(ext);
+	if (it != mimeTypes.end())
+		return (it->second);
+	else
+		return ("text/plain");
+}
+
+std::string	getDate( void )
+{
+    char buffer[100];
+
+	std::time_t now = std::time(0);
+    std::tm* gmt = std::gmtime(&now);
+
+    std::strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S GMT", gmt);
+	return (buffer);
+}
+
 
 // #include <arpa/inet.h>
 // int main() {

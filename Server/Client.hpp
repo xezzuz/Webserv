@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 18:37:45 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/06 16:07:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,13 @@ class Client {
 	public:
 		Client();
 		Client(int socket);
+		Client(const Client& rhs);
+		Client& operator=(const Client& rhs);
 		~Client();
 
 		Request&		getRequest();
 		Response&		getResponse();
+		int				sendResponse(int& socket);
 		int				getSocket();
 };
 

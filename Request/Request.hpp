@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/02 12:24:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/04 13:07:42 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ class Request {
 
 		/*				STATE FLAGS				*/
 		e_parsingState					pState;
-		size_t							statusCode;
+		int								statusCode;
 	
 	public:
 		Request();
@@ -117,7 +117,7 @@ class Request {
 		std::string&				getBuffer() { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 
-		size_t						getStatusCode();
+		int&						getStatusCode();
 		std::vector<std::string>&	getRawRequest();
 		t_body&						getBodySt();
 		t_header&					getHeaderSt();

@@ -1,22 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Response.hpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/01 17:54:07 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/02 19:33:54 by nazouz           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef RESPONSE_HPP
-#define RESPONSE_HPP
+# define RESPONSE_HPP
 
-#include <sys/stat.h>
-#include "../Request/Request.hpp"
-#include "../Config/Config.hpp"
+# include <sys/socket.h>
+# include <sys/stat.h>
+# include "../Request/Request.hpp"
+# include "../Config/Config.hpp"
+# include "../Utils/Helpers.hpp"
 
+
+# define SEND_BUFFER_SIZE 4096
 // enum e_responseState {
 // 	PARSING_INIT,		// 0
 // 	HEADERS_RECEIVED,	// 1
@@ -26,62 +18,84 @@
 // 	PARSING_FINISHED	// 5
 // };
 
-typedef struct								s_statusline {
-	std::string								httpversion;
-	std::string								status_code;
-	std::string								reason_phrase;
-}											t_statusline;
+struct  Needed
+{
+	std::string					host; // for virtual servers
+	std::string					target;
+	std::string					root;
+	std::string					method;
+	std::vector<std::string>	index;
+	int							status;
+	t_header					headers;
+};
 
-class Response {
-	private:
-		bool								isReady;
-		int									statusCode;
-		
-		std::string							requestedResource;
+class Response
+{
+public:
+	Response();
+	Response(const Response& rhs);
+	Response&	operator=(const Response& rhs);
+	~Response();
 
-		Request*							_Request;
-		ServerConfig						_Config;
-		std::vector<ServerConfig>			vServerConfigs;
+	void		generateErrorPage( void );
+	void		generateResponse( void );
+	void		setComponents(std::string& method, std::string& uri, int& status,t_header& headers);
+	void		errorResponse();
+	bool		formPath( void );
 
-		LocationConfig						*locationBlock;
+	int		sendResponse( int& socket );
+	int		sendHeaders( int& socket );
+	int		sendBody( int& socket );
 
-		t_statusline						statusLine;
 
-		std::string							rawResponse;
-		
-	public:
-		Response();
-		Response(const Response& original);
-		Response&	operator=(const Response& original);
-		~Response();
 
-		void				feedResponse(Request* _Request);
-		bool				generateResponse();
-		void				setMatchingLocationBlock();
-		void				findExactMatchingLocationBlock();
-		void				findLongestMatchingPrefixLocationBlock();
-		bool				locationHasRedirection();
-		bool				isMethodAllowed();
+	class ErrorResponse : public std::exception
+	{
 
-		void				handleResponseByMethod();
-		void				handleGET();
-		// void				handlePOST();
-		// void				handleDELETE();
-		
-		void				handleFileResource();
-		void				handleDirectoryResource();
-		bool				directoryContainsIndexFile();
-		void				setRequestedResource();
-		std::string			getRequestedResourceType();
+	};
 
-		bool				decodeURI();
-		
-		bool				getResponseIsReady();
-		std::string&		getRawResponse();
+	// void			feedResponse(Request* _Request);
+	// void		    setMatchingLocationBlock();
+	// void		    findExactMatchingLocationBlock();
+	// void		    findLongestMatchingPrefixLocationBlock();
+	// bool		    locationHasRedirection();
+	// bool		    isMethodAllowed();
 
-		void				setRequest(Request* _Request);
-		void				setResponsibleConfig();
-		void				setvServerConfigs(const std::vector<ServerConfig>&			_vServerConfigs);
+	// void		    handleGET();
+	
+	// void		    handleFileResource();
+	// void		    handleDirectoryResource();
+	// bool		    directoryContainsIndexFile();
+	// void		    setRequestedResource();
+	// std::string	    getRequestedResourceType();
+
+	
+
+	// void		    setRequest(Request* _Request);
+	// void			setResponsibleConfig(std::vector<ServerConfig>& vServerConfigs);
+	
+private:
+	std::map<std::string, std::string>	mimeTypes;
+	size_t								contentLength;
+	struct Needed						components;
+	std::map<int, std::string>			errorCodes;
+	bool								keepAlive;
+
+	std::string							headers;
+	std::string							body;
+
+	std::ifstream						bodyFile;
+	bool								headersSent;
+	bool								bodySent;
+	int									headersOffset;
+	// std::string					requestedResource;
+
+	// int							statusCode;
+	// Request*					_Request;
+	// ServerConfig				_Config;
+	// LocationConfig				*locationBlock;
+	
+
 };
 
 #endif

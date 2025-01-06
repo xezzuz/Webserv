@@ -3,28 +3,30 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
+#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2024/12/02 19:00:58 by nazouz           ###   ########.fr        #
+#    Updated: 2025/01/04 15:49:55 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			= 		Webserv
+NAME			= 		webserv
 
 CPP				= 		c++
 
-CPPFLAGS		= 		-fsanitize=address -g -g3 # -Wall -Werror -Wextra
+CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address
 
 INCLUDE			=		\
 						./Request/Request.hpp \
+						./Response/Response.hpp \
 						./Server/Server.hpp \
 						./Server/Client.hpp \
+						./Main/Webserv.hpp \
 
 
 SRCS			= 		\
-						./Main/Webserv.cpp \
 						./Config/Config.cpp \
+						./Main/Webserv.cpp \
 						./Config/Parsing.cpp \
 						./Config/Blocks.cpp \
 						./Config/ServerConstructor.cpp \
@@ -44,20 +46,23 @@ SRCS			= 		\
 						./Utils/Helpers.cpp \
 						./main.cpp
 
-OBJS			= 		$(SRCS:.cpp=.o)
+OBJDIR			=		./objects
+
+OBJS			= 		$(SRCS:%.cpp=$(OBJDIR)/%.o)
 
 all : $(NAME)
 
-%.o : %.cpp $(INCLUDE)
+$(OBJDIR)/%.o : %.cpp $(INCLUDE)
+	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(NAME) : $(OBJS)
 	$(CPP) $(CPPFLAGS) $(OBJS) -o $(NAME)
 
 clean :
-	rm -rf $(OBJS)
+	rm -rf $(OBJDIR)
 
 fclean : clean
-	rm -rf $(NAME) $(OBJS)
+	rm -rf $(NAME)
 
 re : fclean all

@@ -30,7 +30,7 @@ bool				Config::parseAllServerBlocks() {
 }
 
 bool				Config::parseSingleServerBlock(int start, int end, ServerConfigParser& currentServerParser) {
-	for (size_t i = start + 1; i < end; i++) {
+	for (int i = start + 1; i < end; i++) {
 		if (configFileVector[i] == "[location]") {
 			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServerParser))
 				return false;
@@ -56,7 +56,7 @@ bool				Config::parseSingleServerBlock(int start, int end, ServerConfigParser& c
 bool				Config::parseSingleLocationBlock(int start, int end, ServerConfigParser& currentServerParser) {
 	std::map<std::string, std::string>		newLocationMap;
 	
-	for (size_t i = start + 1; i < end; i++) {
+	for (int i = start + 1; i < end; i++) {
 		size_t	equalsPos = configFileVector[i].find('=');
 		if (equalsPos == std::string::npos)
 			return (Logger("'location' invalid line syntax : '" + configFileVector[i] + "'"), false);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConstructor.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/27 12:38:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/03 17:46:27 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ bool				Config::constructServers() {
 
 bool				Config::fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, ServerConfig& Server) {
 
+    std::cout << serverDirectives["error_page"] << std::endl;
+    
+
 	if (serverDirectives.find("port") != serverDirectives.end())
 		Server.port = std::atoi(serverDirectives["port"].c_str());
 	else
@@ -42,7 +45,7 @@ bool				Config::fillServerConfigByParserDirectives(std::map<std::string, std::st
 		temp_server_name = serverDirectives["server_name"];
 	else
 		temp_server_name = defaultServerDirectives["server_name"];
-	
+
 	std::string			token;
 	std::stringstream	ss(temp_server_name);
 	while (ss >> token)
