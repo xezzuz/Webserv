@@ -3,7 +3,6 @@
 
 # include <sys/socket.h>
 # include <sys/stat.h>
-# include "../Request/Request.hpp"
 # include "../Config/Config.hpp"
 # include "../Utils/Helpers.hpp"
 
@@ -18,17 +17,6 @@
 // 	PARSING_FINISHED	// 5
 // };
 
-struct  Needed
-{
-	std::string					host; // for virtual servers
-	std::string					target;
-	std::string					root;
-	std::string					method;
-	std::vector<std::string>	index;
-	int							status;
-	t_header					headers;
-};
-
 class Response
 {
 public:
@@ -37,22 +25,15 @@ public:
 	Response&	operator=(const Response& rhs);
 	~Response();
 
+	void		setInput(struct ResponseInput& input);
+
 	void		generateErrorPage( void );
 	void		generateResponse( void );
-	void		setComponents(std::string& method, std::string& uri, int& status,t_header& headers);
 	void		errorResponse();
 	bool		formPath( void );
 
-	int		sendResponse( int& socket );
-	int		sendHeaders( int& socket );
-	int		sendBody( int& socket );
+	int			sendResponse( int& socket );
 
-
-
-	class ErrorResponse : public std::exception
-	{
-
-	};
 
 	// void			feedResponse(Request* _Request);
 	// void		    setMatchingLocationBlock();
@@ -75,19 +56,25 @@ public:
 	// void			setResponsibleConfig(std::vector<ServerConfig>& vServerConfigs);
 	
 private:
+	// response needed data
+	struct ResponseInput	input;
+
+	// response created data
 	std::map<std::string, std::string>	mimeTypes;
-	size_t								contentLength;
-	struct Needed						components;
 	std::map<int, std::string>			errorCodes;
-	bool								keepAlive;
+	bool										keepAlive;
 
-	std::string							headers;
-	std::string							body;
+	// response creating process
+	std::ifstream	bodyFile;
+	bool			headersSent;
+	bool			bodySent;
+	int				headersOffset;
+	size_t			contentLength;
 
-	std::ifstream						bodyFile;
-	bool								headersSent;
-	bool								bodySent;
-	int									headersOffset;
+	// response
+	std::string	headers;
+	std::string	body;
+
 	// std::string					requestedResource;
 
 	// int							statusCode;

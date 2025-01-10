@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/04 11:04:13 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/10 17:34:05 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <set>
 #include <fcntl.h>
 #include <unistd.h>
-// #include <pair>
+#include <list>
 #include <fstream>
 
 #define RESET      "\033[0m"
@@ -44,31 +44,59 @@
 #define BG_CYAN    "\033[46m"
 #define BG_WHITE   "\033[47m"
 
-typedef struct												LocationConfig {
-	std::string												location;
-	std::string 											root;
-	std::vector<std::string> 								index;
-	std::vector<std::string> 								methods;
-	std::string 											upload_store;
-	std::vector<std::string> 								redirect;
-	std::string												autoindex;
-	std::string 											cgi_pass;
-	std::vector<std::string>								error_page;
-	std::string												client_max_body_size;
-}															LocationConfig;
+//		 		<location path, config<directive,  values> 
+typedef std::map<std::string, std::map<std::string, std::vector<std::string>> > Location;
 
-typedef struct												ServerConfig {
-	int														port;
-	std::string												host;
-	std::vector<std::string>								server_name;
-	std::vector<LocationConfig>								locations;
-	// std::map<std::string, LocationConfig>					locations;
-}															ServerConfig;
+typedef struct	ServerConfig
+{
+	std::map<std::string, std::vector<std::string> >	baseConfig;
+	Location											location; // location
+	ServerConfig()
+	{
+		baseConfig["host"].push_back("0.0.0.0");
+		baseConfig["port"].push_back("80");
+		baseConfig["root"].push_back("/home/mmaila/SERV/www");
+		baseConfig["index"].push_back("index.html");
+		baseConfig["methods"].push_back("GET");
+		baseConfig["methods"].push_back("POST");
+		baseConfig["methods"].push_back("DELETE");
+		baseConfig["autoindex"].push_back("off");
+		baseConfig["server_name"];
+		baseConfig["error_page"];
+		baseConfig["client_max_body_size"];
+		baseConfig["redirect"];
+		baseConfig["cgi_pass"];
+		baseConfig["upload_store"];
+	}
+}				ServerConfig;
+
+
+// typedef struct												LocationConfig {
+// 	std::string												location;
+// 	std::string 											root;
+// 	std::vector<std::string> 								index;
+// 	std::vector<std::string> 								methods;
+// 	std::string 											upload_store;
+// 	std::vector<std::string> 								redirect;
+// 	std::string												autoindex;
+// 	std::string 											cgi_pass;
+// 	std::vector<std::string>								error_page;
+// 	std::string												client_max_body_size;
+// }															LocationConfig;
+
+// typedef struct												ServerConfig {
+// 	int														port;
+// 	std::string												host;
+// 	std::vector<std::string>								server_name;
+// 	std::vector<LocationConfig>								locations;
+// 	// std::map<std::string, LocationConfig>					locations;
+// }															ServerConfig;
 
 typedef struct												ServerConfigParser {
 	std::map<std::string, std::string>						serverDirectives;
 	std::vector< std::map<std::string, std::string> >		locationDirectives;
 }															ServerConfigParser;
+
 
 class Config {
 	private:

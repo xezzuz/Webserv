@@ -4,9 +4,6 @@ Response::~Response() {}
 
 Response::Response() : contentLength(0), headersSent(false), bodySent(false), headersOffset(0)
 {
-	components.index.push_back("default.html");
-	components.index.push_back("index.html");
-	components.root = "/home/mmaila/Desktop/duoSERV/www/";
     errorCodes.insert(std::make_pair(200, "OK"));
     errorCodes.insert(std::make_pair(201, "Created"));
     errorCodes.insert(std::make_pair(204, "No Content"));
@@ -68,14 +65,9 @@ Response&	Response::operator=(const Response& rhs)
 {
 	if (this != &rhs)
     {
-		// statusCode = rhs.statusCode;
-		// requestedResource = rhs.requestedResource;
-		// _Request = rhs._Request;
-		// _Config = rhs._Config;
-		// locationBlock = rhs.locationBlock;
 		headers = rhs.headers;
 		body = rhs.body;
-        components = rhs.components;
+        input = rhs.input;
 		headersOffset = rhs.headersOffset;
         contentLength = rhs.contentLength;
 		headersSent = rhs.headersSent;
@@ -85,12 +77,9 @@ Response&	Response::operator=(const Response& rhs)
 	return (*this);
 }
 
-void	Response::setComponents(std::string& method, std::string& uri, int& status,t_header& headers)
+void	Response::setInput(struct ResponseInput& input)
 {
-	this->components.method = method;
-	this->components.target = uri;
-	this->components.status = status;
-	this->components.headers = headers;
+	this->input = input;
 }
 
 bool	Response::formPath( void )
@@ -98,37 +87,37 @@ bool	Response::formPath( void )
 	std::vector<std::string>::iterator it;
 	struct stat targetStat;
 
-	components.target = components.root + components.target;
-	if (stat(components.target.c_str(), &targetStat) == -1)
+	input.uri = input.config["root"][0] + input.uri;
+	if (stat(input.uri.c_str(), &targetStat) == -1)
 	{
-		components.status = 404;
+		input.status = 404;
 		return (false);
 	}
 
 	if (S_ISDIR(targetStat.st_mode))
 	{
-		if (access(components.target.c_str(), X_OK) != 0) // check exec permission to traverse dir
+		if (access(input.uri.c_str(), X_OK) != 0) // check exec permission to traverse dir
 		{
-			components.status = 403;
+			input.status = 403;
 			return (false);
 		}
-		if (components.target.at(components.target.length() - 1) != '/')
-			components.target.append("/");
-		for (it = components.index.begin(); it != components.index.end(); it++)
+		if (input.uri.at(input.uri.length() - 1) != '/')
+			input.uri.append("/");
+		for (it = input.config["index"].begin(); it != input.config["index"].end(); it++)
 		{
-			if (access((components.target + *it).c_str(), F_OK) == 0) // file exists
+			if (access((input.uri + *it).c_str(), F_OK) == 0) // file exists
 				break;
 		}
-		if (it == components.index.end())
+		if (it == input.config["index"].end())
 		{
-			components.status = 404;
+			input.status = 404;
 			return (false);
 		}
-		components.target.append(*it);
+		input.uri.append(*it);
 	}
-	if (access(components.target.c_str(), R_OK) != 0) // read permission for files
+	if (access(input.uri.c_str(), R_OK) != 0) // read permission for files
 	{
-		components.status = 403;
+		input.status = 403;
 		return (false);
 	}
 	return (true);
@@ -136,7 +125,7 @@ bool	Response::formPath( void )
 
 void	Response::errorResponse( void )
 {
-	std::cout << components.status << " " << errorCodes[components.status] << std::endl;
+	std::cout << input.status << " " << errorCodes[input.status] << std::endl;
 }
 
 void	Response::generateErrorPage( void )
@@ -144,7 +133,7 @@ void	Response::generateErrorPage( void )
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
-		body = "<html>\n<head><title> " + std::to_string(components.status) + " " + errorCodes[components.status] + " </title></head>\n<body>\n<center><h1> " + std::to_string(components.status) + " " + errorCodes[components.status] + " </h1></center>\n<hr><center>webserv/1.0</center>\n</body>\n</html>\n";
+		body = "<html>\n<head><title> " + _toString(input.status) + " " + errorCodes[input.status] + " </title></head>\n<body>\n<center><h1> " + _toString(input.status) + " " + errorCodes[input.status] + " </h1></center>\n<hr><center>webserv/1.0</center>\n</body>\n</html>\n";
 		bodySent = true;
 }
 
@@ -152,29 +141,26 @@ void	Response::generateResponse( void )
 {
 	body.clear();
 	headers.clear();
-	if (components.root[components.root.length() - 1] == '/') // need to be taken to request parsing
-		components.root.erase(components.root.length() - 1);
-	// validateURI(); // also this needs to be taken to request parsing
 	
-	headers.append("HTTP/1.1 " + std::to_string(components.status) + " " + errorCodes[components.status]);
+	headers.append("HTTP/1.1 " + _toString(input.status) + " " + errorCodes[input.status]);
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
-	if (components.status >= 400)
+	if (input.status >= 400)
 	{
 		generateErrorPage();
 		headers.append("\r\nContent-Type: text/html");
-		headers.append("\r\nContent-Length: " + std::to_string(body.size()));
+		headers.append("\r\nContent-Length: " + _toString(body.size()));
 	}
-	else if (components.method == "GET") // check allowed methods
+	else if (input.method == "GET") // check allowed methods
 	{
 		if(!formPath()) // be careful of ".."
 		{
 			generateResponse();
 			return;
 		}
-		bodyFile.open(components.target);
-		headers.append("\r\nContent-Type: " + contentType(components.target, mimeTypes));
-		headers.append("\r\nContent-Length: " + std::to_string(fileLength(components.target)));
+		bodyFile.open(input.uri);
+		headers.append("\r\nContent-Type: " + contentType(input.uri, mimeTypes));
+		headers.append("\r\nContent-Length: " + _toString(fileLength(input.uri)));
 	}
 	headers.append("\r\nConnection: " + std::string(keepAlive ? "Keep-Alive" : "Close"));
 	headers.append("\r\n\r\n");
@@ -182,7 +168,7 @@ void	Response::generateResponse( void )
 
 	// setMatchingLocationBlock();
 	// setRequestedResource();
-	// components.status = _Request->getStatusCode();
+	// input.status = _Request->getStatusCode();
 
     // if (this->components.method == "GET")
 		// handleGET();
@@ -246,7 +232,3 @@ int	Response::sendResponse( int& socket )
 	headersSent = false;
 	return (1);
 }
-// void	Response::setRequest(Request* _Request)
-// {
-// 	this->_Request = _Request;
-// }

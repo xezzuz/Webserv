@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/04 13:08:22 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/08 17:45:23 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,10 @@ t_header&					Request::getHeaderSt() {
 
 t_requestline&				Request::getRequestLineSt() {
 	return this->requestLine;
+}
+
+struct ResponseInput	Request::getResponseInput( void )
+{
+	struct ResponseInput ret = {requestLine.uri, requestLine.method, statusCode, header.headersMap};
+	return (ret);
 }

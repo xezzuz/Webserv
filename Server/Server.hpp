@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2024/12/01 19:41:46 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/10 14:57:18 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <algorithm>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -41,7 +42,6 @@ class Server {
 		int									serverSocket;
 		sockaddr_in							serverAddress;
 		
-		ServerConfig						defaultConfig;
 		std::vector<ServerConfig>			vServerConfigs;
 
 		std::map<int, Client>				Clients;
@@ -76,7 +76,6 @@ class Server {
 		int							getServerSocket() { return serverSocket; };
 		sockaddr_in					getServerAddress() { return serverAddress; };
 		std::map<int, Client>&		getClients() { return Clients; };
-		
 };
 
 unsigned int	parseIPv4(const std::string& ipAddress);

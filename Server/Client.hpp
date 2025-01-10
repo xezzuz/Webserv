@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/06 16:07:22 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/10 15:40:47 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define CLIENT_HPP
 
 #include "../Response/Response.hpp"
+#include <algorithm>
 
 class Client {
 	private:
@@ -31,8 +32,10 @@ class Client {
 
 		Request&		getRequest();
 		Response&		getResponse();
-		int				sendResponse(int& socket);
+		void			configureResponse( void );
 		int				getSocket();
+		
+		void			initResponse(std::vector<ServerConfig>& vServerConfigs);
 };
 
 #endif

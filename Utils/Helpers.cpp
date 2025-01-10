@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/06 15:21:22 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/07 14:39:32 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,19 @@ std::string	getDate( void )
 	return (buffer);
 }
 
+std::string		_toString(unsigned long num)
+{
+	std::ostringstream ret;
+	ret << num;
+	return (ret.str());
+}
+
+std::string		_toString(int num)
+{
+	std::ostringstream ret;
+	ret << num;
+	return (ret.str());
+}
 
 // #include <arpa/inet.h>
 // int main() {

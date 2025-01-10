@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/06 16:09:18 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/10 16:58:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,54 @@ Response&		Client::getResponse() {
 
 int				Client::getSocket() {
 	return socket;
+}
+
+void	Client::initResponse(std::vector<ServerConfig>& vServerConfigs)
+{
+	struct ResponseInput	input;
+	ServerConfig			responsibleServer;
+	std::string				responsibleLocation;
+
+	input.method = _Request.getRequestLineSt().method;
+	input.uri = _Request.getRequestLineSt().uri;
+	input.status = _Request.getStatusCode();
+	input.requestHeaders = _Request.getHeaderSt().headersMap;
+
+	//find matching virtual server based on host header on request
+	for (size_t i = 0; i < vServerConfigs.size(); i++)
+	{
+		if (std::find(vServerConfigs[i].baseConfig["server_name"].begin(), vServerConfigs[i].baseConfig["server_name"].end(), _Request.getHeaderSt().host) != vServerConfigs[i].baseConfig["server_name"].end())
+			responsibleServer = vServerConfigs[i];
+	}
+	std::cout << "no matching server block was found! falling back to default server" << std::endl;
+	responsibleServer = vServerConfigs[0];
+	
+	// find matching location block
+	for (Location::iterator it = responsibleServer.location.begin(); it != responsibleServer.location.end(); it++)
+	{
+		if (input.uri.find(it->first) != std::string::npos)
+		{
+			if(it->first.size() > responsibleLocation.size())
+				responsibleLocation = it->first;
+		}	
+	}
+
+	// insert configs into ResponseInput
+	std::map<std::string, std::vector<std::string> >::iterator itBase = responsibleServer.baseConfig.begin();
+	for (itBase = responsibleServer.baseConfig.begin(); itBase != responsibleServer.baseConfig.end(); itBase++)
+	{
+		if (!responsibleLocation.empty())
+		{
+			std::map<std::string, std::vector<std::string> >::iterator itDirctive = responsibleServer.location[responsibleLocation].find(itBase->first);
+			if (!responsibleLocation.empty() && itDirctive != responsibleServer.location[responsibleLocation].end())
+			{
+				input.config.insert(*itDirctive);
+				continue ;
+			}
+		}
+		input.config.insert(*itBase);
+	}
+	if (input.config["root"][0][input.config["root"][0].length() - 1] == '/')
+		input.config["root"][0].erase(input.config["root"][0].length() - 1);
+	_Response.setInput(input);
 }
