@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/10 17:29:43 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/10 17:59:28 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void				Config::fillDefaultDirectives() {
 	defaultServerDirectives["server_name"] = "none";
 	defaultServerDirectives["error_page"] = "none";
 	defaultServerDirectives["client_max_body_size"] = "none";
-	defaultServerDirectives[""] = "/home/mmaila/Desktop/SERV/www";
+	defaultServerDirectives["root"] = "/home/mmaila/Desktop/SERV/www";
 	defaultServerDirectives["index"] = "index.html";
 	defaultServerDirectives["methods"] = "GET POST DELETE";
 	defaultServerDirectives["upload_store"] = "none";
