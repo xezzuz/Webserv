@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/06 12:49:56 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/11 12:50:16 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,11 @@ bool			Request::isValidURI(const std::string& uri) {
 	if (uri.size() > 2048)
 		return (setStatusCode(414), false);
 
+	if (uri[0] != '/')
+	{
+		statusCode = 400;
+		return (false);
+	}
 	std::string	allowedURIChars 
 		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._~:/?#[]@!$&'()*+,;=%";
 	for (size_t i = 0; i < uri.size(); i++)
@@ -86,7 +91,7 @@ bool			Request::isValidURI(const std::string& uri) {
 }
 
 bool			Request::isValidHTTPVersion(const std::string& httpversion) {
-	if (httpversion != "HTTP/1.0" && httpversion != "HTTP/1.1")
+	if (httpversion != "HTTP/1.1")
 		return (setStatusCode(505), false);
 	return true;
 }
@@ -163,7 +168,7 @@ bool			Request::parseRequestLine() {
 			spaceCount++;
 	if (spaceCount != 2)
 		return (setStatusCode(400), false);
-	while (ss >> token && tokenCount < 3) {
+	while (ss >> token && tokenCount < 3) { // bug here! this allows tabs which goes against HTTP/1.1 RFC
 		tokens[tokenCount++] = token;
 		token = "";
 	}

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/08 17:41:29 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/11 11:40:46 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ class Request {
 		std::string					extractHeadersFromBuffer();
 		bool						headerExists(const std::string& key);
 		void						feedRequest(char *recvBuffer, int bufferSize);
-		struct ResponseInput		feedResponse( void );
 
 		bool						parseControlCenter();
 		void						setRequestState();
@@ -133,7 +132,6 @@ class Request {
 		bool						isValidURI(const std::string& uri);
 		bool						isValidHTTPVersion(const std::string& httpversion);
 		
-		struct ResponseInput		getResponseInput( void );
 		
 };
 

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/07 14:39:32 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/11 12:55:55 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,23 @@ std::string		_toString(int num)
 	std::ostringstream ret;
 	ret << num;
 	return (ret.str());
+}
+
+bool	rootJail(const std::string& uri)
+{
+	int					traverse = 0;
+	std::stringstream	target(uri);
+	std::string			token;
+	while (getline(target, token, '/'))
+	{
+		if (token == "..")
+			traverse--;
+		else
+			traverse++;
+	}
+	if (traverse < 0)
+		return (false);
+	return (true);
 }
 
 // #include <arpa/inet.h>

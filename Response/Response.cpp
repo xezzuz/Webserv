@@ -84,8 +84,14 @@ void	Response::setInput(struct ResponseInput& input)
 
 bool	Response::formPath( void )
 {
-	std::vector<std::string>::iterator it;
-	struct stat targetStat;
+	std::vector<std::string>::iterator	it;
+	struct stat 						targetStat;
+
+	if (!rootJail(input.uri))
+	{
+		input.status = 403;
+		return (false);
+	}
 
 	input.uri = input.config["root"][0] + input.uri;
 	if (stat(input.uri.c_str(), &targetStat) == -1)
@@ -166,16 +172,6 @@ void	Response::generateResponse( void )
 	headers.append("\r\n\r\n");
 	headers.append(body);
 
-	// setMatchingLocationBlock();
-	// setRequestedResource();
-	// input.status = _Request->getStatusCode();
-
-    // if (this->components.method == "GET")
-		// handleGET();
-	// else if (method == "POST")
-	// 	handlePOST();
-	// else if (method == "DELETE")
-	// 	handleDELETE();
 }
 
 int	Response::sendResponse( int& socket )

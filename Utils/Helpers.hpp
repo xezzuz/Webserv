@@ -30,5 +30,6 @@ std::string		contentType(const std::string& target, std::map<std::string, std::s
 size_t			fileLength(std::string& path);
 std::string		_toString(int num);
 std::string		_toString(unsigned long num);
+bool	rootJail(const std::string& uri);
 
 #endif

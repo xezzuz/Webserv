@@ -1,16 +1,14 @@
 #include <iostream>
+#include <sstream>
 
 #include <map>
 
-typedef struct	ResponseInput
-{
-	std::string							target;
-	std::string							method;
-	int									status;
-	std::map<std::string, std::string>	requestHeaders;
-} ResponseInput;
 
 int main()
 {
+	std::stringstream ss("/../aa/../");
 
+	std::string a;
+	while (getline(ss, a, '/'))
+		std::cout << a << std::endl;
 }

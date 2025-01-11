@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/10 18:09:16 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/11 11:39:41 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,11 +165,6 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
     {
 		pollClientSock.events = POLLOUT;
-		// Clients[clientSocket].getResponse().setRequest(&Clients[clientSocket].getRequest());
-		// Clients[clientSocket].getResponse().setResponsibleConfig(vServerConfigs);
-		
-		// this evantually should be a large function that accounts for location block and all that stuff
-		
 		Clients[clientSocket].initResponse(vServerConfigs);
 		Clients[clientSocket].getResponse().generateResponse();
 		return ;

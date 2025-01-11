@@ -33,27 +33,6 @@ public:
 	bool		formPath( void );
 
 	int			sendResponse( int& socket );
-
-
-	// void			feedResponse(Request* _Request);
-	// void		    setMatchingLocationBlock();
-	// void		    findExactMatchingLocationBlock();
-	// void		    findLongestMatchingPrefixLocationBlock();
-	// bool		    locationHasRedirection();
-	// bool		    isMethodAllowed();
-
-	// void		    handleGET();
-	
-	// void		    handleFileResource();
-	// void		    handleDirectoryResource();
-	// bool		    directoryContainsIndexFile();
-	// void		    setRequestedResource();
-	// std::string	    getRequestedResourceType();
-
-	
-
-	// void		    setRequest(Request* _Request);
-	// void			setResponsibleConfig(std::vector<ServerConfig>& vServerConfigs);
 	
 private:
 	// response needed data
@@ -74,15 +53,7 @@ private:
 	// response
 	std::string	headers;
 	std::string	body;
-
-	// std::string					requestedResource;
-
-	// int							statusCode;
-	// Request*					_Request;
-	// ServerConfig				_Config;
-	// LocationConfig				*locationBlock;
 	
-
 };
 
 #endif
