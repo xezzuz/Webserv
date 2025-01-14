@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), headersOffset(0), isDir(false), rangeOffset(0)
+Response::Response() : contentLength(0), headersSent(false), bodySent(false), headersOffset(0), isDir(false)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -70,6 +70,9 @@ Response&	Response::operator=(const Response& rhs)
         input = rhs.input;
 		headersOffset = rhs.headersOffset;
         contentLength = rhs.contentLength;
+		headersSent = rhs.headersSent;
+		bodySent = rhs.bodySent;
+		keepAlive = rhs.keepAlive;
 	}
 	return (*this);
 }
@@ -118,6 +121,7 @@ void	Response::generateErrorPage( void )
 				"    <center>webserv/1.0</center>"
 				"</body>"
 				"</html>";
+		bodySent = true;
 }
 
 void	Response::generatePostPage( void )
@@ -150,6 +154,7 @@ void	Response::generatePostPage( void )
 			"    <p>The data has been saved to our system.</p>\n"
 			"</body>\n"
 			"</html>";
+	bodySent = true;
 }
 
 bool	Response::validateUri( void )
@@ -218,89 +223,45 @@ bool	Response::getResource( void )
 bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-1499
 {
 	std::string	value = input.requestHeaders["range"];
-	std::string prefix = "bytes=";
-	size_t pos = value.find(prefix);
+
+	size_t pos = value.find("bytes");
 	if (pos == std::string::npos)
 		return (false);
-	pos += prefix.length();
-
+	pos += 5;
+	if (value[pos] != '=')
+		return (false);
+	pos++;
 
 	std::istringstream	rangess(value.substr(pos));
 	std::string			rangeStr;
-
-	boundary = generateRandomString();
-	endMark = "\r\n--" + boundary + "--\r\n";
+	std::pair<int, int> range;
+	std::string			num;
+	size_t				delim;
 
 	while (std::getline(rangess, rangeStr, ','))
 	{
-		size_t delim;
-
 		delim = rangeStr.find("-");
-		if (delim == std::string::npos)
+		num = rangeStr.substr(0, delim);
+		if (!allDigit(num))
 			return (false);
-	
-		std::string startStr = rangeStr.substr(0, delim);
-		if (!allDigit(startStr))
+		range.first = stoi(num);
+		num = rangeStr.substr(delim + 1);
+		if (!allDigit(num))
 			return (false);
-
-		int start = stoi(startStr);
-	
-
-		std::string endStr = rangeStr.substr(delim + 1);
-		if (!allDigit(startStr))
-			return (false);
-
-		int end = stoi(startStr);
-
-		if (start > end || end >= contentLength)
-			return (false);
-	
-		Range unit;
-
-		unit.range = std::make_pair(start, end);
-
-		unit.header.append("\r\n--" + boundary);
-		unit.header.append("\r\nContent-Range: bytes " + startStr + "-" + endStr + "/" + _toString(contentLength));
-		unit.header.append("\r\nContent-Type: " + contentType);
-		unit.header.append("\r\n\r\n");
-
-		ranges.push_back(unit);
+		range.second = stoi(num);
+		ranges.push_back(range);
 	}
-}
-
-int	Response::rangeContentLength( void )
-{
-	int ret = 0;
-	std::vector<Range>::iterator it = ranges.begin();
-
-	ranges[0].header.erase(0, 2); // erase the first "\r\n"
-
-	for (; it != ranges.end(); it++)
-	{
-		ret += it->header.length();
-		ret += it->range.second - it->range.first + 1;
-	}
-	ret += endMark.length();
-	return (ret);
 }
 
 bool	Response::buildRange( void )
 {
 	if (!parseRangeHeader())
 		return (false);
-	if (ranges.size() == 1)
-	{
-		ranges[0].header.clear();
-		ranges[0].headerSent = true;
-		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.uri)));
-		headers.append("\r\nContent-Length: " + _toString(ranges[0].range.second - ranges[0].range.first + 1));
-		headers.append("\r\nContent-Type: " + contentType);
-	}
-	else
-	{
-		headers.append("\r\nContent-Type: multipart/byteranges; boundary=" + boundary);
-		headers.append("\r\nContent-Length: " + rangeContentLength());
-	}
+
+	headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].first) + "-" + _toString(ranges[0].second) + "/" + _toString(fileLength(input.uri)));
+	headers.append("\r\nContent-Length: " + _toString(ranges[0].second - ranges[0].first + 1));
+	headers.append("\r\nContent-Type: " + contentType);
+
 }
 
 void	Response::generateResponse( void )
@@ -337,7 +298,7 @@ void	Response::generateResponse( void )
 		contentType = getContentType(input.uri, mimeTypes);
 		contentLength = fileLength(input.uri);
 
-		if (!(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
+		if (input.requestHeaders.find("range") == input.requestHeaders.end() && !buildRange())
 		{
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
 			headers.append("\r\nContent-Type: " + contentType);
@@ -348,6 +309,7 @@ void	Response::generateResponse( void )
 		generatePostPage();
 		headers.append("\r\nContent-Type: text/html");
 		headers.append("\r\nContent-Length: " + _toString(body.length()));
+		bodySent = true;
 	}
 	else if (input.method == "DELETE")
 	{
@@ -356,6 +318,7 @@ void	Response::generateResponse( void )
 			generateResponse();
 			return ;
 		}
+		bodySent = true; // no body required
 	}
 	if (input.requestHeaders.find("keep-alive") != input.requestHeaders.end())
 		headers.append("\r\nConnection: " + input.requestHeaders["keep-alive"]);
@@ -363,214 +326,57 @@ void	Response::generateResponse( void )
 	headers.append(body);
 }
 
-void	Response::sendRanges( int& socket )
-{
-
-	if (!ranges[currRange].headerSent)
-	{
-		int bytesSent = send(socket, ranges[currRange].header.c_str() + headersOffset, ranges[currRange].header.length() - headersOffset, 0);
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-			state = ERROR;
-			return ;
-		}
-		else if (bytesSent < static_cast<int>(ranges[currRange].header.length()))
-		{
-			headersOffset += bytesSent;
-			return ;
-		}
-		headersOffset = 0;
-		ranges[currRange].headerSent = true;
-	}
-
-
-	bodyFile.seekg(ranges[currRange].range.first + rangeOffset, std::ios::beg);
-
-	char buffer[SEND_BUFFER_SIZE] = {0};
-	int readLength = std::min(SEND_BUFFER_SIZE, ranges[currRange].range.second - ranges[currRange].range.first - rangeOffset);
-	int bytesRead = bodyFile.read(buffer, readLength).gcount();
-	if (bytesRead > 0)
-	{
-		int bytesSent = send(socket, buffer, bytesRead, 0);
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-			state = ERROR;
-			return ;
-		}
-		else if (bytesSent < bytesRead)
-		{
-			rangeOffset = bytesSent;
-			return ;
-		}
-	}
-	else if (bytesRead == -1)
-	{
-		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl; // errno after I/O forbidden
-		state = ERROR;
-		return ;
-	}
-
-	if (readLength < ranges[currRange].range.second - ranges[currRange].range.first - rangeOffset) // this to determine if we sent the required range
-	{
-		if(++currRange >= ranges.size())
-		{
-			if (ranges.size() != 1)
-				state = SENDINGENDMARK;
-			else
-				state = FINISHED;
-			return ;
-		}
-	}
-	rangeOffset = 0;
-}
-
-void	Response::sendBody( int& socket )
-{
-	char buffer[SEND_BUFFER_SIZE] = {0};
-	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
-	if (bytesRead > 0)
-	{
-		int bytesSent = send(socket, buffer, bytesRead, 0);
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
-			state = ERROR;
-			return ;
-		}
-		else if (bytesSent < bytesRead)
-		{
-			bodyFile.seekg(bytesSent - bytesRead, std::ios::cur);
-		}
-	}
-	else if (bytesRead == 0)
-	{
-		state = FINISHED;
-		return ;
-	}
-	else
-	{
-		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
-		state = ERROR;
-		return ;
-	}
-}
-
-void	Response::sendHeader(int& socket)
-{
-	int bytesSent = send(socket, headers.c_str() + headersOffset, headers.length() - headersOffset, 0);
-	if (bytesSent == -1)
-	{
-		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-		state = ERROR;
-		return ;
-	}
-	else if (bytesSent < static_cast<int>(headers.length()))
-	{
-		headersOffset += bytesSent;
-		return ;
-	}
-	headersOffset = 0;
-	state = SENDINGBODY;
-}
-
-void	Response::sendEndMark( int& socket )
-{
-	int bytesSent = send(socket, endMark.c_str(), endMark.length(), 0);
-	if (bytesSent == -1)
-	{
-		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-		state = ERROR;
-		return ;
-	}
-	state = FINISHED;
-}
-
-
 int	Response::sendResponse( int& socket )
 {
-
-	switch (state)
+	if (!headersSent)
 	{
-		case SENDINGHEADER:
-			sendHeader(socket);
-		case SENDINGBODY:
-			if (!body.empty())
-				state = FINISHED;
-			sendBody(socket);
-		case SENDINGRANGES:
-			sendRanges(socket);
-		case SENDINGENDMARK:
-			sendEndMark(socket);
-		case FINISHED:
-			return (1);
-		case ERROR:
+		int bytesSent = send(socket, headers.c_str() + headersOffset, headers.length() - headersOffset, 0);
+		if (bytesSent == -1)
+		{
+			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
 			return (-1);
+		}
+		else if (bytesSent < static_cast<int>(headers.length()))
+		{
+			headersOffset += bytesSent;
+			return (0);
+		}
+		else
+			headersSent = true;
 	}
 
 
-	// if (!headersSent)
-	// {
-	// 	int bytesSent = send(socket, headers.c_str() + headersOffset, headers.length() - headersOffset, 0);
-	// 	if (bytesSent == -1)
-	// 	{
-	// 		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-	// 		return (-1);
-	// 	}
-	// 	else if (bytesSent < static_cast<int>(headers.length()))
-	// 	{
-	// 		headersOffset += bytesSent;
-	// 		return (0);
-	// 	}
-	// 	else
-	// 	{
-	// 		headersSent = true;
-	// 		headersOffset = 0;
-	// 	}
-	// }
-
-
-	// if (!bodySent)
-	// {
-	// 	// if (!ranges.empty())
-	// 	// {
-	// 	// 	sendRanges(socket);
-	// 	// 	if (ranges.size > 1)
-	// 	// 		send(socket, endMakr.c_str(), endMark.length());
-	// 	// }
-	// 	// else
-	// 	// 	sendBody(socket);
-	// 	char buffer[SEND_BUFFER_SIZE] = {0};
-	// 	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
-	// 	if (bytesRead > 0)
-	// 	{
-	// 		int bytesSent = send(socket, buffer, bytesRead, 0);
-	// 		if (bytesSent == -1)
-	// 		{
-	// 			std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
-	// 			return (-1);
-	// 		}
-	// 		else if (bytesSent < bytesRead)
-	// 		{
-	// 			bodyFile.seekg(bytesSent - bytesRead, std::ios::cur);
-	// 			return (0);
-	// 		}
-	// 	}
-	// 	else if (bytesRead == 0)
-	// 	{
-	// 		bodySent = true;
-	// 		bodyFile.close();
-	// 		*this = Response();
-	// 		return (1);
-	// 	}
-	// 	else
-	// 	{
-	// 		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
-	// 		return (-1);
-	// 	}
-	// }
-	// bodySent = false;
-	// headersSent = false;
-	// return (1);
+	if (!bodySent)
+	{
+		char buffer[SEND_BUFFER_SIZE] = {0};
+		int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
+		if (bytesRead > 0)
+		{
+			int bytesSent = send(socket, buffer, bytesRead, 0);
+			if (bytesSent == -1)
+			{
+				std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
+				return (-1);
+			}
+			else if (bytesSent < bytesRead)
+			{
+				bodyFile.seekg(bytesSent - bytesRead, std::ios::cur);
+			}
+		}
+		else if (bytesRead == 0)
+		{
+			bodySent = true;
+			bodyFile.close();
+			*this = Response();
+			return (1);
+		}
+		else
+		{
+			std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
+			return (-1);
+		}
+	}
+	bodySent = false;
+	headersSent = false;
+	return (1);
 }

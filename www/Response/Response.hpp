@@ -10,22 +10,6 @@
 # include "../Config/Config.hpp"
 # include "../Utils/Helpers.hpp"
 
-struct Range
-{
-	std::pair<int, int> range;
-	std::string			header;
-	bool				headerSent = false;
-};
-
-enum	ResponseState
-{
-	SENDINGHEADER,
-	SENDINGBODY,
-	SENDINGRANGES,
-	SENDINGENDMARK,
-	ERROR,
-	FINISHED
-};
 
 # define SEND_BUFFER_SIZE 4096
 // enum e_responseState {
@@ -55,7 +39,7 @@ public:
 	bool		getResource( void );
 
 
-	int			rangeContentLength( void );
+	int	Response::rangeContentLenght( void );
 
 	bool		parseRangeHeader( void );
 	bool		buildRange( void );
@@ -63,10 +47,7 @@ public:
 
 
 	int			sendResponse( int& socket );
-	void		sendRanges( int& socket );
-	void		sendBody( int& socket );
-	void		sendHeader( int& socket );
-	void		sendEndMark( int& socket );
+	int			sendRanges( int& socket );
 	
 private:
 	// response needed data
@@ -75,31 +56,24 @@ private:
 	// response created data
 	std::map<std::string, std::string>	mimeTypes;
 	std::map<int, std::string>			statusCodes;
-
-
-	// response frequent uses
-	std::string							contentType;
-	size_t								contentLength;
-
+	bool								keepAlive;
 
 	// response creating process
-	std::string		headers;
-	std::string		body;
-	std::ifstream	bodyFile;
-	int				headersOffset;
-	bool			isDir; // request uri is a directory;
+	std::ifstream						bodyFile;
+	bool								headersSent;
+	bool								bodySent;
+	int									headersOffset;
+	std::string							contentType;
+	size_t								contentLength;
+	bool								isDir; // request uri is a directory;
 
 	// range
-	std::vector<Range>	ranges;
-	std::string			rangeHeader;
-	std::string			boundary;
-	std::string			endMark;
-	int					currRange;
-	int					rangeOffset;
+	std::pair<int, int>	range;
 
-	enum ResponseState					state;
 
 	// response
+	std::string		headers;
+	std::string		body;
 	
 };
 

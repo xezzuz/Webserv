@@ -66,6 +66,7 @@
 		"typeinfo": "cpp",
 		"unordered_map": "cpp",
 		"vector": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"*.tcc": "cpp"
 	}
 }
