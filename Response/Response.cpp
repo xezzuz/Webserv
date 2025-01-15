@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), headersOffset(0), isDir(false), rangeOffset(0)
+Response::Response() : contentLength(0), headersOffset(0), isDir(false), rangeOffset(0), state(SENDINGHEADER)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
