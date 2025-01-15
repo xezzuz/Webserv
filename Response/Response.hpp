@@ -91,7 +91,6 @@ private:
 
 	// range
 	std::vector<Range>	ranges;
-	std::string			rangeHeader;
 	std::string			boundary;
 	std::string			endMark;
 	int					currRange;

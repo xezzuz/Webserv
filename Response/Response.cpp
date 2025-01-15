@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), headersOffset(0), isDir(false), rangeOffset(0), state(SENDINGHEADER)
+Response::Response() : contentLength(0), headersOffset(0), isDir(false), currRange(0),rangeOffset(0), state(SENDINGHEADER)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -65,11 +65,19 @@ Response&	Response::operator=(const Response& rhs)
 {
 	if (this != &rhs)
     {
+        input = rhs.input;
+		contentType = rhs.contentType;
+		contentLength = rhs.contentLength;
 		headers = rhs.headers;
 		body = rhs.body;
-        input = rhs.input;
 		headersOffset = rhs.headersOffset;
-        contentLength = rhs.contentLength;
+		isDir = rhs.isDir;
+		ranges = rhs.ranges;
+		boundary = rhs.boundary;
+		endMark = rhs.endMark;
+		currRange = rhs.currRange;
+		rangeOffset = rhs.rangeOffset;
+		state = rhs.state;
 	}
 	return (*this);
 }
