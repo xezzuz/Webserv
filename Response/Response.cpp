@@ -91,7 +91,7 @@ bool	Response::removeResource( void )
 {
 	if (isDir)
 	{
-		if (rmdir(input.uri.c_str()) == -1)
+		if (rmdir(absolutePath.c_str()) == -1)
 		{
 			input.status = 500;
 			return (false);
@@ -99,7 +99,7 @@ bool	Response::removeResource( void )
 	}
 	else 
 	{
-		if (remove(input.uri.c_str()) == -1)
+		if (remove(absolutePath.c_str()) == -1)
 		{
 			input.status = 500;
 			return (false);
@@ -170,8 +170,8 @@ bool	Response::validateUri( void )
 		return (false);
 	}
 
-	input.uri = input.config.root + input.uri;
-	if (stat(input.uri.c_str(), &targetStat) == -1)
+	absolutePath = input.config.root + input.uri;
+	if (stat(absolutePath.c_str(), &targetStat) == -1)
 	{
 		input.status = 404;
 		return (false);
@@ -179,14 +179,14 @@ bool	Response::validateUri( void )
 
 	if (S_ISDIR(targetStat.st_mode))
 	{
-		isDir = true;
-		if (access(input.uri.c_str(), X_OK) != 0) // check exec permission to traverse dir
+		isDir = true; // requested resource is a directory
+		if (access(absolutePath.c_str(), X_OK) != 0) // check exec permission to traverse dir
 		{
 			input.status = 403;
 			return (false);
 		}
-		if (input.uri.at(input.uri.length() - 1) != '/')
-			input.uri.append("/");
+		if (absolutePath.at(absolutePath.length() - 1) != '/')
+			absolutePath.append("/");
 	}
 	return (true);
 }
@@ -199,27 +199,31 @@ bool	Response::getResource( void )
 
 		for (it = input.config.index.begin(); it != input.config.index.end(); it++)
 		{
-			if (access((input.uri + *it).c_str(), F_OK) == 0) // file exists
+			if (access((absolutePath + *it).c_str(), F_OK) == 0) // file exists
 				break;
 		}
 		if (it == input.config.index.end())
 		{
-			input.status = 404;
+			if (input.config.autoindex)
+				return (true);
+			input.status = 403;
 			return (false);
 		}
-		input.uri.append(*it);
+		absolutePath.append(*it);
 	}
-	if (access(input.uri.c_str(), R_OK) != 0) // read permission for files
+	if (access(absolutePath.c_str(), R_OK) != 0) // read permission for files
 	{
 		input.status = 403;
 		return (false);
 	}
-	bodyFile.open(input.uri);
+	bodyFile.open(absolutePath);
 	if (!bodyFile.is_open())
 	{
 		input.status = 500;
 		return (false);
 	}
+	contentType = getContentType(absolutePath, mimeTypes);
+	contentLength = fileLength(absolutePath);
 	return (true);
 }
 
@@ -300,7 +304,7 @@ bool	Response::buildRange( void )
 	{
 		ranges[0].header.clear();
 		ranges[0].headerSent = true;
-		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.uri)));
+		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(absolutePath)));
 		headers.append("\r\nContent-Length: " + _toString(ranges[0].range.second - ranges[0].range.first + 1));
 		headers.append("\r\nContent-Type: " + contentType);
 	}
@@ -310,6 +314,8 @@ bool	Response::buildRange( void )
 		headers.append("\r\nContent-Length: " + rangeContentLength());
 	}
 }
+
+
 
 void	Response::generateResponse( void )
 {
@@ -342,10 +348,7 @@ void	Response::generateResponse( void )
 			return ;
 		}
 
-		contentType = getContentType(input.uri, mimeTypes);
-		contentLength = fileLength(input.uri);
-
-		if (!(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
+		if (input.config.autoindex || !(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
 		{
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
 			headers.append("\r\nContent-Type: " + contentType);

@@ -79,7 +79,7 @@ private:
 
 	// response frequent uses
 	std::string							contentType;
-	size_t								contentLength;
+	long								contentLength;
 
 
 	// response creating process
@@ -87,7 +87,8 @@ private:
 	std::string		body;
 	std::ifstream	bodyFile;
 	int				headersOffset;
-	bool			isDir; // request uri is a directory;
+	std::string		absolutePath;
+	bool			isDir; // requested resource is a directory;
 
 	// range
 	std::vector<Range>	ranges;

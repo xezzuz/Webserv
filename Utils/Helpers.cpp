@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/13 20:58:37 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/16 15:30:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,15 +116,12 @@ unsigned int	parseIPv4(const std::string& ipAddress) {
 	return octets;
 }
 
-size_t	fileLength(std::string& path)
+long	fileLength(std::string& path)
 {
-	std::ifstream	file(path);
-	std::streampos	len;
-
-	file.seekg(0, std::ios::end);
-	len = file.tellg();
-	file.seekg(0, std::ios::beg);
-	return (static_cast<size_t>(len));
+	struct stat fileStat;
+	if (stat(path.c_str(), &fileStat) == 0)
+		return (fileStat.st_size);
+	return (-1);
 }
 
 std::string	getContentType(const std::string& target, std::map<std::string, std::string>& mimeTypes)
@@ -149,6 +146,13 @@ std::string	getDate( void )
 
     std::strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S GMT", gmt);
 	return (buffer);
+}
+
+std::string		_toString(long num)
+{
+	std::ostringstream ret;
+	ret << num;
+	return (ret.str());
 }
 
 std::string		_toString(unsigned long num)

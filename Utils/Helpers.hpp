@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "../Request/Request.hpp"
 
 
@@ -14,7 +15,7 @@ struct Directives
 {
 	std::string 								root;
 	std::string 								alias;
-	std::string 								autoindex;
+	bool 										autoindex;
 	std::string 								upload_store;
 	std::string 								cgi_pass;
 	std::vector<std::string>					index;
@@ -43,8 +44,9 @@ unsigned int	parseIPv4(const std::string& ipAddress);
 std::string		getDate( void );
 std::string		getDate( void );
 std::string		getContentType(const std::string& target, std::map<std::string, std::string>& mimeTypes);
-size_t			fileLength(std::string& path);
+long			fileLength(std::string& path);
 std::string		_toString(int num);
+std::string		_toString(long num);
 std::string		_toString(unsigned long num);
 bool			rootJail(const std::string& uri);
 std::string		generateRandomString( void );
