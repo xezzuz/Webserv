@@ -87,29 +87,31 @@ void	Response::setInput(struct ResponseInput& input)
 	this->input = input;
 }
 
-bool	Response::removeResource( void )
+void	Response::handleDELETE( void )
 {
 	if (isDir)
 	{
 		if (rmdir(absolutePath.c_str()) == -1)
 		{
-			input.status = 500;
-			return (false);
+			input.status = 500; // wrong
+			generateErrorPage();
+			return ;
 		}
 	}
 	else 
 	{
 		if (remove(absolutePath.c_str()) == -1)
 		{
-			input.status = 500;
-			return (false);
+			input.status = 500; // wrong
+			generateErrorPage();
+			return ;
 		}
 	}
-	return (true);
 }
 
 void	Response::generateErrorPage( void )
 {
+
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
@@ -126,9 +128,12 @@ void	Response::generateErrorPage( void )
 				"    <center>webserv/1.0</center>"
 				"</body>"
 				"</html>";
+	headers.append("\r\nContent-Type: text/html");
+	headers.append("\r\nContent-Length: " + _toString(body.size()));
+	input.requestHeaders["keep-alive"] = "close";
 }
 
-void	Response::generatePostPage( void )
+void	Response::handlePOST( void )
 {
 	body = "<!DOCTYPE html>\n"
 			"<html lang=\"en\">\n"
@@ -158,6 +163,8 @@ void	Response::generatePostPage( void )
 			"    <p>The data has been saved to our system.</p>\n"
 			"</body>\n"
 			"</html>";
+	headers.append("\r\nContent-Type: text/html");
+	headers.append("\r\nContent-Length: " + _toString(body.length()));
 }
 
 bool	Response::validateUri( void )
@@ -313,9 +320,23 @@ bool	Response::buildRange( void )
 		headers.append("\r\nContent-Type: multipart/byteranges; boundary=" + boundary);
 		headers.append("\r\nContent-Length: " + rangeContentLength());
 	}
+	return (true);
 }
 
+void	Response::handleGET( void )
+{
+	if (!getResource())
+	{
+		generateErrorPage();
+		return ;
+	}
 
+	if (input.config.autoindex || !(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
+	{
+		headers.append("\r\nContent-Length: " + _toString(contentLength));
+		headers.append("\r\nContent-Type: " + contentType);
+	}
+}
 
 void	Response::generateResponse( void )
 {
@@ -329,47 +350,23 @@ void	Response::generateResponse( void )
 	// {
 	// 	input.status = input.config.redirect.first;
 	// }
-	headers.append("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]);
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
 	if (input.status >= 400)
-	{
 		generateErrorPage();
-		headers.append("\r\nContent-Type: text/html");
-		headers.append("\r\nContent-Length: " + _toString(body.size()));
-		input.requestHeaders["keep-alive"] = "close";
-	}
-	if (input.method == "GET") // check allowed methods
-	{
-		if (!getResource())
-		{
-			generateResponse();
-			return ;
-		}
 
-		if (input.config.autoindex || !(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
-		{
-			headers.append("\r\nContent-Length: " + _toString(contentLength));
-			headers.append("\r\nContent-Type: " + contentType);
-		}
-	}
+	if (input.method == "GET") // check allowed methods
+		handleGET();
 	else if (input.method == "POST")
-	{
-		generatePostPage();
-		headers.append("\r\nContent-Type: text/html");
-		headers.append("\r\nContent-Length: " + _toString(body.length()));
-	}
+		handlePOST();
 	else if (input.method == "DELETE")
-	{
-		if (!removeResource())
-		{
-			generateResponse();
-			return ;
-		}
-	}
+		handleDELETE();
+
 	if (input.requestHeaders.find("keep-alive") != input.requestHeaders.end())
 		headers.append("\r\nConnection: " + input.requestHeaders["keep-alive"]);
+
+	headers = ("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]) + headers; // status line
 	headers.append("\r\n\r\n");
 	headers.append(body);
 }

@@ -61,6 +61,10 @@ public:
 	bool		buildRange( void );
 
 
+	void		handleGET( void );
+	void		handlePOST( void );
+	void		handleDELETE( void );
+
 
 	int			sendResponse( int& socket );
 	void		sendRanges( int& socket );
