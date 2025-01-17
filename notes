@@ -1,2 +1,3 @@
 add timeouts
 2 requests can be sent at the same time
+localhost should work on the config file

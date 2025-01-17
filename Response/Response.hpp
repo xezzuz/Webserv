@@ -14,6 +14,7 @@ struct Range
 {
 	std::pair<int, int> range;
 	std::string			header;
+	size_t				rangeLength;
 	bool				headerSent = false;
 };
 
@@ -21,6 +22,7 @@ enum	ResponseState
 {
 	SENDINGHEADER,
 	SENDINGBODY,
+	SENDINGCHUNKED,
 	SENDINGRANGES,
 	SENDINGENDMARK,
 	ERROR,
@@ -58,7 +60,7 @@ public:
 	int			rangeContentLength( void );
 
 	bool		parseRangeHeader( void );
-	bool		buildRange( void );
+	void		buildRange( void );
 
 
 	void		handleGET( void );
@@ -66,12 +68,14 @@ public:
 	void		handleDELETE( void );
 
 
+
 	int			sendResponse( int& socket );
-	void		sendRanges( int& socket );
 	void		sendBody( int& socket );
-	void		sendHeader( int& socket );
-	void		sendEndMark( int& socket );
+	void		sendChunked( int& socket );
+	void		sendRanges( int& socket );
 	
+	int		sendData(int& socket, std::string& data);
+
 private:
 	// response needed data
 	struct ResponseInput	input;
@@ -82,26 +86,28 @@ private:
 
 
 	// response frequent uses
-	std::string							contentType;
-	long								contentLength;
+	std::string		contentType;
+	long			contentLength;
 
 
 	// response creating process
 	std::string		headers;
 	std::string		body;
 	std::ifstream	bodyFile;
-	int				headersOffset;
 	std::string		absolutePath;
 	bool			isDir; // requested resource is a directory;
+	bool			chunked;
+
+	ssize_t			dataOffset;
 
 	// range
 	std::vector<Range>	ranges;
 	std::string			boundary;
 	std::string			endMark;
 	int					currRange;
-	int					rangeOffset;
+	size_t				rangeOffset;
 
-	enum ResponseState					state;
+	enum ResponseState	state;
 
 	// response
 	

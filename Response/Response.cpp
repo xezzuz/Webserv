@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), headersOffset(0), isDir(false), currRange(0),rangeOffset(0), state(SENDINGHEADER)
+Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0),rangeOffset(0), state(SENDINGHEADER)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -17,9 +17,9 @@ Response::Response() : contentLength(0), headersOffset(0), isDir(false), currRan
     statusCodes.insert(std::make_pair(403, "Forbidden"));
     statusCodes.insert(std::make_pair(404, "Not Found"));
     statusCodes.insert(std::make_pair(405, "Method Not Allowed"));
-    statusCodes.insert(std::make_pair(411, "Length Required"));
     statusCodes.insert(std::make_pair(413, "Payload Too Large"));
     statusCodes.insert(std::make_pair(415, "Unsupported Media Type"));
+    statusCodes.insert(std::make_pair(416, "Range Not Satisfiable"));
     statusCodes.insert(std::make_pair(500, "Internal Server Error"));
     statusCodes.insert(std::make_pair(501, "Not Implemented"));
     statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
@@ -70,7 +70,7 @@ Response&	Response::operator=(const Response& rhs)
 		contentLength = rhs.contentLength;
 		headers = rhs.headers;
 		body = rhs.body;
-		headersOffset = rhs.headersOffset;
+		dataOffset = rhs.dataOffset;
 		isDir = rhs.isDir;
 		ranges = rhs.ranges;
 		boundary = rhs.boundary;
@@ -272,12 +272,16 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		int end = stoi(startStr);
 
 		if (start > end || end >= contentLength)
+		{
+			input.status = 416;
 			return (false);
+		}
 	
 		Range unit;
 
 		unit.range = std::make_pair(start, end);
-
+		unit.rangeLength = end - start + 1;
+	
 		unit.header.append("\r\n--" + boundary);
 		unit.header.append("\r\nContent-Range: bytes " + startStr + "-" + endStr + "/" + _toString(contentLength));
 		unit.header.append("\r\nContent-Type: " + contentType);
@@ -303,24 +307,22 @@ int	Response::rangeContentLength( void )
 	return (ret);
 }
 
-bool	Response::buildRange( void )
+void	Response::buildRange( void )
 {
 	if (!parseRangeHeader())
-		return (false);
+		return ;
 	if (ranges.size() == 1)
 	{
 		ranges[0].header.clear();
 		ranges[0].headerSent = true;
+		contentLength = ranges[0].rangeLength;
 		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(absolutePath)));
-		headers.append("\r\nContent-Length: " + _toString(ranges[0].range.second - ranges[0].range.first + 1));
-		headers.append("\r\nContent-Type: " + contentType);
 	}
 	else
 	{
-		headers.append("\r\nContent-Type: multipart/byteranges; boundary=" + boundary);
-		headers.append("\r\nContent-Length: " + rangeContentLength());
+		contentType = "multipart/byteranges; boundary=" + boundary;
+		contentLength = rangeContentLength();
 	}
-	return (true);
 }
 
 void	Response::handleGET( void )
@@ -331,18 +333,27 @@ void	Response::handleGET( void )
 		return ;
 	}
 
-	if (input.config.autoindex || !(input.requestHeaders.find("range") != input.requestHeaders.end() && buildRange()))
+	if (input.config.autoindex && isDir)
 	{
-		headers.append("\r\nContent-Length: " + _toString(contentLength));
-		headers.append("\r\nContent-Type: " + contentType);
+		headers.append("\r\nTransfer-Encoding: chunked");
+		chunked = true;
 	}
+	else
+	{
+		if (input.requestHeaders.find("range") != input.requestHeaders.end())
+			buildRange();
+		headers.append("\r\nContent-Length: " + _toString(contentLength));
+	}
+	headers.append("\r\nContent-Type: " + contentType);
 }
 
 void	Response::generateResponse( void )
 {
 	body.clear();
 	headers.clear();
-	
+	headers.append("\r\nServer: webserv/1.0");
+	headers.append("\r\nDate: " + getDate());
+
 	if (input.status < 400)
 		validateUri();
 
@@ -350,8 +361,6 @@ void	Response::generateResponse( void )
 	// {
 	// 	input.status = input.config.redirect.first;
 	// }
-	headers.append("\r\nServer: webserv/1.0");
-	headers.append("\r\nDate: " + getDate());
 
 	if (input.status >= 400)
 		generateErrorPage();
@@ -373,34 +382,26 @@ void	Response::generateResponse( void )
 
 void	Response::sendRanges( int& socket )
 {
-
 	if (!ranges[currRange].headerSent)
 	{
-		int bytesSent = send(socket, ranges[currRange].header.c_str() + headersOffset, ranges[currRange].header.length() - headersOffset, 0);
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-			state = ERROR;
-			return ;
-		}
-		else if (bytesSent < static_cast<int>(ranges[currRange].header.length()))
-		{
-			headersOffset += bytesSent;
-			return ;
-		}
-		headersOffset = 0;
+		if(sendData(socket, ranges[currRange].header) == 0)
+			return;
 		ranges[currRange].headerSent = true;
 	}
-
 
 	bodyFile.seekg(ranges[currRange].range.first + rangeOffset, std::ios::beg);
 
 	char buffer[SEND_BUFFER_SIZE] = {0};
-	int readLength = std::min(SEND_BUFFER_SIZE, ranges[currRange].range.second - ranges[currRange].range.first - rangeOffset);
+	size_t readLength = std::min(
+		static_cast<size_t>(SEND_BUFFER_SIZE),
+		ranges[currRange].rangeLength - rangeOffset
+	);
 	int bytesRead = bodyFile.read(buffer, readLength).gcount();
 	if (bytesRead > 0)
 	{
+		// dataSent = false;
 		int bytesSent = send(socket, buffer, bytesRead, 0);
+		rangeOffset += bytesSent;
 		if (bytesSent == -1)
 		{
 			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
@@ -409,7 +410,6 @@ void	Response::sendRanges( int& socket )
 		}
 		else if (bytesSent < bytesRead)
 		{
-			rangeOffset = bytesSent;
 			return ;
 		}
 	}
@@ -420,8 +420,9 @@ void	Response::sendRanges( int& socket )
 		return ;
 	}
 
-	if (readLength < ranges[currRange].range.second - ranges[currRange].range.first - rangeOffset) // this to determine if we sent the required range
+	if (rangeOffset == ranges[currRange].rangeLength) // this to determine if we sent the required range
 	{
+		rangeOffset = 0;
 		if(++currRange >= ranges.size())
 		{
 			if (ranges.size() != 1)
@@ -431,7 +432,6 @@ void	Response::sendRanges( int& socket )
 			return ;
 		}
 	}
-	rangeOffset = 0;
 }
 
 void	Response::sendBody( int& socket )
@@ -445,7 +445,6 @@ void	Response::sendBody( int& socket )
 		{
 			std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
 			state = ERROR;
-			return ;
 		}
 		else if (bytesSent < bytesRead)
 		{
@@ -455,46 +454,34 @@ void	Response::sendBody( int& socket )
 	else if (bytesRead == 0)
 	{
 		state = FINISHED;
-		return ;
 	}
 	else
 	{
 		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
 		state = ERROR;
-		return ;
 	}
 }
 
-void	Response::sendHeader(int& socket)
+int	Response::sendData(int& socket, std::string& data)
 {
-	int bytesSent = send(socket, headers.c_str() + headersOffset, headers.length() - headersOffset, 0);
+	ssize_t bytesSent = send(socket, data.c_str() + dataOffset, data.length() - dataOffset, 0);
 	if (bytesSent == -1)
 	{
-		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
+		std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
 		state = ERROR;
-		return ;
 	}
-	else if (bytesSent < static_cast<int>(headers.length()))
+	else if (bytesSent < data.size())
 	{
-		headersOffset += bytesSent;
-		return ;
+		dataOffset += bytesSent;
+		return (0);
 	}
-	headersOffset = 0;
-	state = SENDINGBODY;
-}
-
-void	Response::sendEndMark( int& socket )
-{
-	int bytesSent = send(socket, endMark.c_str(), endMark.length(), 0);
-	if (bytesSent == -1)
+	else
 	{
-		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-		state = ERROR;
-		return ;
+		dataOffset = 0;
+		return (1);
 	}
-	state = FINISHED;
+	// dataSent = true;
 }
-
 
 int	Response::sendResponse( int& socket )
 {
@@ -502,21 +489,26 @@ int	Response::sendResponse( int& socket )
 	switch (state)
 	{
 		case SENDINGHEADER:
-			sendHeader(socket);
+			if(sendData(socket, headers) == 1);
+				state = chunked ? SENDINGCHUNKED : SENDINGBODY;
 		case SENDINGBODY:
 			if (!body.empty())
 				state = FINISHED;
 			sendBody(socket);
+		case SENDINGCHUNKED:
+			sendChunked(socket);
 		case SENDINGRANGES:
 			sendRanges(socket);
 		case SENDINGENDMARK:
-			sendEndMark(socket);
-		case FINISHED:
-			return (1);
+			if (sendData(socket, endMark) == 1);
+				state = FINISHED;
 		case ERROR:
 			return (-1);
+		case FINISHED:
+			return (1);
+		default:
+			return (0);
 	}
-
 
 	// if (!headersSent)
 	// {

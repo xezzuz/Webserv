@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/10 15:40:47 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/17 11:41:07 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ class Client {
 
 		Request&		getRequest();
 		Response&		getResponse();
-		void			configureResponse( void );
+		void			resetResponse();
+		
 		int				getSocket();
 		
 		void			initResponse(std::vector<ServerConfig>& vServerConfigs);
