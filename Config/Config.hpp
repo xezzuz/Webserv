@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/12 14:38:33 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/17 18:55:38 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,31 +45,31 @@
 #define BG_WHITE   "\033[47m"
 
 //		 		<location path, config<directive,  values> 
-typedef std::map<std::string, std::map<std::string, std::vector<std::string>> > Location;
+// typedef std::map<std::string, std::map<std::string, std::vector<std::string>> > Location;
 
 
-typedef struct	ServerConfig
-{
-	std::map<std::string, std::vector<std::string> >	baseConfig;
-	Location											location; // location
-	ServerConfig()
-	{
-		baseConfig["host"].push_back("0.0.0.0");
-		baseConfig["port"].push_back("80");
-		baseConfig["root"].push_back("/home/mmaila/SERV/www");
-		baseConfig["index"].push_back("index.html");
-		baseConfig["methods"].push_back("GET");
-		baseConfig["methods"].push_back("POST");
-		baseConfig["methods"].push_back("DELETE");
-		baseConfig["autoindex"].push_back("off");
-		baseConfig["server_name"];
-		baseConfig["error_page"];
-		baseConfig["client_max_body_size"];
-		baseConfig["redirect"];
-		baseConfig["cgi_pass"];
-		baseConfig["upload_store"];
-	}
-}				ServerConfig;
+// typedef struct	ServerConfig
+// {
+// 	std::map<std::string, std::vector<std::string> >	baseConfig;
+// 	Location											location; // location
+// 	ServerConfig()
+// 	{
+// 		baseConfig["host"].push_back("0.0.0.0");
+// 		baseConfig["port"].push_back("80");
+// 		baseConfig["root"].push_back("/home/mmaila/SERV/www");
+// 		baseConfig["index"].push_back("index.html");
+// 		baseConfig["methods"].push_back("GET");
+// 		baseConfig["methods"].push_back("POST");
+// 		baseConfig["methods"].push_back("DELETE");
+// 		baseConfig["autoindex"].push_back("off");
+// 		baseConfig["server_name"];
+// 		baseConfig["error_page"];
+// 		baseConfig["client_max_body_size"];
+// 		baseConfig["redirect"];
+// 		baseConfig["cgi_pass"];
+// 		baseConfig["upload_store"];
+// 	}
+// }				ServerConfig;
 
 
 // typedef struct												LocationConfig {
@@ -93,6 +93,23 @@ typedef struct	ServerConfig
 // 	// std::map<std::string, LocationConfig>					locations;
 // }															ServerConfig;
 
+typedef struct												Directives {
+	int														port;
+	std::string												host;
+	std::vector<std::string>								server_names;
+	std::vector<std::pair<int, std::string> >				error_pages;
+	int														client_max_body_size;
+	std::string												root;
+	std::string												alias;
+	std::vector<std::string>								index;
+	std::vector<std::string> 								methods;
+	std::string 											upload_store;
+	bool													autoindex;
+	std::vector<std::string>								redirect;
+	std::string												cgi_pass;
+	std::string												cgi_ext;
+}															Directives;
+
 typedef struct												ServerConfigParser {
 	std::map<std::string, std::string>						serverDirectives;
 	std::vector< std::map<std::string, std::string> >		locationDirectives;
@@ -101,21 +118,21 @@ typedef struct												ServerConfigParser {
 
 class Config {
 	private:
-		std::string							configFileName;
-		std::ifstream						configFile;
-		std::vector<std::string>			configFileVector;
+		std::string														configFileName;
+		std::ifstream													configFile;
+		std::vector<std::string>										configFileVector;
 		
-		std::vector< std::pair<int, int> >	serverBlocksIndexes;
-		std::vector< std::pair<int, int> >	locationBlocksIndexes;
+		std::vector< std::pair<int, int> >								serverBlocksIndexes;
+		std::vector< std::pair<int, int> >								locationBlocksIndexes;
 		
-		std::map<std::string, std::string>	defaultServerDirectives;
-		std::map<std::string, std::string>	defaultLocationDirectives;
+		std::map<std::string, std::string>								defaultServerDirectives;
+		std::map<std::string, std::string>								defaultLocationDirectives;
 
 
-		int									logs;
+		int																logs;
 
-		std::vector<ServerConfig>			Servers;
-		std::vector<ServerConfigParser>		Parser;
+		std::vector<std::vector<std::map<std::string, Directives>>>		Servers;
+		std::vector<ServerConfigParser>									Parser;
 		
 	public:
 		Config();

@@ -13,3 +13,9 @@ Location block:
 	redirect
 	cgi_pass
 	upload_store
+
+Directives limited only to location block:
+	alias
+	methods
+	cgi_pass
+	cgi_ext
