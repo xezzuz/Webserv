@@ -271,7 +271,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 		int end = stoi(startStr);
 
-		if (start > end || end >= contentLength)
+		if (start > end || end >= contentLength || start < 0 || end < 0)
 		{
 			input.status = 416;
 			return (false);
