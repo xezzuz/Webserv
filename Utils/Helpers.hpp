@@ -21,7 +21,6 @@ struct Directives
 	std::vector<std::string>					index;
 	std::vector<std::string>					methods;
 	std::vector<std::string>					cgi_ext;
-	bool										redirected;
 	std::pair<int, std::string> 				redirect;
 	std::vector<std::pair<int, std::string> >	error_page;
 };

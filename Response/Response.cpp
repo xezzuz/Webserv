@@ -301,7 +301,7 @@ int	Response::rangeContentLength( void )
 	for (; it != ranges.end(); it++)
 	{
 		ret += it->header.length();
-		ret += it->range.second - it->range.first + 1;
+		ret += it->rangeLength;
 	}
 	ret += endMark.length();
 	return (ret);
@@ -408,29 +408,22 @@ void	Response::sendRanges( int& socket )
 			state = ERROR;
 			return ;
 		}
-		else if (bytesSent < bytesRead)
+		else if (rangeOffset == ranges[currRange].rangeLength)
 		{
-			return ;
+			rangeOffset = 0;
+			if(++currRange >= ranges.size())
+			{
+				if (ranges.size() != 1)
+					state = SENDINGENDMARK;
+				else
+					state = FINISHED;
+			}
 		}
 	}
 	else if (bytesRead == -1)
 	{
 		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl; // errno after I/O forbidden
 		state = ERROR;
-		return ;
-	}
-
-	if (rangeOffset == ranges[currRange].rangeLength) // this to determine if we sent the required range
-	{
-		rangeOffset = 0;
-		if(++currRange >= ranges.size())
-		{
-			if (ranges.size() != 1)
-				state = SENDINGENDMARK;
-			else
-				state = FINISHED;
-			return ;
-		}
 	}
 }
 
