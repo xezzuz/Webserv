@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 18:54:49 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/17 19:02:28 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool				Config::constructServers() {
 	for (size_t i = 0; i < Parser.size(); i++) {
-		ServerConfig		newServer;
+		Directives		newServer;
 
 		fillServerConfigByParserDirectives(Parser[i].serverDirectives, newServer);
 		for (size_t j = 0; j < Parser[i].locationDirectives.size(); j++) {
@@ -25,7 +25,7 @@ bool				Config::constructServers() {
 	return true;
 }
 
-bool				Config::fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, ServerConfig& Server) {
+bool				Config::fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, Directives& Server) {
 
     std::cout << serverDirectives["error_page"] << std::endl;
     

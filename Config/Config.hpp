@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 18:55:38 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/17 19:12:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ class Config {
 
 		int																logs;
 
-		std::vector<std::vector<std::map<std::string, Directives>>>		Servers;
+		std::vector<std::map<std::string, Directives>>					Servers;
 		std::vector<ServerConfigParser>									Parser;
 		
 	public:
@@ -161,13 +161,13 @@ class Config {
 		void						Logger(std::string error);
 
 		bool						constructServers();
-		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, ServerConfig& Server);
+		bool						fillServerConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, Directives& Server);
 		bool						fillLocationConfigByParserDirectives(std::map<std::string, std::string>& serverDirectives, std::map<std::string, std::string>& locationDirectives, ServerConfig& Server);
 
 		void						printServersConfigs();
 
 		int&								getLogs();
-		std::vector<ServerConfig>&			getServers();
+		std::vector<Directives>&			getServers();
 		std::vector<ServerConfigParser>&	getParser();
 		std::ifstream&						getConfigFile();
 		std::string&						getConfigFileName();
