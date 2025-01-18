@@ -1,7 +1,9 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <dirent.h>
 #include <map>
+// #include "Utils/Helpers.hpp"
 
 std::string		generateBoundary( void )
 {
@@ -16,18 +18,27 @@ std::string		generateBoundary( void )
 	return (random);
 }
 
+std::string		toHex(size_t num)
+{
+	std::stringstream ss;
+
+	ss << std::uppercase << std::hex << num;
+	return (ss.str());
+}
+
 int main()
 {
-	DIR *t = opendir(".");
+	// DIR *t = opendir(".");
 
-	struct dirent	*entry;
+	// struct dirent	*entry;
 
-	while((entry = readdir(t)) != nullptr)
-	{
-		if (entry->d_type == DT_DIR)
-			std::cout << "DIR";
-		else if (entry->d_type == DT_REG)
-			std::cout << "FILE";
-		std::cout << ": "<< entry->d_name << std::endl;
-	}
+	// while((entry = readdir(t)) != nullptr)
+	// {
+	// 	if (entry->d_type == DT_DIR)
+	// 		std::cout << "DIR";
+	// 	else if (entry->d_type == DT_REG)
+	// 		std::cout << "FILE";
+	// 	std::cout << ": "<< entry->d_name << std::endl;
+	// }
+	std::cout  << toHex(45384)  << std::endl;
 }

@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0),rangeOffset(0), state(SENDINGHEADER)
+Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0),rangeOffset(0), state(BUILDHEADER), nextState(READBODY)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -107,6 +107,7 @@ void	Response::handleDELETE( void )
 			return ;
 		}
 	}
+	nextState = FINISHED;
 }
 
 void	Response::generateErrorPage( void )
@@ -115,7 +116,7 @@ void	Response::generateErrorPage( void )
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
-		body = "<!DOCTYPE html>"
+		data = "<!DOCTYPE html>"
 				"<html>"
 				"<head>"
 				"    <title> " + _toString(input.status) + " " + statusCodes[input.status] + " </title>"
@@ -129,13 +130,14 @@ void	Response::generateErrorPage( void )
 				"</body>"
 				"</html>";
 	headers.append("\r\nContent-Type: text/html");
-	headers.append("\r\nContent-Length: " + _toString(body.size()));
+	headers.append("\r\nContent-Length: " + _toString(data.size()));
 	input.requestHeaders["keep-alive"] = "close";
+	nextState = FINISHED;
 }
 
 void	Response::handlePOST( void )
 {
-	body = "<!DOCTYPE html>\n"
+	data = "<!DOCTYPE html>\n"
 			"<html lang=\"en\">\n"
 			"<head>\n"
 			"    <meta charset=\"UTF-8\">\n"
@@ -164,7 +166,8 @@ void	Response::handlePOST( void )
 			"</body>\n"
 			"</html>";
 	headers.append("\r\nContent-Type: text/html");
-	headers.append("\r\nContent-Length: " + _toString(body.length()));
+	headers.append("\r\nContent-Length: " + _toString(data.size()));
+	nextState = FINISHED;
 }
 
 bool	Response::validateUri( void )
@@ -302,7 +305,7 @@ int	Response::rangeContentLength( void )
 		ret += it->header.length();
 		ret += it->rangeLength;
 	}
-	ret += endMark.length();
+	ret += 8 + boundary.length(); // 8 is  the length of the constant "\r\n--" "--\r\n"
 	return (ret);
 }
 
@@ -322,6 +325,7 @@ void	Response::buildRange( void )
 		contentType = "multipart/byteranges; boundary=" + boundary;
 		contentLength = rangeContentLength();
 	}
+	nextState = NEXTRANGE;
 }
 
 void	Response::handleGET( void )
@@ -335,16 +339,8 @@ void	Response::handleGET( void )
 	if (input.config.autoindex && isDir)
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
-		chunk.append("<!DOCTYPE html>"
-					"<html>"
-					"<head>"
-					"    <title>Index of " + input.uri + "</title>"
-					"</head>"
-					"<body>"
-					"    <h1>Index of " + input.uri + "</h1>"
-					"    <hr>"
-					"    <pre>");
-		chunked = true;
+		dirList = opendir(absolutePath.c_str());
+		nextState = LISTDIR;
 	}
 	else
 	{
@@ -357,18 +353,11 @@ void	Response::handleGET( void )
 
 void	Response::generateResponse( void )
 {
-	body.clear();
-	headers.clear();
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
 	if (input.status < 400)
 		validateUri();
-
-	// if (input.config.redirected)
-	// {
-	// 	input.status = input.config.redirect.first;
-	// }
 
 	if (input.status >= 400)
 		generateErrorPage();
@@ -383,20 +372,20 @@ void	Response::generateResponse( void )
 	if (input.requestHeaders.find("keep-alive") != input.requestHeaders.end())
 		headers.append("\r\nConnection: " + input.requestHeaders["keep-alive"]);
 
-	headers = ("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]) + headers; // status line
 	headers.append("\r\n\r\n");
-	headers.append(body);
+
+	headers = ("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]) + headers; // status line
+	data.insert(0, headers);
+	state = SENDDATA;
 }
 
 void	Response::directoryListing()
 {
-	int i = 0;
-	DIR	*root = opendir(absolutePath.c_str());
-
-	if (root)
-
 	struct dirent	*entry;
-	while (i < 100 && (entry = readdir(root)) != nullptr)
+	std::string 	chunk;
+	int 			i = 0;
+
+	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
 		chunk.append("<a href=\"");
 		chunk.append(entry->d_name);
@@ -408,6 +397,55 @@ void	Response::directoryListing()
 			chunk.append("/");
 		
 		chunk.append("</a>");
+	}
+
+	if (entry == NULL)
+	{
+		chunk.append("</pre><hr></body></html>\r\n0\r\n"); // the size does not include the CRLF carful
+		nextState = FINISHED;
+	}
+	data = toHex(chunk.size()) + chunk + "\r\n";
+	
+}
+
+void	Response::getNextRange()
+{
+	if (currRange >= ranges.size())
+	{
+		state = FINISHED;
+		return;
+	}
+	data = ranges[currRange].header;
+	state = SENDDATA;
+	bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
+	nextState = READRANGE;
+}
+
+void	Response::readRange()
+{
+	char buffer[SEND_BUFFER_SIZE] = {0};
+
+	size_t readLength = std::min(
+		static_cast<size_t>(SEND_BUFFER_SIZE),
+		ranges[currRange].rangeLength
+	);
+
+	int bytesRead = bodyFile.read(buffer, readLength).gcount();
+	if (bytesRead == -1)
+	{
+		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl; // errno after I/O forbidden
+		state = ERROR;
+	}
+	else if (bytesRead > 0)
+	{
+		data = buffer;
+		ranges[currRange].rangeLength -= bytesRead;
+		state = SENDDATA;
+		if (ranges[currRange].rangeLength == 0)
+		{
+			nextState = NEXTRANGE;
+			currRange++;
+		}
 	}
 }
 
@@ -442,10 +480,11 @@ void	Response::sendRanges( int& socket )
 		else if (rangeOffset == ranges[currRange].rangeLength)
 		{
 			rangeOffset = 0;
+			state = NEXTRANGE;
 			if(++currRange >= ranges.size())
 			{
 				if (ranges.size() != 1)
-					state = SENDINGENDMARK;
+					data = "\r\n--" + boundary + "--\r\n";
 				else
 					state = FINISHED;
 			}
@@ -458,22 +497,13 @@ void	Response::sendRanges( int& socket )
 	}
 }
 
-void	Response::sendBody( int& socket )
+int	Response::readBody()
 {
 	char buffer[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead > 0)
 	{
-		int bytesSent = send(socket, buffer, bytesRead, 0);
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
-			state = ERROR;
-		}
-		else if (bytesSent < bytesRead)
-		{
-			bodyFile.seekg(bytesSent - bytesRead, std::ios::cur);
-		}
+		data = buffer;
 	}
 	else if (bytesRead == 0)
 	{
@@ -486,46 +516,35 @@ void	Response::sendBody( int& socket )
 	}
 }
 
-int	Response::sendData(int& socket, std::string& data)
+bool	Response::sendData(int& socket, std::string& data)
 {
-	ssize_t bytesSent = send(socket, data.c_str() + dataOffset, data.length() - dataOffset, 0);
+	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	if (bytesSent == -1)
 	{
 		std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
 		state = ERROR;
 	}
-	else if (bytesSent < data.size())
-	{
-		dataOffset += bytesSent;
-		return (0);
-	}
-	else
-	{
-		dataOffset = 0;
-		return (1);
-	}
-	// dataSent = true;
+	data.erase(0, bytesSent);
+	return (data.empty());
 }
 
 int	Response::sendResponse( int& socket )
 {
-
 	switch (state)
 	{
-		case SENDINGHEADER:
-			if(sendData(socket, headers) == 1);
-				state = chunked ? SENDINGCHUNKED : SENDINGBODY;
-		case SENDINGBODY:
-			if (!body.empty())
-				state = FINISHED;
-			sendBody(socket);
-		case SENDINGCHUNKED:
-			sendChunked(socket);
-		case SENDINGRANGES:
-			sendRanges(socket);
-		case SENDINGENDMARK:
-			if (sendData(socket, endMark) == 1);
-				state = FINISHED;
+		case BUILDHEADER:
+			generateResponse();
+		case READBODY:
+			readBody();
+		case LISTDIR:
+			directoryListing();
+		case NEXTRANGE:
+			getNextRange();
+		case READRANGE:
+			readRange();
+		case SENDDATA:
+			if(sendData(socket, headers) == true)
+				state = nextState;
 		case ERROR:
 			return (-1);
 		case FINISHED:
@@ -534,3 +553,6 @@ int	Response::sendResponse( int& socket )
 			return (0);
 	}
 }
+		// case SENDINGENDMARK:
+		// 	if (sendData(socket, endMark) == 1);
+		// 		state = FINISHED;

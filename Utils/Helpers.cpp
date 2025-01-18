@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/16 15:30:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/18 15:14:31 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,19 @@ std::string		generateRandomString( void )
 		random += alphaNum[rand() % 61];
 	}
 	return (random);
+}
+
+std::string		toHex(size_t num)
+{
+	char hex[17] = "0123456789ABCDEF";
+	std::string ret;
+	
+	while (num > 0)
+	{
+		ret.push_back(hex[num % 10]);
+		num /= 10;
+	}
+	return (ret);
 }
 
 // #include <arpa/inet.h>

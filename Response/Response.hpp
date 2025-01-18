@@ -18,13 +18,15 @@ struct Range
 	bool				headerSent = false;
 };
 
-enum	ResponseState
+enum	State
 {
-	SENDINGHEADER,
-	SENDINGBODY,
-	SENDINGCHUNKED,
-	SENDINGRANGES,
-	SENDINGENDMARK,
+	BUILDHEADER,
+	READBODY,
+	LISTDIR,
+	NEXTRANGE,
+	READRANGE,
+	SENDDATA,
+	ERRORPAGE,
 	ERROR,
 	FINISHED
 };
@@ -68,7 +70,7 @@ public:
 	void		handleDELETE( void );
 
 
-
+	int			readBody();
 	int			sendResponse( int& socket );
 	void		sendBody( int& socket );
 	void		sendChunked( int& socket );
@@ -77,7 +79,7 @@ public:
 	void		directoryListing();
 
 
-	int		sendData(int& socket, std::string& data);
+	bool		sendData(int& socket, std::string& data);
 
 private:
 	// response needed data
@@ -103,6 +105,7 @@ private:
 
 	std::string		chunk;
 	bool			chunked;
+	DIR				*dirList;
 
 	// range
 	std::vector<Range>	ranges;
@@ -111,10 +114,16 @@ private:
 	int					currRange;
 	size_t				rangeOffset;
 
-	enum ResponseState	state;
+	enum State	state;
+	enum State	nextState;
 
 	// response
+	std::string data;
 	
+
+	void	readRange();
+	void	getNextRange();
+
 };
 
 #endif
