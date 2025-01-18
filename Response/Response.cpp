@@ -449,54 +449,6 @@ void	Response::readRange()
 	}
 }
 
-void	Response::sendRanges( int& socket )
-{
-	if (!ranges[currRange].headerSent)
-	{
-		if(sendData(socket, ranges[currRange].header) == 0)
-			return;
-		ranges[currRange].headerSent = true;
-	}
-
-	bodyFile.seekg(ranges[currRange].range.first + rangeOffset, std::ios::beg);
-
-	char buffer[SEND_BUFFER_SIZE] = {0};
-	size_t readLength = std::min(
-		static_cast<size_t>(SEND_BUFFER_SIZE),
-		ranges[currRange].rangeLength - rangeOffset
-	);
-	int bytesRead = bodyFile.read(buffer, readLength).gcount();
-	if (bytesRead > 0)
-	{
-		// dataSent = false;
-		int bytesSent = send(socket, buffer, bytesRead, 0);
-		rangeOffset += bytesSent;
-		if (bytesSent == -1)
-		{
-			std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-			state = ERROR;
-			return ;
-		}
-		else if (rangeOffset == ranges[currRange].rangeLength)
-		{
-			rangeOffset = 0;
-			state = NEXTRANGE;
-			if(++currRange >= ranges.size())
-			{
-				if (ranges.size() != 1)
-					data = "\r\n--" + boundary + "--\r\n";
-				else
-					state = FINISHED;
-			}
-		}
-	}
-	else if (bytesRead == -1)
-	{
-		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl; // errno after I/O forbidden
-		state = ERROR;
-	}
-}
-
 int	Response::readBody()
 {
 	char buffer[SEND_BUFFER_SIZE] = {0};
