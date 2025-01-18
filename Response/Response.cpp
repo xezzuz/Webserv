@@ -289,14 +289,13 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 		ranges.push_back(unit);
 	}
+	ranges[0].header.erase(0, 2); // erase the first "\r\n"
 }
 
 int	Response::rangeContentLength( void )
 {
 	int ret = 0;
 	std::vector<Range>::iterator it = ranges.begin();
-
-	ranges[0].header.erase(0, 2); // erase the first "\r\n"
 
 	for (; it != ranges.end(); it++)
 	{
@@ -336,6 +335,15 @@ void	Response::handleGET( void )
 	if (input.config.autoindex && isDir)
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
+		chunk.append("<!DOCTYPE html>"
+					"<html>"
+					"<head>"
+					"    <title>Index of " + input.uri + "</title>"
+					"</head>"
+					"<body>"
+					"    <h1>Index of " + input.uri + "</h1>"
+					"    <hr>"
+					"    <pre>");
 		chunked = true;
 	}
 	else
@@ -378,6 +386,29 @@ void	Response::generateResponse( void )
 	headers = ("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]) + headers; // status line
 	headers.append("\r\n\r\n");
 	headers.append(body);
+}
+
+void	Response::directoryListing()
+{
+	int i = 0;
+	DIR	*root = opendir(absolutePath.c_str());
+
+	if (root)
+
+	struct dirent	*entry;
+	while (i < 100 && (entry = readdir(root)) != nullptr)
+	{
+		chunk.append("<a href=\"");
+		chunk.append(entry->d_name);
+		if (entry->d_type == DT_DIR)
+			chunk.append("/");
+		chunk.append(">");
+		chunk.append(entry->d_name);
+		if (entry->d_type == DT_DIR)
+			chunk.append("/");
+		
+		chunk.append("</a>");
+	}
 }
 
 void	Response::sendRanges( int& socket )
@@ -502,68 +533,4 @@ int	Response::sendResponse( int& socket )
 		default:
 			return (0);
 	}
-
-	// if (!headersSent)
-	// {
-	// 	int bytesSent = send(socket, headers.c_str() + headersOffset, headers.length() - headersOffset, 0);
-	// 	if (bytesSent == -1)
-	// 	{
-	// 		std::cerr << "[WEBSERV]\t send: " << strerror(errno) << std::endl;
-	// 		return (-1);
-	// 	}
-	// 	else if (bytesSent < static_cast<int>(headers.length()))
-	// 	{
-	// 		headersOffset += bytesSent;
-	// 		return (0);
-	// 	}
-	// 	else
-	// 	{
-	// 		headersSent = true;
-	// 		headersOffset = 0;
-	// 	}
-	// }
-
-
-	// if (!bodySent)
-	// {
-	// 	// if (!ranges.empty())
-	// 	// {
-	// 	// 	sendRanges(socket);
-	// 	// 	if (ranges.size > 1)
-	// 	// 		send(socket, endMakr.c_str(), endMark.length());
-	// 	// }
-	// 	// else
-	// 	// 	sendBody(socket);
-	// 	char buffer[SEND_BUFFER_SIZE] = {0};
-	// 	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
-	// 	if (bytesRead > 0)
-	// 	{
-	// 		int bytesSent = send(socket, buffer, bytesRead, 0);
-	// 		if (bytesSent == -1)
-	// 		{
-	// 			std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
-	// 			return (-1);
-	// 		}
-	// 		else if (bytesSent < bytesRead)
-	// 		{
-	// 			bodyFile.seekg(bytesSent - bytesRead, std::ios::cur);
-	// 			return (0);
-	// 		}
-	// 	}
-	// 	else if (bytesRead == 0)
-	// 	{
-	// 		bodySent = true;
-	// 		bodyFile.close();
-	// 		*this = Response();
-	// 		return (1);
-	// 	}
-	// 	else
-	// 	{
-	// 		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
-	// 		return (-1);
-	// 	}
-	// }
-	// bodySent = false;
-	// headersSent = false;
-	// return (1);
 }

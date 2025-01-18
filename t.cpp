@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-
+#include <dirent.h>
 #include <map>
 
 std::string		generateBoundary( void )
@@ -18,7 +18,16 @@ std::string		generateBoundary( void )
 
 int main()
 {
-	std::string aa = "Range: bytes=0-499,1000-1499";
-	std::cout << generateBoundary() << std::endl;
-	std::cout << aa.find("bytes") << std::endl;
+	DIR *t = opendir(".");
+
+	struct dirent	*entry;
+
+	while((entry = readdir(t)) != nullptr)
+	{
+		if (entry->d_type == DT_DIR)
+			std::cout << "DIR";
+		else if (entry->d_type == DT_REG)
+			std::cout << "FILE";
+		std::cout << ": "<< entry->d_name << std::endl;
+	}
 }

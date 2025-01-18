@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 19:12:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/18 10:01:45 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,9 +105,9 @@ typedef struct												Directives {
 	std::vector<std::string> 								methods;
 	std::string 											upload_store;
 	bool													autoindex;
-	std::vector<std::string>								redirect;
+	std::vector<std::string>								redirect; // std::pair<int, std::string>
 	std::string												cgi_pass;
-	std::string												cgi_ext;
+	std::string												cgi_ext; // std::vector<std::string>
 }															Directives;
 
 typedef struct												ServerConfigParser {

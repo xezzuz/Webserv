@@ -5,7 +5,7 @@
 # include <sys/stat.h>
 # include <cstdio>
 # include <algorithm>
-# include <queue>
+# include <dirent.h>
 # include <cstdlib>
 # include "../Config/Config.hpp"
 # include "../Utils/Helpers.hpp"
@@ -74,6 +74,9 @@ public:
 	void		sendChunked( int& socket );
 	void		sendRanges( int& socket );
 	
+	void		directoryListing();
+
+
 	int		sendData(int& socket, std::string& data);
 
 private:
@@ -96,9 +99,10 @@ private:
 	std::ifstream	bodyFile;
 	std::string		absolutePath;
 	bool			isDir; // requested resource is a directory;
-	bool			chunked;
-
 	ssize_t			dataOffset;
+
+	std::string		chunk;
+	bool			chunked;
 
 	// range
 	std::vector<Range>	ranges;
