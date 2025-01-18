@@ -54,7 +54,6 @@ public:
 	void		generateErrorPage( void );
 	void		generatePostPage( void );
 	void		generateResponse( void );
-	bool		removeResource( void );
 	bool		validateUri( void );
 	bool		getResource( void );
 
@@ -72,14 +71,13 @@ public:
 
 	int			readBody();
 	int			sendResponse( int& socket );
-	void		sendBody( int& socket );
-	void		sendChunked( int& socket );
-	void		sendRanges( int& socket );
+	void		readRange();
+	void		getNextRange();
+	bool		sendData(int& socket);
 	
 	void		directoryListing();
 
 
-	bool		sendData(int& socket, std::string& data);
 
 private:
 	// response needed data
@@ -97,22 +95,16 @@ private:
 
 	// response creating process
 	std::string		headers;
-	std::string		body;
 	std::ifstream	bodyFile;
 	std::string		absolutePath;
 	bool			isDir; // requested resource is a directory;
-	ssize_t			dataOffset;
 
-	std::string		chunk;
-	bool			chunked;
 	DIR				*dirList;
 
 	// range
 	std::vector<Range>	ranges;
 	std::string			boundary;
-	std::string			endMark;
 	int					currRange;
-	size_t				rangeOffset;
 
 	enum State	state;
 	enum State	nextState;
@@ -121,8 +113,6 @@ private:
 	std::string data;
 	
 
-	void	readRange();
-	void	getNextRange();
 
 };
 

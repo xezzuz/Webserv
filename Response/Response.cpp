@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0),rangeOffset(0), state(BUILDHEADER), nextState(READBODY)
+Response::Response() : contentLength(0), currRange(0), isDir(false), state(BUILDHEADER), nextState(READBODY)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -69,14 +69,10 @@ Response&	Response::operator=(const Response& rhs)
 		contentType = rhs.contentType;
 		contentLength = rhs.contentLength;
 		headers = rhs.headers;
-		body = rhs.body;
-		dataOffset = rhs.dataOffset;
 		isDir = rhs.isDir;
 		ranges = rhs.ranges;
 		boundary = rhs.boundary;
-		endMark = rhs.endMark;
 		currRange = rhs.currRange;
-		rangeOffset = rhs.rangeOffset;
 		state = rhs.state;
 	}
 	return (*this);
@@ -189,7 +185,6 @@ bool	Response::validateUri( void )
 
 	if (S_ISDIR(targetStat.st_mode))
 	{
-		isDir = true; // requested resource is a directory
 		if (access(absolutePath.c_str(), X_OK) != 0) // check exec permission to traverse dir
 		{
 			input.status = 403;
@@ -197,6 +192,7 @@ bool	Response::validateUri( void )
 		}
 		if (absolutePath.at(absolutePath.length() - 1) != '/')
 			absolutePath.append("/");
+		isDir = true; // requested resource is a directory
 	}
 	return (true);
 }
@@ -220,6 +216,7 @@ bool	Response::getResource( void )
 			return (false);
 		}
 		absolutePath.append(*it);
+		isDir = false;
 	}
 	if (access(absolutePath.c_str(), R_OK) != 0) // read permission for files
 	{
@@ -251,7 +248,6 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 	std::string			rangeStr;
 
 	boundary = generateRandomString();
-	endMark = "\r\n--" + boundary + "--\r\n";
 
 	while (std::getline(rangess, rangeStr, ','))
 	{
@@ -276,7 +272,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 		if (start > end || end >= contentLength || start < 0 || end < 0)
 		{
-			input.status = 416;
+			input.status = 416; // this doesnt get moved to error page yet
 			return (false);
 		}
 	
@@ -292,7 +288,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 		ranges.push_back(unit);
 	}
-	ranges[0].header.erase(0, 2); // erase the first "\r\n"
+	ranges[0].header.erase(0, 2); // erases the first "\r\n"
 }
 
 int	Response::rangeContentLength( void )
@@ -387,6 +383,8 @@ void	Response::directoryListing()
 
 	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
+		if (entry->d_name[0] == '.')
+			continue ;
 		chunk.append("<a href=\"");
 		chunk.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
@@ -398,13 +396,14 @@ void	Response::directoryListing()
 		
 		chunk.append("</a>");
 	}
-
-	if (entry == NULL)
+	if (entry == NULL) // dogshit code
 	{
-		chunk.append("</pre><hr></body></html>\r\n0\r\n"); // the size does not include the CRLF carful
+		chunk.append("</pre><hr></body></html>"); // the size does not include the CRLF carful
 		nextState = FINISHED;
 	}
 	data = toHex(chunk.size()) + chunk + "\r\n";
+	if (nextState == FINISHED)
+		data.append("0\r\n\r\n");
 	
 }
 
@@ -412,7 +411,9 @@ void	Response::getNextRange()
 {
 	if (currRange >= ranges.size())
 	{
-		state = FINISHED;
+		data = "\r\n--" + boundary + "--\r\n";
+		state = SENDDATA;
+		nextState = FINISHED;
 		return;
 	}
 	data = ranges[currRange].header;
@@ -468,7 +469,7 @@ int	Response::readBody()
 	}
 }
 
-bool	Response::sendData(int& socket, std::string& data)
+bool	Response::sendData(int& socket)
 {
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	if (bytesSent == -1)
@@ -495,7 +496,7 @@ int	Response::sendResponse( int& socket )
 		case READRANGE:
 			readRange();
 		case SENDDATA:
-			if(sendData(socket, headers) == true)
+			if(sendData(socket) == true)
 				state = nextState;
 		case ERROR:
 			return (-1);
@@ -505,6 +506,3 @@ int	Response::sendResponse( int& socket )
 			return (0);
 	}
 }
-		// case SENDINGENDMARK:
-		// 	if (sendData(socket, endMark) == 1);
-		// 		state = FINISHED;

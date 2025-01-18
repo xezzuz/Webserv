@@ -8,5 +8,6 @@ Each single value of that map aka <Directives struct> is,
 a bunch of all allowed directives that you can have in a config file,
 either server block directives or location block directives.
 
-The server directives can be accessed by the key: "ServerDirectives"
+# w ila ja w dar location smito ServerDirectives ? V
+The server directives can be accessed by the key: "ServerDirectives" 
 The location blocks directives can be found by searching or iterating through the Map

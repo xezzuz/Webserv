@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 11:40:47 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/18 19:46:44 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,6 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
     {
 		pollClientSock.events = POLLOUT;
 		Clients[clientSocket].initResponse(vServerConfigs);
-		Clients[clientSocket].getResponse().generateResponse();
 		return ;
 	}
 }

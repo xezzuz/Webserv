@@ -25,14 +25,14 @@
 // 	std::vector<std::pair<int, std::string> >	error_page;
 // };
 
-// struct	ResponseInput
-// {
-// 	std::string							uri;
-// 	std::string							method;
-// 	int									status;
-// 	std::map<std::string, std::string>	requestHeaders;
-// 	Directives							config;
-// };
+struct	ResponseInput
+{
+	std::string							uri;
+	std::string							method;
+	int									status;
+	std::map<std::string, std::string>	requestHeaders;
+	Directives							config;
+};
 
 std::string		stringtrim(const std::string& str, const std::string& set);
 bool			isHexa(const std::string& num);

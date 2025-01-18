@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 11:41:35 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/18 20:10:45 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	Client::resetResponse()
 	_Response = Response();
 }
 
-void	Client::initResponse(std::vector<ServerConfig>& vServerConfigs)
+void	Client::initResponse(std::vector<std::map<std::string, Directives>>& servers)
 {
 	struct ResponseInput	input;
 	ServerConfig			responsibleServer;
