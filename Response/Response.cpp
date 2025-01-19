@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), currRange(0), isDir(false), state(BUILDHEADER), nextState(READBODY)
+Response::Response() : contentLength(0), isDir(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -108,7 +108,7 @@ void	Response::handleDELETE( void )
 
 void	Response::generateErrorPage( void )
 {
-
+	std::cout << "tt" << std::endl;
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
@@ -218,6 +218,11 @@ bool	Response::getResource( void )
 		absolutePath.append(*it);
 		isDir = false;
 	}
+	// if (access(absolutePath.c_str(), F_OK) != 0)
+	// {
+	// 	input.status = 404;
+	// 	return (false);
+	// }
 	if (access(absolutePath.c_str(), R_OK) != 0) // read permission for files
 	{
 		input.status = 403;
@@ -289,6 +294,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		ranges.push_back(unit);
 	}
 	ranges[0].header.erase(0, 2); // erases the first "\r\n"
+	return (true);
 }
 
 int	Response::rangeContentLength( void )
@@ -357,8 +363,7 @@ void	Response::generateResponse( void )
 
 	if (input.status >= 400)
 		generateErrorPage();
-
-	if (input.method == "GET") // check allowed methods
+	else if (input.method == "GET") // check allowed methods
 		handleGET();
 	else if (input.method == "POST")
 		handlePOST();
@@ -450,13 +455,14 @@ void	Response::readRange()
 	}
 }
 
-int	Response::readBody()
+void	Response::readBody()
 {
 	char buffer[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead > 0)
 	{
 		data = buffer;
+		state = SENDDATA;
 	}
 	else if (bytesRead == 0)
 	{
@@ -471,6 +477,10 @@ int	Response::readBody()
 
 bool	Response::sendData(int& socket)
 {
+	std::cout << "--------------------" << std::endl;
+	std::cout << absolutePath << std::endl;
+	std::cout << data << std::endl;
+	std::cout << "--------------------"  << std::endl;
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	if (bytesSent == -1)
 	{
@@ -483,26 +493,32 @@ bool	Response::sendData(int& socket)
 
 int	Response::sendResponse( int& socket )
 {
+	std::cout << state << "|" << nextState << std::endl;
 	switch (state)
 	{
 		case BUILDHEADER:
 			generateResponse();
+			break;
 		case READBODY:
 			readBody();
+			break;
 		case LISTDIR:
 			directoryListing();
+			break;
 		case NEXTRANGE:
 			getNextRange();
+			break;
 		case READRANGE:
 			readRange();
+			break;
 		case SENDDATA:
 			if(sendData(socket) == true)
 				state = nextState;
+			break;
 		case ERROR:
 			return (-1);
 		case FINISHED:
 			return (1);
-		default:
-			return (0);
 	}
+	return (0);
 }

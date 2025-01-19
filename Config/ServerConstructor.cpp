@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConstructor.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 19:47:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 21:27:54 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,22 +35,23 @@ void				Config::setDefaultDirectives(std::map<std::string, std::string>& userDir
 
 	defaultDirectives["host"] = "0.0.0.0";
 	defaultDirectives["port"] = "80";
-	defaultDirectives["server_name"] = "none";
-	defaultDirectives["error_page"] = "none";
-	defaultDirectives["client_max_body_size"] = "none";
+	defaultDirectives["server_name"];
+	defaultDirectives["error_page"];
+	defaultDirectives["client_max_body_size"];
 	defaultDirectives["root"] = "/home/mmaila/Desktop/SERV/www";
-	defaultDirectives["alias"] = "none";
+	defaultDirectives["alias"];
 	defaultDirectives["index"] = "index.html";
 	defaultDirectives["methods"] = "GET POST DELETE";
 	defaultDirectives["upload_store"] = "/home/nazouz/goinfre/";
 	defaultDirectives["autoindex"] = "off";
-	defaultDirectives["redirect"] = "none";
-	defaultDirectives["cgi_pass"] = "none";
-	defaultDirectives["cgi_ext"] = "none";
+	defaultDirectives["redirect"];
+	defaultDirectives["cgi_pass"];
+	defaultDirectives["cgi_ext"];
 
 	// check here
-	std::map<std::string, std::string>::iterator	it;
-	for (; it != defaultDirectives.end(); it++) {
+	std::map<std::string, std::string>::iterator	it = defaultDirectives.begin();
+	for (; it != defaultDirectives.end(); it++)
+	{
 		if (userDirectives.find(it->first) == userDirectives.end())
 			userDirectives[it->first] = defaultDirectives[it->first];
 	}
@@ -61,16 +62,16 @@ bool				Config::fillServerDirectives(std::map<std::string, std::string>& ServerP
 	
 	newServerConfig.host = ServerParserDirectives["host"];
 	newServerConfig.port = std::atoi(ServerParserDirectives["port"].c_str());
-	newServerConfig.server_names = splitStringBySpace(ServerParserDirectives["server_name"]);
+	// newServerConfig.server_names = splitStringBySpace(ServerParserDirectives["server_name"]);
 	// newServerConfig.ServerDirectives.error_pages = parseErrorPages();
 	// newServerConfig.ServerDirectives.client_max_body_size = parseClientMaxBodySize();
 	newServerConfig.ServerDirectives.root = ServerParserDirectives["root"];
 	newServerConfig.ServerDirectives.alias = ServerParserDirectives["alias"];
-	newServerConfig.ServerDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
-	newServerConfig.ServerDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
+	// newServerConfig.ServerDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
+	// newServerConfig.ServerDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
 	newServerConfig.ServerDirectives.upload_store = ServerParserDirectives["upload_store"];
 	// newServerConfig.ServerDirectives.autoindex = parseAutoIndex();
-	newServerConfig.ServerDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
+	// newServerConfig.ServerDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
 	newServerConfig.ServerDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
 	newServerConfig.ServerDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
 
@@ -121,11 +122,11 @@ bool				Config::fillLocationDirectives(std::map<std::string, std::string>& Serve
 	// LocationDirectives.client_max_body_size = parseClientMaxBodySize();
 	LocationDirectives.root = ServerParserDirectives["root"];
 	LocationDirectives.alias = ServerParserDirectives["alias"];
-	LocationDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
-	LocationDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
+	// LocationDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
+	// LocationDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
 	LocationDirectives.upload_store = ServerParserDirectives["upload_store"];
 	// LocationDirectives.autoindex = parseAutoIndex();
-	LocationDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
+	// LocationDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
 	LocationDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
 	LocationDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
 	return true;

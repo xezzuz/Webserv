@@ -26,20 +26,20 @@ enum	State
 	NEXTRANGE,
 	READRANGE,
 	SENDDATA,
-	ERRORPAGE,
 	ERROR,
 	FINISHED
 };
 
+struct	ResponseInput
+{
+	std::string							uri;
+	std::string							method;
+	int									status;
+	std::map<std::string, std::string>	requestHeaders;
+	Directives							config;
+};
+
 # define SEND_BUFFER_SIZE 4096
-// enum e_responseState {
-// 	PARSING_INIT,		// 0
-// 	HEADERS_RECEIVED,	// 1
-// 	HEADERS_FINISHED,	// 2
-// 	BODY_RECEIVED,		// 3
-// 	BODY_FINISHED,		// 4
-// 	PARSING_FINISHED	// 5
-// };
 
 class Response
 {
@@ -69,7 +69,7 @@ public:
 	void		handleDELETE( void );
 
 
-	int			readBody();
+	void		readBody();
 	int			sendResponse( int& socket );
 	void		readRange();
 	void		getNextRange();
@@ -104,7 +104,7 @@ private:
 	// range
 	std::vector<Range>	ranges;
 	std::string			boundary;
-	int					currRange;
+	size_t				currRange;
 
 	enum State	state;
 	enum State	nextState;

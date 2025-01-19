@@ -25,7 +25,7 @@ std::string		toHex(size_t num)
 	ss << std::uppercase << std::hex << num;
 	return (ss.str());
 }
-
+#include <sys/stat.h>
 int main()
 {
 	// DIR *t = opendir(".");
@@ -40,5 +40,9 @@ int main()
 	// 		std::cout << "FILE";
 	// 	std::cout << ": "<< entry->d_name << std::endl;
 	// }
+	struct stat file;
+
+	if(stat("/home/mmaila/Desktop/SERV/www/favicon.ico", &file) == -1)
+		std::cout << "NOT FOUND" << std::endl;
 	std::cout  << toHex(45384)  << std::endl;
 }

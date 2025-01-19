@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 20:29:51 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 21:05:55 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ class Config {
 		~Config();
 
 		bool						openConfigFile();
-		void						fillDefaultDirectives();
+		// void						fillDefaultDirectives();
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
 		

@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/01/04 15:49:55 by mmaila           ###   ########.fr        #
+#    Updated: 2025/01/19 21:11:09 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME			= 		webserv
 
 CPP				= 		c++
 
-CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address
+CPPFLAGS		= 		-Wall -Werror -Wextra #-fsanitize=address
 
 INCLUDE			=		\
 						./Request/Request.hpp \

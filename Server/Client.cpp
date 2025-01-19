@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 20:30:03 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 21:34:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& 
 	return (servers[0]);
 }
 
-Directives&	matchingConfig(vServerConfig server, std::string& uri)
+Directives&	matchingConfig(vServerConfig& server, std::string& uri)
 {
 	std::string	location;
 	std::map<std::string, Directives>::iterator it;
@@ -89,7 +89,6 @@ Directives&	matchingConfig(vServerConfig server, std::string& uri)
 void	Client::initResponse(std::vector<vServerConfig>& servers)
 {
 	struct ResponseInput	input;
-
 	input.method = _Request.getRequestLineSt().method;
 	input.uri = _Request.getRequestLineSt().uri;
 	input.status = _Request.getStatusCode();
@@ -101,6 +100,9 @@ void	Client::initResponse(std::vector<vServerConfig>& servers)
 	
 	if (input.config.root[input.config.root.length() - 1] == '/')
 		input.config.root.erase(input.config.root.length() - 1);
-
+	
+	
+	std::cout << _Request.getRequestLineSt().uri << std::endl;
+	input.config.index.push_back("index.html");
 	_Response.setInput(input);
 }

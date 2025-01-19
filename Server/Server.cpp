@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 19:36:39 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 21:24:53 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@ bool		Server::initServer() {
 	}
 	
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(atol(vServerConfigs[0].baseConfig["port"][0].c_str()));
-	serverAddress.sin_addr.s_addr = parseIPv4(vServerConfigs[0].baseConfig["host"][0]);
+	serverAddress.sin_port = htons(vServerConfigs[0].port);
+	serverAddress.sin_addr.s_addr = parseIPv4(vServerConfigs[0].host);
 	
 	int reUseAddr = 1;
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reUseAddr, sizeof(reUseAddr)); // check return value?
@@ -66,7 +66,7 @@ bool		Server::initServer() {
 	}
 	
 	status = true;
-	std::cout << "[SERVER]\tListening on " << vServerConfigs[0].baseConfig["host"][0] << ":" << vServerConfigs[0].baseConfig["port"][0] << "..." << std::endl;
+	std::cout << "[SERVER]\tListening on " << vServerConfigs[0].host << ":" << vServerConfigs[0].port << "..." << std::endl;
 	return true;
 }
 
@@ -166,6 +166,7 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
     {
 		pollClientSock.events = POLLOUT;
+		// std::cout << Clients[clientSocket].getRequest().getRequestLineSt().uri << std::endl;
 		Clients[clientSocket].initResponse(vServerConfigs);
 		return ;
 	}
