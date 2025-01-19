@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/10 17:59:28 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 17:57:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,31 +36,31 @@ Config::~Config() {
 	close(logs);
 }
 
-void				Config::fillDefaultDirectives() {
-	defaultServerDirectives["host"] = "0.0.0.0";
-	defaultServerDirectives["port"] = "80";
-	defaultServerDirectives["server_name"] = "none";
-	defaultServerDirectives["error_page"] = "none";
-	defaultServerDirectives["client_max_body_size"] = "none";
-	defaultServerDirectives["root"] = "/home/mmaila/Desktop/SERV/www";
-	defaultServerDirectives["index"] = "index.html";
-	defaultServerDirectives["methods"] = "GET POST DELETE";
-	defaultServerDirectives["upload_store"] = "none";
-	defaultServerDirectives["redirect"] = "none";
-	defaultServerDirectives["autoindex"] = "off";
-	defaultServerDirectives["cgi_pass"] = "none";
+// void				Config::fillDefaultDirectives() {
+// 	defaultServerDirectives["host"] = "0.0.0.0";
+// 	defaultServerDirectives["port"] = "80";
+// 	defaultServerDirectives["server_name"] = "none";
+// 	defaultServerDirectives["error_page"] = "none";
+// 	defaultServerDirectives["client_max_body_size"] = "none";
+// 	defaultServerDirectives["root"] = "/home/mmaila/Desktop/SERV/www";
+// 	defaultServerDirectives["index"] = "index.html";
+// 	defaultServerDirectives["methods"] = "GET POST DELETE";
+// 	defaultServerDirectives["upload_store"] = "none";
+// 	defaultServerDirectives["redirect"] = "none";
+// 	defaultServerDirectives["autoindex"] = "off";
+// 	defaultServerDirectives["cgi_pass"] = "none";
 
-	defaultLocationDirectives["location"] = "none";
-	defaultLocationDirectives["root"] = "none";
-	defaultLocationDirectives["index"] = "index.html";
-	defaultLocationDirectives["methods"] = "GET POST DELETE";
-	defaultLocationDirectives["upload_store"] = "none";
-	defaultLocationDirectives["redirect"] = "none";
-	defaultLocationDirectives["autoindex"] = "off";
-	defaultLocationDirectives["cgi_pass"] = "none";
-	defaultLocationDirectives["error_page"] = "none";
-	defaultLocationDirectives["client_max_body_size"] = "none";
-}
+// 	defaultLocationDirectives["location"] = "none";
+// 	defaultLocationDirectives["root"] = "none";
+// 	defaultLocationDirectives["index"] = "index.html";
+// 	defaultLocationDirectives["methods"] = "GET POST DELETE";
+// 	defaultLocationDirectives["upload_store"] = "none";
+// 	defaultLocationDirectives["redirect"] = "none";
+// 	defaultLocationDirectives["autoindex"] = "off";
+// 	defaultLocationDirectives["cgi_pass"] = "none";
+// 	defaultLocationDirectives["error_page"] = "none";
+// 	defaultLocationDirectives["client_max_body_size"] = "none";
+// }
 
 void				Config::Logger(std::string error) {
 	std::cerr << BOLD << RED << "Webserv: see error.log" << RESET << std::endl;
@@ -105,11 +105,11 @@ int&										Config::getLogs() {
 	return this->logs;
 }
 
-std::vector<ServerConfig>&					Config::getServers() {
+std::vector<vServerConfig>&					Config::getServers() {
 	return this->Servers;
 }
 
-std::vector<ServerConfigParser>&			Config::getParser() {
+std::vector<vServerConfigParser>&			Config::getParser() {
 	return this->Parser;
 }
 
@@ -131,12 +131,4 @@ std::vector< std::pair<int, int> >&			Config::getServerBlocksIndexes() {
 
 std::vector< std::pair<int, int> >&			Config::getLocationBlocksIndexes() {
 	return this->locationBlocksIndexes;
-}
-
-std::map<std::string, std::string>&			Config::getDefaultServerDirectives() {
-	return this->defaultServerDirectives;
-}
-
-std::map<std::string, std::string>&			Config::getDefaultLocationDirectives() {
-	return this->defaultServerDirectives;
 }
