@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 20:59:12 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 22:42:48 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ std::string	getContentType(const std::string& target, std::map<std::string, std:
 {
 	std::map<std::string, std::string>::iterator it;
 	std::string ext;
-	std::string file = target.substr(target.find_last_of('/') + 1);
+	std::string file = target.substr(target.find_last_of('/'));
 	ext = file.substr(file.find('.'));
 	it = mimeTypes.find(ext);
 	if (it != mimeTypes.end())
@@ -211,15 +211,10 @@ std::string		generateRandomString( void )
 
 std::string		toHex(size_t num)
 {
-	char hex[17] = "0123456789ABCDEF";
-	std::string ret;
-	
-	while (num > 0)
-	{
-		ret.push_back(hex[num % 10]);
-		num /= 10;
-	}
-	return (ret);
+	std::stringstream ss;
+
+	ss << std::uppercase << std::hex << num;
+	return (ss.str());
 }
 
 // #include <arpa/inet.h>

@@ -127,7 +127,7 @@ void	Response::generateErrorPage( void )
 				"</html>";
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(data.size()));
-	input.requestHeaders["keep-alive"] = "close";
+	input.requestHeaders["Connection"] = "close";
 	nextState = FINISHED;
 }
 
@@ -218,11 +218,6 @@ bool	Response::getResource( void )
 		absolutePath.append(*it);
 		isDir = false;
 	}
-	// if (access(absolutePath.c_str(), F_OK) != 0)
-	// {
-	// 	input.status = 404;
-	// 	return (false);
-	// }
 	if (access(absolutePath.c_str(), R_OK) != 0) // read permission for files
 	{
 		input.status = 403;
@@ -234,6 +229,7 @@ bool	Response::getResource( void )
 		input.status = 500;
 		return (false);
 	}
+
 	contentType = getContentType(absolutePath, mimeTypes);
 	contentLength = fileLength(absolutePath);
 	return (true);
@@ -241,7 +237,7 @@ bool	Response::getResource( void )
 
 bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-1499
 {
-	std::string	value = input.requestHeaders["range"];
+	std::string	value = input.requestHeaders["Range"];
 	std::string prefix = "bytes=";
 	size_t pos = value.find(prefix);
 	if (pos == std::string::npos)
@@ -265,7 +261,6 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		std::string startStr = rangeStr.substr(0, delim);
 		if (!allDigit(startStr))
 			return (false);
-
 		int start = stoi(startStr);
 	
 
@@ -273,7 +268,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (!allDigit(startStr))
 			return (false);
 
-		int end = stoi(startStr);
+		int end = stoi(endStr);
 
 		if (start > end || end >= contentLength || start < 0 || end < 0)
 		{
@@ -315,6 +310,8 @@ void	Response::buildRange( void )
 {
 	if (!parseRangeHeader())
 		return ;
+	
+	input.status = 206;
 	if (ranges.size() == 1)
 	{
 		ranges[0].header.clear();
@@ -338,19 +335,23 @@ void	Response::handleGET( void )
 		return ;
 	}
 
+	headers.append("\r\nAccept-Ranges: bytes");
 	if (input.config.autoindex && isDir)
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
+		contentType = "text/html";
 		dirList = opendir(absolutePath.c_str());
 		nextState = LISTDIR;
 	}
 	else
 	{
-		if (input.requestHeaders.find("range") != input.requestHeaders.end())
+		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
 			buildRange();
 		headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
 	headers.append("\r\nContent-Type: " + contentType);
+	// if (contentType.find("video") != std::string::npos || contentType.find("video") != std::string::npos)
+		// chunked
 }
 
 void	Response::generateResponse( void )
@@ -370,8 +371,8 @@ void	Response::generateResponse( void )
 	else if (input.method == "DELETE")
 		handleDELETE();
 
-	if (input.requestHeaders.find("keep-alive") != input.requestHeaders.end())
-		headers.append("\r\nConnection: " + input.requestHeaders["keep-alive"]);
+	if (input.requestHeaders.find("Connection") != input.requestHeaders.end())
+		headers.append("\r\nConnection: " + input.requestHeaders["Connection"]);
 
 	headers.append("\r\n\r\n");
 
@@ -385,7 +386,7 @@ void	Response::directoryListing()
 	struct dirent	*entry;
 	std::string 	chunk;
 	int 			i = 0;
-
+	chunk.append("<html><head><title>Index of " + input.uri + "</title></head><body><h1>Index of " + input.uri + "</h1><hr><pre>");
 	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
 		if (entry->d_name[0] == '.')
@@ -394,31 +395,38 @@ void	Response::directoryListing()
 		chunk.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
 			chunk.append("/");
-		chunk.append(">");
+		chunk.append("\">");
 		chunk.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
 			chunk.append("/");
 		
-		chunk.append("</a>");
+		chunk.append("</a>\n");
+		i++;
 	}
 	if (entry == NULL) // dogshit code
 	{
 		chunk.append("</pre><hr></body></html>"); // the size does not include the CRLF carful
 		nextState = FINISHED;
 	}
-	data = toHex(chunk.size()) + chunk + "\r\n";
+	data = toHex(chunk.size()) + "\r\n" + chunk + "\r\n";
 	if (nextState == FINISHED)
 		data.append("0\r\n\r\n");
+	state = SENDDATA;
 	
 }
 
 void	Response::getNextRange()
 {
-	if (currRange >= ranges.size())
+	if (currRange == ranges.size())
 	{
-		data = "\r\n--" + boundary + "--\r\n";
-		state = SENDDATA;
-		nextState = FINISHED;
+		if (ranges.size() > 1)
+		{
+			data = "\r\n--" + boundary + "--\r\n";
+			state = SENDDATA;
+			nextState = FINISHED;
+		}
+		else
+			state = FINISHED;
 		return;
 	}
 	data = ranges[currRange].header;
