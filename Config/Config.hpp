@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/18 10:01:45 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 20:26:29 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,13 @@ typedef struct												Directives {
 	std::string												cgi_ext; // std::vector<std::string>
 }															Directives;
 
-typedef struct												ServerConfigParser {
+typedef struct												vServerConfig
+{
+	Directives												ServerDirectives;
+	std::map<std::string, Directives>						Locations;
+}															vServerConfig;
+
+typedef struct												vServerConfigParser {
 	std::map<std::string, std::string>						serverDirectives;
 	std::vector< std::map<std::string, std::string> >		locationDirectives;
 }															ServerConfigParser;
