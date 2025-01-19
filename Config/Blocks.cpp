@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 15:57:29 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/17 18:42:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 17:48:24 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 bool				Config::parseAllServerBlocks() {
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
 		int						start, end;
-		ServerConfigParser		newServerParser;
+		vServerConfigParser		newServerParser;
 		
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
@@ -29,7 +29,7 @@ bool				Config::parseAllServerBlocks() {
 	return Parser.size() >= 1;
 }
 
-bool				Config::parseSingleServerBlock(int start, int end, ServerConfigParser& currentServerParser) {
+bool				Config::parseSingleServerBlock(int start, int end, vServerConfigParser& currentServerParser) {
 	for (int i = start + 1; i < end; i++) {
 		if (configFileVector[i] == "[location]") {
 			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServerParser))
@@ -53,7 +53,7 @@ bool				Config::parseSingleServerBlock(int start, int end, ServerConfigParser& c
 	return validateServerBlockDirectives(currentServerParser.serverDirectives);
 }
 
-bool				Config::parseSingleLocationBlock(int start, int end, ServerConfigParser& currentServerParser) {
+bool				Config::parseSingleLocationBlock(int start, int end, vServerConfigParser& currentServerParser) {
 	std::map<std::string, std::string>		newLocationMap;
 	
 	for (int i = start + 1; i < end; i++) {
