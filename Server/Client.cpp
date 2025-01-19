@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 19:58:26 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 20:30:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,60 +58,49 @@ void	Client::resetResponse()
 	_Response = Response();
 }
 
-void	Client::initResponse(std::vector<std::map<std::string, Directives>>& servers)
+vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& host)
+{
+	for (std::vector<vServerConfig>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		if (it->host == host)
+			return (*it);
+	}
+	return (servers[0]);
+}
+
+Directives&	matchingConfig(vServerConfig server, std::string& uri)
+{
+	std::string	location;
+	std::map<std::string, Directives>::iterator it;
+
+	for (it = server.Locations.begin(); it != server.Locations.end(); it++)
+	{
+		if (uri.find(it->first) != std::string::npos)
+		{
+			if (it->first.size() > location.size())
+				location = it->first;
+		}
+	}
+	if (location.empty())
+		return (server.ServerDirectives);
+	return (server.Locations.find(location)->second);
+}
+
+void	Client::initResponse(std::vector<vServerConfig>& servers)
 {
 	struct ResponseInput	input;
-	vServerConfig			responsibleServer;
-	std::string				responsibleLocation;
 
 	input.method = _Request.getRequestLineSt().method;
 	input.uri = _Request.getRequestLineSt().uri;
 	input.status = _Request.getStatusCode();
 	input.requestHeaders = _Request.getHeaderSt().headersMap;
-
-	//find matching virtual server based on host header on request
-	for (size_t i = 0; i < vServerConfigs.size(); i++)
-	{
-		if (std::find(vServerConfigs[i].baseConfig["server_name"].begin(), vServerConfigs[i].baseConfig["server_name"].end(), _Request.getHeaderSt().host) != vServerConfigs[i].baseConfig["server_name"].end())
-			responsibleServer = vServerConfigs[i];
-	}
-	std::cout << "no matching server block was found! falling back to default server" << std::endl;
-	responsibleServer = vServerConfigs[0];
+	input.config = matchingConfig(matchingServer(servers, _Request.getHeaderSt().host), input.uri);
 	
-	// find matching location block
-	for (Location::iterator it = responsibleServer.location.begin(); it != responsibleServer.location.end(); it++)
-	{
-		if (input.uri.find(it->first) != std::string::npos)
-		{
-			if(it->first.size() > responsibleLocation.size())
-				responsibleLocation = it->first;
-		}
-	}
+	if (!input.config.alias.empty())
+		input.uri.replace(0, input.config.alias.length(), input.config.alias); // buggy
 	
-	// replace alias
-	if (!responsibleLocation.empty())
-	{
-		if (responsibleServer.location[responsibleLocation].find("alias") != responsibleServer.location[responsibleLocation].end())
-			input.uri.replace(0, responsibleServer.location[responsibleLocation]["alias"][0].length(), responsibleServer.location[responsibleLocation]["alias"][0]);
-	}
-	
-	
-	// insert configs into ResponseInput
-	std::map<std::string, std::vector<std::string> >::iterator itBase = responsibleServer.baseConfig.begin();
-	for (itBase = responsibleServer.baseConfig.begin(); itBase != responsibleServer.baseConfig.end(); itBase++)
-	{
-		if (!responsibleLocation.empty())
-		{
-			std::map<std::string, std::vector<std::string> >::iterator itDirctive = responsibleServer.location[responsibleLocation].find(itBase->first);
-			if (!responsibleLocation.empty() && itDirctive != responsibleServer.location[responsibleLocation].end())
-			{
-				input.config.insert(*itDirctive);
-				continue ;
-			}
-		}
-		input.config.insert(*itBase);
-	}
 	if (input.config.root[input.config.root.length() - 1] == '/')
 		input.config.root.erase(input.config.root.length() - 1);
+
 	_Response.setInput(input);
 }
