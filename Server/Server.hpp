@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/10 14:57:18 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 19:36:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Server {
 		int									serverSocket;
 		sockaddr_in							serverAddress;
 		
-		std::vector<ServerConfig>			vServerConfigs;
+		std::vector<vServerConfig>			vServerConfigs;
 
 		std::map<int, Client>				Clients;
 		
@@ -60,7 +60,7 @@ class Server {
 		// void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
-		Server(std::vector<ServerConfig>& allConfigs);
+		Server(std::vector<vServerConfig>& allConfigs);
 		Server(const Server& original);
 		Server&		operator=(const Server& original);
 		~Server();

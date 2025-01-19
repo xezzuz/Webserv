@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/03 17:57:57 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 19:51:03 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ bool			Webserv::configurateWebserv() {
 bool			Webserv::startWebserv() {
 	std::cout << BOLD << "[WEBSERV]\tStarting the Webserv..." << RESET << std::endl;
 	
-	std::map< std::string, std::vector<ServerConfig> >		vServersConfigs;
-	std::vector<ServerConfig>								allConfigs = WebservConfig.getServers();
+	std::map<std::string, std::vector<vServerConfig>>		vServersConfigs;
+	std::vector<vServerConfig>								allConfigs = WebservConfig.getServers();
 	
 	for (size_t i = 0; i < allConfigs.size(); i++) {
 		std::stringstream	ss;
@@ -42,16 +42,16 @@ bool			Webserv::startWebserv() {
 		std::string	vs_port = ss.str();
 		std::string	vs_host = allConfigs[i].host;
 
-		std::map< std::string, std::vector<ServerConfig> >::iterator it = vServersConfigs.find(vs_host + ":" + vs_port);
+		std::map<std::string, std::vector<vServerConfig>>::iterator it = vServersConfigs.find(vs_host + ":" + vs_port);
 		if (it == vServersConfigs.end()) {
-			std::vector<ServerConfig>	temp(1, allConfigs[i]);
+			std::vector<vServerConfig>	temp(1, allConfigs[i]);
 			vServersConfigs[vs_host + ":" + vs_port] = temp;
 		} else if (it != vServersConfigs.end()) {
 			it->second.push_back(allConfigs[i]);
 		}
 	}
 	
-	std::map< std::string, std::vector<ServerConfig> >::iterator it;
+	std::map< std::string, std::vector<vServerConfig> >::iterator it;
 	for (it = vServersConfigs.begin(); it != vServersConfigs.end(); it++) {
 		// std::cout << it->first << " has " << it->second.size() << " configs" << std::endl;
 

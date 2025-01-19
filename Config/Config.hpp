@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 18:11:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 19:46:06 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,6 @@
 
 
 typedef struct												Directives {
-	int														port;
-	std::string												host;
-	std::vector<std::string>								server_names;
 	std::vector<std::pair<int, std::string> >				error_pages;
 	int														client_max_body_size;
 	std::string												root;
@@ -63,6 +60,9 @@ typedef struct												Directives {
 }															Directives;
 
 typedef struct												vServerConfig {
+	std::string												host;
+	int														port;
+	std::vector<std::string>								server_names;
 	Directives												ServerDirectives;
 	std::map<std::string, Directives>						Locations;
 }															vServerConfig;
@@ -115,7 +115,7 @@ class Config {
 
 		bool						constructServers();
 		void						setDefaultDirectives(std::map<std::string, std::string>& userDirectives);
-		bool						fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& vServerConfig);
+		bool						fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, vServerConfig& newServerConfig);
 		std::vector<std::string>	splitStringBySpace(std::string& string);
 		bool						fillLocationDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& Location, Directives& ServerDirectives);
 

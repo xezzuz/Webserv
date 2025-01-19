@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 18:02:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/19 19:47:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool				Config::constructServers() {
 		vServerConfig	newServerConfig;
 		
 		// Directives		newServerDirectives;
-		fillServerDirectives(Parser[i].serverDirectives, newServerConfig.ServerDirectives);
+		fillServerDirectives(Parser[i].serverDirectives, newServerConfig);
 		for (size_t j = 0; j < Parser[i].locationDirectives.size(); j++) {
 			
 			Directives	newLocationDirectives;
@@ -56,23 +56,23 @@ void				Config::setDefaultDirectives(std::map<std::string, std::string>& userDir
 	}
 }
 
-bool				Config::fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& ServerDirectives) {
+bool				Config::fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, vServerConfig& newServerConfig) {
 	setDefaultDirectives(ServerParserDirectives);
 	
-	ServerDirectives.host = ServerParserDirectives["host"];
-	ServerDirectives.port = std::atoi(ServerParserDirectives["port"].c_str());
-	ServerDirectives.server_names = splitStringBySpace(ServerParserDirectives["server_name"]);
-	// ServerDirectives.error_pages = parseErrorPages();
-	// ServerDirectives.client_max_body_size = parseClientMaxBodySize();
-	ServerDirectives.root = ServerParserDirectives["root"];
-	ServerDirectives.alias = ServerParserDirectives["alias"];
-	ServerDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
-	ServerDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
-	ServerDirectives.upload_store = ServerParserDirectives["upload_store"];
-	// ServerDirectives.autoindex = parseAutoIndex();
-	ServerDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
-	ServerDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
-	ServerDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
+	newServerConfig.host = ServerParserDirectives["host"];
+	newServerConfig.port = std::atoi(ServerParserDirectives["port"].c_str());
+	newServerConfig.server_names = splitStringBySpace(ServerParserDirectives["server_name"]);
+	// newServerConfig.ServerDirectives.error_pages = parseErrorPages();
+	// newServerConfig.ServerDirectives.client_max_body_size = parseClientMaxBodySize();
+	newServerConfig.ServerDirectives.root = ServerParserDirectives["root"];
+	newServerConfig.ServerDirectives.alias = ServerParserDirectives["alias"];
+	newServerConfig.ServerDirectives.index = splitStringBySpace(ServerParserDirectives["index"]);
+	newServerConfig.ServerDirectives.methods = splitStringBySpace(ServerParserDirectives["methods"]);
+	newServerConfig.ServerDirectives.upload_store = ServerParserDirectives["upload_store"];
+	// newServerConfig.ServerDirectives.autoindex = parseAutoIndex();
+	newServerConfig.ServerDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
+	newServerConfig.ServerDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
+	newServerConfig.ServerDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
 
 
 
@@ -101,9 +101,7 @@ bool				Config::fillServerDirectives(std::map<std::string, std::string>& ServerP
 
 bool				Config::fillLocationDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& LocationDirectives, Directives& ServerDirectives) {
 	// setting location directives to server block directives
-	LocationDirectives.port = ServerDirectives.port;
-	LocationDirectives.host = ServerDirectives.host;
-	LocationDirectives.server_names = ServerDirectives.server_names;
+	
 	LocationDirectives.error_pages = ServerDirectives.error_pages;
 	LocationDirectives.client_max_body_size = ServerDirectives.client_max_body_size;
 	LocationDirectives.root = ServerDirectives.root;
@@ -118,9 +116,7 @@ bool				Config::fillLocationDirectives(std::map<std::string, std::string>& Serve
 
 
 	// overriding location directives with location block directives
-	LocationDirectives.host = ServerParserDirectives["host"];
-	LocationDirectives.port = std::atoi(ServerParserDirectives["port"].c_str());
-	LocationDirectives.server_names = splitStringBySpace(ServerParserDirectives["server_name"]);
+	
 	// LocationDirectives.error_pages = parseErrorPages();
 	// LocationDirectives.client_max_body_size = parseClientMaxBodySize();
 	LocationDirectives.root = ServerParserDirectives["root"];

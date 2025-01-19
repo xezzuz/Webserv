@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/18 19:46:44 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/19 19:36:39 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(std::vector<ServerConfig>& Configs) : status(false), serverSocket(-1), vServerConfigs(Configs) {
+Server::Server(std::vector<vServerConfig>& Configs) : status(false), serverSocket(-1), vServerConfigs(Configs) {
 	
 }
 

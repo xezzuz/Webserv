@@ -81,7 +81,7 @@ public:
 
 private:
 	// response needed data
-	struct ResponseInput	input;
+	// struct ResponseInput	input;
 
 	// response created data
 	std::map<std::string, std::string>	mimeTypes;
