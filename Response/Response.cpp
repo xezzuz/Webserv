@@ -2,7 +2,7 @@
 
 Response::~Response() {}
 
-Response::Response() : contentLength(0), isDir(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
+Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
 {
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
@@ -70,10 +70,14 @@ Response&	Response::operator=(const Response& rhs)
 		contentLength = rhs.contentLength;
 		headers = rhs.headers;
 		isDir = rhs.isDir;
+		chunked = rhs.chunked;
+		dirList = rhs.dirList;
 		ranges = rhs.ranges;
 		boundary = rhs.boundary;
 		currRange = rhs.currRange;
 		state = rhs.state;
+		nextState = rhs.nextState;
+		data = rhs.data;
 	}
 	return (*this);
 }
@@ -108,7 +112,6 @@ void	Response::handleDELETE( void )
 
 void	Response::generateErrorPage( void )
 {
-	std::cout << "tt" << std::endl;
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
@@ -347,11 +350,15 @@ void	Response::handleGET( void )
 	{
 		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
 			buildRange();
-		headers.append("\r\nContent-Length: " + _toString(contentLength));
+		// if (contentType.find("video") != std::string::npos || contentType.find("video") != std::string::npos)
+		// {
+		// 	headers.append("\r\nTransfer-Encoding: chunked");
+		// 	chunked = true;
+		// }
+		else
+			headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
 	headers.append("\r\nContent-Type: " + contentType);
-	// if (contentType.find("video") != std::string::npos || contentType.find("video") != std::string::npos)
-		// chunked
 }
 
 void	Response::generateResponse( void )
@@ -381,43 +388,46 @@ void	Response::generateResponse( void )
 	state = SENDDATA;
 }
 
+void	Response::buildChunk()
+{
+	data = toHex(data.size()) + "\r\n" + data + "\r\n";
+	if (nextState == FINISHED)
+		data.append("0\r\n\r\n");
+	state = SENDDATA;
+}
+
 void	Response::directoryListing()
 {
 	struct dirent	*entry;
-	std::string 	chunk;
 	int 			i = 0;
-	chunk.append("<html><head><title>Index of " + input.uri + "</title></head><body><h1>Index of " + input.uri + "</h1><hr><pre>");
+	data.append("<html><head><title>Index of " + input.uri + "</title></head><body><h1>Index of " + input.uri + "</h1><hr><pre>");
 	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
 		if (entry->d_name[0] == '.')
 			continue ;
-		chunk.append("<a href=\"");
-		chunk.append(entry->d_name);
+		data.append("<a href=\"");
+		data.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
-			chunk.append("/");
-		chunk.append("\">");
-		chunk.append(entry->d_name);
+			data.append("/");
+		data.append("\">");
+		data.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
-			chunk.append("/");
+			data.append("/");
 		
-		chunk.append("</a>\n");
+		data.append("</a>\n");
 		i++;
 	}
-	if (entry == NULL) // dogshit code
+	if (entry == NULL)
 	{
-		chunk.append("</pre><hr></body></html>"); // the size does not include the CRLF carful
+		data.append("</pre><hr></body></html>");
 		nextState = FINISHED;
 	}
-	data = toHex(chunk.size()) + "\r\n" + chunk + "\r\n";
-	if (nextState == FINISHED)
-		data.append("0\r\n\r\n");
-	state = SENDDATA;
-	
+	state = BUILDCHUNK;
 }
 
 void	Response::getNextRange()
 {
-	if (currRange == ranges.size())
+	if (currRange != ranges.size())
 	{
 		if (ranges.size() > 1)
 		{
@@ -427,12 +437,13 @@ void	Response::getNextRange()
 		}
 		else
 			state = FINISHED;
-		return;
 	}
-	data = ranges[currRange].header;
-	state = SENDDATA;
-	bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
-	nextState = READRANGE;
+	else
+	{
+		data = ranges[currRange].header;
+		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
+		state = READRANGE;
+	}
 }
 
 void	Response::readRange()
@@ -460,6 +471,8 @@ void	Response::readRange()
 			nextState = NEXTRANGE;
 			currRange++;
 		}
+		else
+			nextState = READRANGE;
 	}
 }
 
@@ -469,8 +482,17 @@ void	Response::readBody()
 	int bytesRead = bodyFile.read(buffer, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead > 0)
 	{
-		data = buffer;
+		// std::cout << "BYTESREAD : "<< bytesRead << std::endl;
+		// buffer[bytesRead] = '\0';
+		data = std::string(buffer, bytesRead);
+		// std::cout << "DATA SIZE AFTER READ: " << data.size() << std::endl;
 		state = SENDDATA;
+		if (chunked)
+		{
+			state = BUILDCHUNK;
+			if (bodyFile.peek() == EOF)
+				nextState = FINISHED;
+		}
 	}
 	else if (bytesRead == 0)
 	{
@@ -485,23 +507,29 @@ void	Response::readBody()
 
 bool	Response::sendData(int& socket)
 {
-	std::cout << "--------------------" << std::endl;
-	std::cout << absolutePath << std::endl;
+	// std::cout <<  "RESOURCE : "<< absolutePath << std::endl;
+	// std::cout << "SENT DATA's SIZE : " << data.length() << std::endl;
+	// std::cout << "--------DATA--------" << std::endl;
 	std::cout << data << std::endl;
-	std::cout << "--------------------"  << std::endl;
+	// std::cout << "--------------------"  << std::endl;
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
+	// std::cout << "BYTESSENT: "  << bytesSent << std::endl;
 	if (bytesSent == -1)
 	{
 		std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
 		state = ERROR;
 	}
 	data.erase(0, bytesSent);
+	// std::string str = "Hello";
+	// send(socket, str.c_str(), str.size(), 0);
+	// exit(1);
 	return (data.empty());
 }
 
 int	Response::sendResponse( int& socket )
 {
-	std::cout << state << "|" << nextState << std::endl;
+	std::cout << "STATE>" << state << "|" << "NEXTSTATE>"<< nextState << std::endl;
+	std::cout << "SIZE >>" << data.size() << std::endl;
 	switch (state)
 	{
 		case BUILDHEADER:
@@ -512,6 +540,9 @@ int	Response::sendResponse( int& socket )
 			break;
 		case LISTDIR:
 			directoryListing();
+			break;
+		case BUILDCHUNK:
+			buildChunk();
 			break;
 		case NEXTRANGE:
 			getNextRange();
@@ -524,8 +555,10 @@ int	Response::sendResponse( int& socket )
 				state = nextState;
 			break;
 		case ERROR:
+			bodyFile.close();
 			return (-1);
 		case FINISHED:
+			bodyFile.close();
 			return (1);
 	}
 	return (0);

@@ -28,21 +28,7 @@ std::string		toHex(size_t num)
 #include <sys/stat.h>
 int main()
 {
-	// DIR *t = opendir(".");
-
-	// struct dirent	*entry;
-
-	// while((entry = readdir(t)) != nullptr)
-	// {
-	// 	if (entry->d_type == DT_DIR)
-	// 		std::cout << "DIR";
-	// 	else if (entry->d_type == DT_REG)
-	// 		std::cout << "FILE";
-	// 	std::cout << ": "<< entry->d_name << std::endl;
-	// }
-	struct stat file;
-
-	if(stat("/home/mmaila/Desktop/SERV/www/favicon.ico", &file) == -1)
-		std::cout << "NOT FOUND" << std::endl;
-	std::cout  << toHex(45384)  << std::endl;
+	
+	std::cout << "data\r\n\r\n";
+	std::cout << "HELLO" << std::endl;
 }

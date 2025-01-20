@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 22:01:30 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/20 18:08:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,6 @@ void	Client::initResponse(std::vector<vServerConfig>& servers)
 	if (input.config.root[input.config.root.length() - 1] == '/')
 		input.config.root.erase(input.config.root.length() - 1);
 	
-	
-	std::cout << _Request.getRequestLineSt().uri << std::endl;
 	// input.config.index.push_back("index.html");
 	input.config.autoindex = true;
 	_Response.setInput(input);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2024/11/30 15:40:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/20 15:02:15 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,13 @@
 #include "./Main/Webserv.hpp"
 #include "./Server/Server.hpp"
 #include "./Config/Config.hpp"
+#include "signal.h"
 
 int main(int argc, char **argv) {
 	if (argc != 2)
 		return (std::cerr << BOLD << "Webserv: Invalid Number of Arguments!\nUse: ./Webserv <config file>" << RESET << std::endl, 1);
 	
+	signal(SIGPIPE, SIG_IGN);
 	Webserv			Main(argv[1]);
 
 	if (!Main.configurateWebserv())

@@ -23,6 +23,7 @@ enum	State
 	BUILDHEADER,
 	READBODY,
 	LISTDIR,
+	BUILDCHUNK,
 	NEXTRANGE,
 	READRANGE,
 	SENDDATA,
@@ -72,6 +73,7 @@ public:
 	void		readBody();
 	int			sendResponse( int& socket );
 	void		readRange();
+	void		buildChunk();
 	void		getNextRange();
 	bool		sendData(int& socket);
 	
@@ -98,8 +100,9 @@ private:
 	std::ifstream	bodyFile;
 	std::string		absolutePath;
 	bool			isDir; // requested resource is a directory;
+	bool			chunked;
 
-	DIR				*dirList;
+	DIR				*dirList; // might produce leaks
 
 	// range
 	std::vector<Range>	ranges;

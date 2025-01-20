@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 21:22:47 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/20 17:53:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,7 @@ bool			Request::parseHeaders() {
 	it = header.headersMap.find("Connection");
 	if (it != header.headersMap.end())
 		header.connection = it->second;
+	std::cout << "====>" << header.connection << std::endl;
 	
 	it = header.headersMap.find("Transfer-Encoding");
 	if (it != header.headersMap.end())
