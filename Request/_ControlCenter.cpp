@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/20 17:50:45 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/21 11:49:51 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,13 @@ void			Request::setRequestState() {
 		pState = PARSING_FINISHED;
 }
 
-void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
-	std::string		recvBuff(recvBuffer, recvBufferSize);
-	buffer.append(recvBuffer, recvBufferSize);
-	bufferSize += recvBufferSize;
-	std::cout << buffer << std::endl;
-	parseControlCenter();	
-}
-
 // PARSING CONTROL CENTER
 bool			Request::parseControlCenter() {
 	setRequestState();
 	switch (pState) {
 		case HEADERS_RECEIVED:
 			parseRequestLineAndHeaders();
+			
 			// std::cout << "pState = " << pState << std::endl;
 			break;
 		case BODY_RECEIVED:
@@ -68,4 +61,13 @@ bool			Request::parseControlCenter() {
 	setRequestState();
 	std::cout << "[SERVER]\tResponse " << statusCode << std::endl;
 	return true;
+}
+
+void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
+	std::cout << "REQUEST URI : " << requestLine.uri << std::endl;
+	std::string		recvBuff(recvBuffer, recvBufferSize);
+	buffer.append(recvBuffer, recvBufferSize);
+	bufferSize += recvBufferSize;
+	std::cout << buffer << std::endl;
+	parseControlCenter();	
 }

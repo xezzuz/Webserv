@@ -368,7 +368,7 @@ void	Response::generateResponse( void )
 
 	if (input.status < 400)
 		validateUri();
-
+	
 	if (input.status >= 400)
 		generateErrorPage();
 	else if (input.method == "GET") // check allowed methods

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 11:01:26 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/21 11:58:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Request::Request() {
 	bufferSize = 0;
 	
 	isEncoded = false;
+	isMultipart = false;
 	pState = PARSING_INIT;
 	
 	body.bodySize = 0;
@@ -44,6 +45,7 @@ Request&	Request::operator=(const Request& rhs)
 		bufferSize = rhs.bufferSize;
 		files = rhs.files;
 		body = rhs.body;
+		header = rhs.header;
 		requestLine = rhs.requestLine;
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
