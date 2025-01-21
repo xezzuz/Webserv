@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/20 18:08:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/21 11:01:05 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,12 @@ void	Client::resetResponse()
 {
 	_Response = Response();
 }
+
+void	Client::resetRequest()
+{
+	_Request = Request();
+}
+
 
 vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& host)
 {

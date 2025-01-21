@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/12 20:38:19 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/21 10:59:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,8 @@ class Request {
 		Request();
 		// Request(const std::string& rawRequest);
 		~Request();
+		Request(const Request& rhs);
+		Request&	operator=(const Request& rhs);
 
 		bool						printParsedRequest();
 

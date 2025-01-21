@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 19:51:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/21 10:50:20 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ bool			Webserv::startWebserv() {
 
 		vServers.push_back(Server(it->second));
 		vServers.back().initServer();
-		addToPoll(vServers.back().getServerSocket(), POLLIN, 0);
+		addToPoll(vServers.back().getServerSocket(), POLLIN);
 	}
 	
 	// std::cout << "Webserv could run " << vServers.size() << " vServers!" << std::endl;
@@ -101,12 +101,11 @@ Server*			Webserv::getResponsibleServer(int eventSocket) {
 	return NULL;
 }
 
-void			Webserv::addToPoll(int fd, short events, short revents) {
+void			Webserv::addToPoll(int fd, short events) {
 	pollfd			toAdd;
 
 	toAdd.fd = fd;
 	toAdd.events = events;
-	toAdd.revents = revents;
 	pollSockets.push_back(toAdd);
 }
 

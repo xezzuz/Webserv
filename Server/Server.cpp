@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/20 15:48:38 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/21 11:01:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd
 			return false;
 		}
 		
-		addToPoll(newSocket, POLLIN, 0, pollSockets);
+		addToPoll(newSocket, POLLIN, pollSockets);
 		addToClientsMap(newSocket);
 
 		std::cout << "[SERVER]\tAccepted Connection from Client "
@@ -143,7 +143,8 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 		else if (retVal == 1)
 		{
 			Clients[clientSocket].resetResponse();
-			pollClientSock.events = 0;
+			Clients[clientSocket].resetRequest();
+			pollClientSock.events = POLLIN;
 		}
 		
 		// 	send(clientSocket, Clients[clientSocket].getResponse().getRawResponse().c_str(), Clients[clientSocket].getResponse().getRawResponse().size(), 0);
@@ -172,12 +173,11 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	}
 }
 
-void		Server::addToPoll(int fd, short events, short revents, std::vector<pollfd>& pollSockets) {
+void		Server::addToPoll(int fd, short events, std::vector<pollfd>& pollSockets) {
 	pollfd			toAdd;
 
 	toAdd.fd = fd;
 	toAdd.events = events;
-	toAdd.revents = revents;
 	pollSockets.push_back(toAdd);
 }
 

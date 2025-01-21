@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 19:36:29 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/21 10:50:27 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Server {
 		bool	handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd>& pollSockets);
 		bool	handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets);
 		
-		void	addToPoll(int fd, short events, short revents, std::vector<pollfd>& pollSockets);
+		void	addToPoll(int fd, short events, std::vector<pollfd>& pollSockets);
 		void	rmFromPoll(int fd, std::vector<pollfd>& pollSockets);
 		void	addToClientsMap(int key);
 		void	rmFromClientsMap(int key);

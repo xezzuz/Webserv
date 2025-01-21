@@ -131,7 +131,7 @@ void	Response::generateErrorPage( void )
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(data.size()));
 	input.requestHeaders["Connection"] = "close";
-	nextState = FINISHED;
+	nextState = ERROR;
 }
 
 void	Response::handlePOST( void )
@@ -528,6 +528,7 @@ bool	Response::sendData(int& socket)
 
 int	Response::sendResponse( int& socket )
 {
+	std::cout << "ABSOPATH: " << absolutePath << std::endl; 
 	std::cout << "STATE>" << state << "|" << "NEXTSTATE>"<< nextState << std::endl;
 	std::cout << "SIZE >>" << data.size() << std::endl;
 	switch (state)
