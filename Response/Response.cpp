@@ -289,7 +289,8 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 		if (start > end || end >= contentLength || start < 0 || end < 0)
 		{
-			input.status = 416; // this doesnt get moved to error page yet
+			input.status = 416;
+			generateErrorPage();
 			return (false);
 		}
 	
@@ -460,7 +461,7 @@ void	Response::directoryListing()
 
 void	Response::getNextRange()
 {
-	if (currRange != ranges.size())
+	if (currRange == ranges.size())
 	{
 		if (ranges.size() > 1)
 		{
@@ -473,6 +474,7 @@ void	Response::getNextRange()
 	}
 	else
 	{
+		std::cout << "RANGE LENGTH OF INDEX " << currRange << ": " << ranges[currRange].rangeLength << std::endl;
 		data = ranges[currRange].header;
 		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
 		state = READRANGE;
@@ -488,7 +490,7 @@ void	Response::readRange()
 		static_cast<size_t>(SEND_BUFFER_SIZE),
 		ranges[currRange].rangeLength
 	);
-
+	std::cout << "READ LENGTH OF RANGE :" << readLength << std::endl;
 	int bytesRead = bodyFile.read(buffer, readLength).gcount();
 	if (bytesRead == -1)
 	{
@@ -497,7 +499,8 @@ void	Response::readRange()
 	}
 	else if (bytesRead > 0)
 	{
-		data = buffer;
+		data += std::string(buffer, bytesRead);
+		std::cout << "BUFFER SIZE IN RANGE : " << data.size() << std::endl;
 		ranges[currRange].rangeLength -= bytesRead;
 		state = SENDDATA;
 		if (ranges[currRange].rangeLength == 0)
