@@ -276,13 +276,13 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 			return (false);
 	
 		std::string startStr = rangeStr.substr(0, delim);
-		if (!allDigit(startStr))
+		if (!allDigit(startStr) || startStr.empty())
 			return (false);
 		int start = stoi(startStr);
 	
 
 		std::string endStr = rangeStr.substr(delim + 1);
-		if (!allDigit(startStr))
+		if (!allDigit(endStr) || endStr.empty())
 			return (false);
 
 		int end = stoi(endStr);
@@ -371,16 +371,16 @@ void	Response::handleGET( void )
 	{
 		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
 			buildRange();
-		// if (contentType.find("video") != std::string::npos || contentType.find("video") != std::string::npos)
-		// {
-		// 	headers.append("\r\nTransfer-Encoding: chunked");
-		// 	chunked = true;
-		// }
-		// else
+		if (contentType.find("video") != std::string::npos || contentType.find("video") != std::string::npos)
+		{
+			headers.append("\r\nTransfer-Encoding: chunked");
+			chunked = true;
+		}
+		else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
-	headers.append("\r\nAccept-Ranges: bytes");
 	headers.append("\r\nContent-Type: " + contentType);
+	headers.append("\r\nAccept-Ranges: bytes");
 }
 
 void	Response::generateHeaders( void )
@@ -543,16 +543,17 @@ bool	Response::sendData(int& socket)
 {
 	// std::cout <<  "RESOURCE : "<< absolutePath << std::endl;
 	// std::cout << "SENT DATA's SIZE : " << data.length() << std::endl;
-	std::cout << "--------RESPONSE_DATA--------" << std::endl;
-	std::cout << data << std::endl;
-	std::cout << "-----------------------------"  << std::endl;
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	// std::cout << "BYTESSENT: "  << bytesSent << std::endl;
 	if (bytesSent == -1)
 	{
 		std::cerr << "[WEBSERV]\tsend: " << strerror(errno) << std::endl;
 		state = ERROR;
+		return (false);
 	}
+	std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "--------" << std::endl;
+	std::cout << "\tSENT DATA OF SIZE: " << data.size() << std::endl;
+	std::cout << "-----------------------------------------------------"  << std::endl;
 	data.erase(0, bytesSent);
 	return (data.empty());
 }

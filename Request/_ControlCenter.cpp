@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 14:48:27 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/22 16:06:53 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,5 @@ void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
 	std::string		recvBuff(recvBuffer, recvBufferSize);
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
-	std::cout << "----------REQUEST----------" << std::endl;
-	std::cout << buffer << std::endl;
-	std::cout << "---------------------------" << std::endl;
 	parseControlCenter();	
 }
