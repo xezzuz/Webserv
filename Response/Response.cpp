@@ -215,7 +215,7 @@ bool	Response::getResource( void )
 		{
 			if (input.config.autoindex)
 				return (true);
-			input.status = 403;
+			input.status = 404;
 			return (false);
 		}
 		absolutePath.append(*it);
@@ -361,7 +361,7 @@ void	Response::handleGET( void )
 	headers.append("\r\nContent-Type: " + contentType);
 }
 
-void	Response::generateResponse( void )
+void	Response::generateHeaders( void )
 {
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
@@ -509,9 +509,9 @@ bool	Response::sendData(int& socket)
 {
 	// std::cout <<  "RESOURCE : "<< absolutePath << std::endl;
 	// std::cout << "SENT DATA's SIZE : " << data.length() << std::endl;
-	// std::cout << "--------DATA--------" << std::endl;
+	std::cout << "--------RESPONSE_DATA--------" << std::endl;
 	std::cout << data << std::endl;
-	// std::cout << "--------------------"  << std::endl;
+	std::cout << "-----------------------------"  << std::endl;
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	// std::cout << "BYTESSENT: "  << bytesSent << std::endl;
 	if (bytesSent == -1)
@@ -526,15 +526,16 @@ bool	Response::sendData(int& socket)
 	return (data.empty());
 }
 
+void printState(enum State state);
+
 int	Response::sendResponse( int& socket )
 {
-	std::cout << "ABSOPATH: " << absolutePath << std::endl; 
-	std::cout << "STATE>" << state << "|" << "NEXTSTATE>"<< nextState << std::endl;
-	std::cout << "SIZE >>" << data.size() << std::endl;
+	printState(state);
+	printState(nextState);
 	switch (state)
 	{
 		case BUILDHEADER:
-			generateResponse();
+			generateHeaders();
 			break;
 		case READBODY:
 			readBody();
@@ -563,4 +564,41 @@ int	Response::sendResponse( int& socket )
 			return (1);
 	}
 	return (0);
+}
+
+
+/////////////////
+
+void printState(enum State state)
+{
+	switch (state)
+	{
+		case BUILDHEADER:
+			std::cout << "State==========>BUILDING HEADER" << std::endl;
+			break;
+		case READBODY:
+			std::cout << "State==========>READING BODY" << std::endl;
+			break;
+		case LISTDIR:
+			std::cout << "State==========>LISTING DIR" << std::endl;
+			break;
+		case BUILDCHUNK:
+			std::cout << "State==========>BUILDING CHUNK" << std::endl;
+			break;
+		case NEXTRANGE:
+			std::cout << "State==========>GETTING NEXT RANGE" << std::endl;
+			break;
+		case READRANGE:
+			std::cout << "State==========>READING RANGE" << std::endl;
+			break;
+		case SENDDATA:
+			std::cout << "State==========>SENDING DATA" << std::endl;
+			break;
+		case ERROR:
+			std::cout << "State==========>ERROR" << std::endl;
+			break;
+		case FINISHED:
+			std::cout << "State==========>FINISHED" << std::endl;
+			break;
+	}
 }

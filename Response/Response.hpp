@@ -10,6 +10,8 @@
 # include "../Config/Config.hpp"
 # include "../Utils/Helpers.hpp"
 
+# define SEND_BUFFER_SIZE 4096
+
 struct Range
 {
 	std::pair<int, int> range;
@@ -40,21 +42,18 @@ struct	ResponseInput
 	Directives							config;
 };
 
-# define SEND_BUFFER_SIZE 4096
-
 class Response
 {
 public:
+	~Response();
 	Response();
 	Response(const Response& rhs);
 	Response&	operator=(const Response& rhs);
-	~Response();
 
 	void		setInput(struct ResponseInput& input);
 
 	void		generateErrorPage( void );
-	void		generatePostPage( void );
-	void		generateResponse( void );
+	void		generateHeaders( void );
 	bool		validateUri( void );
 	bool		getResource( void );
 
@@ -85,7 +84,7 @@ private:
 	// response needed data
 	struct ResponseInput	input;
 
-	// response created data
+	// response constants
 	std::map<std::string, std::string>	mimeTypes;
 	std::map<int, std::string>			statusCodes;
 
@@ -101,7 +100,6 @@ private:
 	std::string		absolutePath;
 	bool			isDir; // requested resource is a directory;
 	bool			chunked;
-
 	DIR				*dirList; // might produce leaks
 
 	// range
@@ -109,14 +107,12 @@ private:
 	std::string			boundary;
 	size_t				currRange;
 
+	// response state
 	enum State	state;
 	enum State	nextState;
 
-	// response
+	// response buffer
 	std::string data;
-	
-
-
 };
 
 #endif
