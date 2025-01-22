@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 11:01:42 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/22 11:06:44 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,7 @@ class Client {
 
 		Request&		getRequest();
 		Response&		getResponse();
-		void			resetResponse();
-		void			resetRequest();
+		void			reset();
 		
 		int				getSocket();
 		

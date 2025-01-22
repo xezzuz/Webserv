@@ -24,6 +24,7 @@ enum	State
 {
 	BUILDHEADER,
 	READBODY,
+	AUTOINDEX,
 	LISTDIR,
 	BUILDCHUNK,
 	NEXTRANGE,
@@ -76,6 +77,7 @@ public:
 	void		getNextRange();
 	bool		sendData(int& socket);
 	
+	void		autoIndex();
 	void		directoryListing();
 
 

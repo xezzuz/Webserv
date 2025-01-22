@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 12:00:30 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/22 11:12:58 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,9 @@ int				Client::getSocket() {
 	return socket;
 }
 
-void	Client::resetResponse()
+void	Client::reset()
 {
 	_Response = Response();
-}
-
-void	Client::resetRequest()
-{
 	_Request = Request();
 }
 

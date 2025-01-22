@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 11:45:25 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/22 11:12:41 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,8 +143,7 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 		}
 		else if (retVal == 1)
 		{
-			Clients[clientSocket].resetResponse();
-			Clients[clientSocket].resetRequest();
+			Clients[clientSocket].reset();
 			pollClientSock.events = POLLIN;
 		}
 		

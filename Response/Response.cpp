@@ -1,9 +1,17 @@
 #include "Response.hpp"
 
-Response::~Response() {}
+Response::~Response()
+{
+	if (dirList)
+	{
+		closedir(dirList);
+		dirList = NULL;
+	}
+}
 
 Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
 {
+	dirList = NULL;
     statusCodes.insert(std::make_pair(200, "OK"));
     statusCodes.insert(std::make_pair(201, "Created"));
     statusCodes.insert(std::make_pair(204, "No Content"));
@@ -78,6 +86,12 @@ Response&	Response::operator=(const Response& rhs)
 		state = rhs.state;
 		nextState = rhs.nextState;
 		data = rhs.data;
+		bodyFile.close();
+		if (dirList)
+		{
+			closedir(dirList);
+			dirList = NULL;
+		}
 	}
 	return (*this);
 }
@@ -115,18 +129,18 @@ void	Response::generateErrorPage( void )
 	 // if (error_page directive exists)
 	 	// open the error page in bodyFD
 	 //else
-		data = "<!DOCTYPE html>"
-				"<html>"
-				"<head>"
-				"    <title> " + _toString(input.status) + " " + statusCodes[input.status] + " </title>"
-				"</head>"
-				"<body>"
-				"    <center>"
-				"        <h1> " + _toString(input.status) + " " + statusCodes[input.status] + " </h1>"
-				"    </center>"
-				"    <hr>"
-				"    <center>webserv/1.0</center>"
-				"</body>"
+		data = "<!DOCTYPE html>\n"
+				"<html>\n"
+				"<head>\n"
+				"    <title> " + _toString(input.status) + " " + statusCodes[input.status] + " </title>\n"
+				"</head>\n"
+				"<body>\n"
+				"    <center>\n"
+				"        <h1> " + _toString(input.status) + " " + statusCodes[input.status] + " </h1>\n"
+				"    </center>\n"
+				"    <hr>\n"
+				"    <center>webserv/1.0</center>\n"
+				"</body>\n"
 				"</html>";
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(data.size()));
@@ -338,13 +352,20 @@ void	Response::handleGET( void )
 		return ;
 	}
 
-	headers.append("\r\nAccept-Ranges: bytes");
 	if (input.config.autoindex && isDir)
 	{
+		dirList = opendir(absolutePath.c_str());
+		if (dirList == NULL)
+		{
+			std::cerr << "[WEBSERV]\t>";
+			perror("opendir");
+			input.status = 500;
+			generateErrorPage();
+			return ;
+		}
 		headers.append("\r\nTransfer-Encoding: chunked");
 		contentType = "text/html";
-		dirList = opendir(absolutePath.c_str());
-		nextState = LISTDIR;
+		nextState = AUTOINDEX;
 	}
 	else
 	{
@@ -355,9 +376,10 @@ void	Response::handleGET( void )
 		// 	headers.append("\r\nTransfer-Encoding: chunked");
 		// 	chunked = true;
 		// }
-		else
+		// else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
+	headers.append("\r\nAccept-Ranges: bytes");
 	headers.append("\r\nContent-Type: " + contentType);
 }
 
@@ -396,30 +418,41 @@ void	Response::buildChunk()
 	state = SENDDATA;
 }
 
+void	Response::autoIndex()
+{
+	data.append("<html>\n"
+				"<head>\n"
+				"<title>Index of " + input.uri + "</title>\n"
+				"</head>\n"
+				"<body>\n"
+				"<h1>Index of " + input.uri + "</h1>\n"
+				"<hr>\n"
+				"<pre>\n");
+	nextState = LISTDIR;
+	directoryListing();
+}
+
 void	Response::directoryListing()
 {
 	struct dirent	*entry;
 	int 			i = 0;
-	data.append("<html><head><title>Index of " + input.uri + "</title></head><body><h1>Index of " + input.uri + "</h1><hr><pre>");
+
 	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
-		if (entry->d_name[0] == '.')
+		std::string name = entry->d_name;
+		if (name == ".")
 			continue ;
-		data.append("<a href=\"");
-		data.append(entry->d_name);
 		if (entry->d_type == DT_DIR)
-			data.append("/");
-		data.append("\">");
-		data.append(entry->d_name);
-		if (entry->d_type == DT_DIR)
-			data.append("/");
-		
-		data.append("</a>\n");
+			name.append("/");
+		data.append("<a href=\"" + name + "\">" + name + "</a>\n");
 		i++;
 	}
 	if (entry == NULL)
 	{
-		data.append("</pre><hr></body></html>");
+		data.append("</pre>\n"
+					"<hr>\n"
+					"</body>\n"
+					"</html>");
 		nextState = FINISHED;
 	}
 	state = BUILDCHUNK;
@@ -450,7 +483,8 @@ void	Response::readRange()
 {
 	char buffer[SEND_BUFFER_SIZE] = {0};
 
-	size_t readLength = std::min(
+	size_t readLength = std::min
+	(
 		static_cast<size_t>(SEND_BUFFER_SIZE),
 		ranges[currRange].rangeLength
 	);
@@ -483,7 +517,7 @@ void	Response::readBody()
 	if (bytesRead > 0)
 	{
 		// std::cout << "BYTESREAD : "<< bytesRead << std::endl;
-		// buffer[bytesRead] = '\0';
+		// buffer[bytesRead] = '\0'; // be CAREFUL
 		data = std::string(buffer, bytesRead);
 		// std::cout << "DATA SIZE AFTER READ: " << data.size() << std::endl;
 		state = SENDDATA;
@@ -520,18 +554,15 @@ bool	Response::sendData(int& socket)
 		state = ERROR;
 	}
 	data.erase(0, bytesSent);
-	// std::string str = "Hello";
-	// send(socket, str.c_str(), str.size(), 0);
-	// exit(1);
 	return (data.empty());
 }
 
-void printState(enum State state);
+void printState(enum State state, std::string name);
 
 int	Response::sendResponse( int& socket )
 {
-	printState(state);
-	printState(nextState);
+	printState(state, "State");
+	printState(nextState, "NextState");
 	switch (state)
 	{
 		case BUILDHEADER:
@@ -539,6 +570,9 @@ int	Response::sendResponse( int& socket )
 			break;
 		case READBODY:
 			readBody();
+			break;
+		case AUTOINDEX:
+			autoIndex();
 			break;
 		case LISTDIR:
 			directoryListing();
@@ -557,10 +591,8 @@ int	Response::sendResponse( int& socket )
 				state = nextState;
 			break;
 		case ERROR:
-			bodyFile.close();
 			return (-1);
 		case FINISHED:
-			bodyFile.close();
 			return (1);
 	}
 	return (0);
@@ -569,36 +601,39 @@ int	Response::sendResponse( int& socket )
 
 /////////////////
 
-void printState(enum State state)
+void printState(enum State state, std::string name)
 {
 	switch (state)
 	{
 		case BUILDHEADER:
-			std::cout << "State==========>BUILDING HEADER" << std::endl;
+			std::cout << name << "==========>BUILDING HEADER" << std::endl;
 			break;
 		case READBODY:
-			std::cout << "State==========>READING BODY" << std::endl;
+			std::cout << name << "==========>READING BODY" << std::endl;
+			break;
+		case AUTOINDEX:
+			std::cout << name << "==========>AUTOINDEX" << std::endl;
 			break;
 		case LISTDIR:
-			std::cout << "State==========>LISTING DIR" << std::endl;
+			std::cout << name << "==========>LISTING DIR" << std::endl;
 			break;
 		case BUILDCHUNK:
-			std::cout << "State==========>BUILDING CHUNK" << std::endl;
+			std::cout << name << "==========>BUILDING CHUNK" << std::endl;
 			break;
 		case NEXTRANGE:
-			std::cout << "State==========>GETTING NEXT RANGE" << std::endl;
+			std::cout << name << "==========>GETTING NEXT RANGE" << std::endl;
 			break;
 		case READRANGE:
-			std::cout << "State==========>READING RANGE" << std::endl;
+			std::cout << name << "==========>READING RANGE" << std::endl;
 			break;
 		case SENDDATA:
-			std::cout << "State==========>SENDING DATA" << std::endl;
+			std::cout << name << "==========>SENDING DATA" << std::endl;
 			break;
 		case ERROR:
-			std::cout << "State==========>ERROR" << std::endl;
+			std::cout << name << "==========>ERROR" << std::endl;
 			break;
 		case FINISHED:
-			std::cout << "State==========>FINISHED" << std::endl;
+			std::cout << name << "==========>FINISHED" << std::endl;
 			break;
 	}
 }
