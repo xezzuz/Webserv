@@ -9,7 +9,7 @@ Response::~Response()
 	}
 }
 
-Response::Response() : contentLength(0), isDir(false), chunked(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
+Response::Response() : contentLength(0), chunked(false), currRange(0), state(BUILDHEADER), nextState(READBODY)
 {
 	dirList = NULL;
     statusCodes.insert(std::make_pair(200, "OK"));
@@ -77,7 +77,6 @@ Response&	Response::operator=(const Response& rhs)
 		contentType = rhs.contentType;
 		contentLength = rhs.contentLength;
 		headers = rhs.headers;
-		isDir = rhs.isDir;
 		chunked = rhs.chunked;
 		dirList = rhs.dirList;
 		ranges = rhs.ranges;
@@ -103,9 +102,9 @@ void	Response::setInput(struct ResponseInput& input)
 
 void	Response::handleDELETE( void )
 {
-	if (isDir)
+	if (input.isDir)
 	{
-		if (rmdir(absolutePath.c_str()) == -1)
+		if (rmdir(input.absolutePath.c_str()) == -1)
 		{
 			input.status = 500; // wrong
 			generateErrorPage();
@@ -114,7 +113,7 @@ void	Response::handleDELETE( void )
 	}
 	else 
 	{
-		if (remove(absolutePath.c_str()) == -1)
+		if (remove(input.absolutePath.c_str()) == -1)
 		{
 			input.status = 500; // wrong
 			generateErrorPage();
@@ -144,7 +143,6 @@ void	Response::generateErrorPage( void )
 				"</html>";
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(data.size()));
-	input.requestHeaders["Connection"] = "close";
 	nextState = ERROR;
 }
 
@@ -183,46 +181,15 @@ void	Response::handlePOST( void )
 	nextState = FINISHED;
 }
 
-bool	Response::validateUri( void )
-{
-	struct stat targetStat;
-
-	if (!rootJail(input.uri))
-	{
-		input.status = 403;
-		return (false);
-	}
-
-	absolutePath = input.config.root + input.uri;
-	if (stat(absolutePath.c_str(), &targetStat) == -1)
-	{
-		input.status = 404;
-		return (false);
-	}
-
-	if (S_ISDIR(targetStat.st_mode))
-	{
-		if (access(absolutePath.c_str(), X_OK) != 0) // check exec permission to traverse dir
-		{
-			input.status = 403;
-			return (false);
-		}
-		if (absolutePath.at(absolutePath.length() - 1) != '/')
-			absolutePath.append("/");
-		isDir = true; // requested resource is a directory
-	}
-	return (true);
-}
-
 bool	Response::getResource( void )
 {
-	if (isDir)
+	if (input.isDir)
 	{
 		std::vector<std::string>::iterator	it;
 
 		for (it = input.config.index.begin(); it != input.config.index.end(); it++)
 		{
-			if (access((absolutePath + *it).c_str(), F_OK) == 0) // file exists
+			if (access((input.absolutePath + *it).c_str(), F_OK) == 0) // file exists
 				break;
 		}
 		if (it == input.config.index.end())
@@ -232,23 +199,23 @@ bool	Response::getResource( void )
 			input.status = 404;
 			return (false);
 		}
-		absolutePath.append(*it);
-		isDir = false;
+		input.absolutePath.append(*it);
+		input.isDir = false;
 	}
-	if (access(absolutePath.c_str(), R_OK) != 0) // read permission for files
+	if (access(input.absolutePath.c_str(), R_OK) != 0) // read permission for files
 	{
 		input.status = 403;
 		return (false);
 	}
-	bodyFile.open(absolutePath);
+	bodyFile.open(input.absolutePath);
 	if (!bodyFile.is_open())
 	{
 		input.status = 500;
 		return (false);
 	}
 
-	contentType = getContentType(absolutePath, mimeTypes);
-	contentLength = fileLength(absolutePath);
+	contentType = getContentType(input.absolutePath, mimeTypes);
+	contentLength = fileLength(input.absolutePath);
 	return (true);
 }
 
@@ -269,25 +236,28 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 	while (std::getline(rangess, rangeStr, ','))
 	{
-		size_t delim;
+		size_t	delim;
+		char	*stop;
 
 		delim = rangeStr.find("-");
 		if (delim == std::string::npos)
 			return (false);
-	
+
 		std::string startStr = rangeStr.substr(0, delim);
-		if (!allDigit(startStr) || startStr.empty())
+		if (startStr.empty())
 			return (false);
-		int start = stoi(startStr);
-	
+		unsigned long start = std::strtoul(startStr.c_str(), &stop, 10);
+		if (errno == ERANGE || !std::isdigit(*stop))
+			return (false);
 
 		std::string endStr = rangeStr.substr(delim + 1);
-		if (!allDigit(endStr) || endStr.empty())
+		if (endStr.empty())
+			return (false);
+		unsigned long end = std::strtoul(endStr.c_str(), &stop, 10);
+		if (errno == ERANGE || !std::isdigit(*stop))
 			return (false);
 
-		int end = stoi(endStr);
-
-		if (start > end || end >= contentLength || start < 0 || end < 0)
+		if (start > end || end >= contentLength)
 		{
 			input.status = 416;
 			generateErrorPage();
@@ -335,7 +305,7 @@ void	Response::buildRange( void )
 		ranges[0].header.clear();
 		ranges[0].headerSent = true;
 		contentLength = ranges[0].rangeLength;
-		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(absolutePath)));
+		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.absolutePath)));
 	}
 	else
 	{
@@ -353,9 +323,9 @@ void	Response::handleGET( void )
 		return ;
 	}
 
-	if (input.config.autoindex && isDir)
+	if (input.config.autoindex && input.isDir)
 	{
-		dirList = opendir(absolutePath.c_str());
+		dirList = opendir(input.absolutePath.c_str());
 		if (dirList == NULL)
 		{
 			std::cerr << "[WEBSERV]\t>";
@@ -388,9 +358,6 @@ void	Response::generateHeaders( void )
 {
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
-
-	if (input.status < 400)
-		validateUri();
 	
 	if (input.status >= 400)
 		generateErrorPage();
@@ -544,7 +511,7 @@ void	Response::readBody()
 
 bool	Response::sendData(int& socket)
 {
-	// std::cout <<  "RESOURCE : "<< absolutePath << std::endl;
+	// std::cout <<  "RESOURCE : "<< input.absolutePath << std::endl;
 	// std::cout << "SENT DATA's SIZE : " << data.length() << std::endl;
 	ssize_t bytesSent = send(socket, data.c_str(), data.length(), 0);
 	// std::cout << "BYTESSENT: "  << bytesSent << std::endl;

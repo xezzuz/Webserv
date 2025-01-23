@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 21:05:55 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/23 17:20:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ typedef struct												Directives {
 	bool													autoindex;
 	std::vector<std::string>								redirect; // std::pair<int, std::string>
 	std::string												cgi_pass;
-	std::string												cgi_ext; // std::vector<std::string>
+	std::string												cgi_ext; // std::map<std::string, std::string>
 }															Directives;
 
 typedef struct												vServerConfig {

@@ -36,8 +36,10 @@ enum	State
 
 struct	ResponseInput
 {
-	std::string							uri;
 	std::string							method;
+	std::string							uri;
+	std::string							absolutePath;
+	bool								isDir = false; // requested resource is a directory;
 	int									status;
 	std::map<std::string, std::string>	requestHeaders;
 	Directives							config;
@@ -55,7 +57,6 @@ public:
 
 	void		generateErrorPage( void );
 	void		generateHeaders( void );
-	bool		validateUri( void );
 	bool		getResource( void );
 
 
@@ -93,14 +94,12 @@ private:
 
 	// response frequent uses
 	std::string		contentType;
-	long			contentLength;
+	unsigned long	contentLength;
 
 
 	// response creating process
 	std::string		headers;
 	std::ifstream	bodyFile;
-	std::string		absolutePath;
-	bool			isDir; // requested resource is a directory;
 	bool			chunked;
 	DIR				*dirList; // might produce leaks
 
