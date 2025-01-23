@@ -38,6 +38,7 @@ struct	ResponseInput
 {
 	std::string							method;
 	std::string							uri;
+	std::string							queryString;
 	std::string							absolutePath;
 	bool								isDir = false; // requested resource is a directory;
 	int									status;
@@ -53,33 +54,37 @@ public:
 	Response(const Response& rhs);
 	Response&	operator=(const Response& rhs);
 
+	// external functions
 	void		setInput(struct ResponseInput& input);
+	int			sendResponse( int& socket );
 
 	void		generateErrorPage( void );
 	void		generateHeaders( void );
 	bool		getResource( void );
 
-
+	// range parsing
 	int			rangeContentLength( void );
-
 	bool		parseRangeHeader( void );
-	void		buildRange( void );
+
 
 
 	void		handleGET( void );
 	void		handlePOST( void );
 	void		handleDELETE( void );
 
-
+	// sending body
 	void		readBody();
-	int			sendResponse( int& socket );
 	void		readRange();
+	void		buildRange( void );
 	void		buildChunk();
 	void		getNextRange();
 	bool		sendData(int& socket);
 	
+	// autoindex
 	void		autoIndex();
 	void		directoryListing();
+
+	// CGI
 
 
 

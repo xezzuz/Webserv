@@ -207,15 +207,23 @@ bool	Response::getResource( void )
 		input.status = 403;
 		return (false);
 	}
-	bodyFile.open(input.absolutePath);
-	if (!bodyFile.is_open())
-	{
-		input.status = 500;
-		return (false);
-	}
 
-	contentType = getContentType(input.absolutePath, mimeTypes);
-	contentLength = fileLength(input.absolutePath);
+	// if (isCGI())
+	// {
+	// 	execCGI();
+	// }
+	// else
+	// {
+		bodyFile.open(input.absolutePath);
+		if (!bodyFile.is_open())
+		{
+			input.status = 500;
+			return (false);
+		}
+
+		contentType = getContentType(input.absolutePath, mimeTypes);
+		contentLength = fileLength(input.absolutePath);
+	// }
 	return (true);
 }
 

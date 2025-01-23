@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/23 17:34:25 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/23 18:11:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ void	Client::reset()
 	_Request = Request();
 }
 
-
 vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& host)
 {
 	for (std::vector<vServerConfig>::iterator it = servers.begin(); it != servers.end(); it++)
@@ -70,23 +69,26 @@ vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& 
 	return (servers[0]);
 }
 
-// Directives&	matchingConfig(vServerConfig& server, std::string& uri)
-// {
-// 	std::string	location;
-// 	std::map<std::string, Directives>::iterator it;
+std::string	queryString(std::string& uri) // protocol://domain/path?query#fragment
+{
+	std::string str;
+	
 
-// 	for (it = server.Locations.begin(); it != server.Locations.end(); it++)
-// 	{
-// 		if (uri.find(it->first) != std::string::npos)
-// 		{
-// 			if (it->first.size() > location.size())
-// 				location = it->first;
-// 		}
-// 	}
-// 	if (location.empty())
-// 		return (server.ServerDirectives);
-// 	return (server.Locations.find(location)->second);
-// }
+	// remove the fragment part from the uri
+	size_t pos = uri.find('#');
+	if (pos != std::string::npos)
+		uri.erase(pos);
+
+	// saving the querystring and removing it from the uri
+	pos = uri.find('?');
+	if (pos != std::string::npos)
+	{
+		str = uri.substr(pos + 1);
+		uri.erase(pos);
+	}
+
+	return (str);
+}
 
 void	validateUri(struct ResponseInput& input, std::string& location)
 {
@@ -98,6 +100,7 @@ void	validateUri(struct ResponseInput& input, std::string& location)
 		return ;
 	}
 
+	input.queryString = queryString(input.uri);
 
 	if (!input.config.alias.empty())
 		input.absolutePath = input.config.alias + input.uri.substr(location.length());
