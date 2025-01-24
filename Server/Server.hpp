@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/21 10:50:27 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/24 13:09:02 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 #define POLL_NONBLOCK 0
 
 // #define BUFFER_SIZE 4096
-#define BUFFER_SIZE 102400
+#define BUFFER_SIZE 16384
 
 class Server {
 	private:

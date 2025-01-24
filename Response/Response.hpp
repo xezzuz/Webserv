@@ -11,6 +11,7 @@
 # include "../Utils/Helpers.hpp"
 
 # define SEND_BUFFER_SIZE 4096
+# define MAX_CONCURRENT_PROCESSES 50
 
 struct Range
 {
@@ -34,13 +35,20 @@ enum	State
 	FINISHED
 };
 
+struct	CGI
+{
+	
+};
+
 struct	ResponseInput
 {
 	std::string							method;
 	std::string							uri;
 	std::string							queryString;
 	std::string							absolutePath;
-	bool								isDir = false; // requested resource is a directory;
+	bool								isDir = false; // is requested resource a directory
+	bool								isCGI = false; // is requested resource CGI
+	std::string							cgiInterpreter; // path to the cgi interpreter ex. /usr/bin/python3 for .py
 	int									status;
 	std::map<std::string, std::string>	requestHeaders;
 	Directives							config;
@@ -85,7 +93,7 @@ public:
 	void		directoryListing();
 
 	// CGI
-
+	bool		isCGI();
 
 
 private:

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/22 16:16:58 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/24 15:13:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,20 @@ bool		Server::initServer() {
 	}
 	
 	if (listen(serverSocket, 128) == -1) {
-		std::cerr << "[SERVER]\tListening failed..." << std::endl;
+		// std::cerr << "[SERVER]\tListening failed..." << std::endl;
 		std::cerr << "[SERVER]\t";
 		close(serverSocket);
 		return (perror("listen"), false);
 	}
-	
+
+	// set non blocking mode and close the fd on execve
+	if (fcntl(serverSocket, F_SETFL, FD_CLOEXEC | O_NONBLOCK) == -1)
+	{
+		std::cerr << "[WEBSERV]\t" << std::endl;
+		perror("fcntl");
+		close(serverSocket);
+		return (false);
+	}
 	status = true;
 	std::cout << "[SERVER]\tListening on " << vServerConfigs[0].host << ":" << vServerConfigs[0].port << "..." << std::endl;
 	return true;
@@ -92,7 +100,16 @@ bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd
 			perror("accept");
 			return false;
 		}
-		
+
+		// set non blocking mode and close the fd on execve
+		if (fcntl(serverSocket, F_SETFL, FD_CLOEXEC | O_NONBLOCK) == -1)
+		{
+			std::cerr << "[WEBSERV]\t" << std::endl;
+			perror("fcntl");
+			close(serverSocket);
+			return (false);
+		}
+
 		addToPoll(newSocket, POLLIN | POLLHUP, pollSockets);
 		addToClientsMap(newSocket);
 

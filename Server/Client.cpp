@@ -6,12 +6,12 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/23 18:11:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/24 18:14:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
-
+#include <fcntl.h>
 Client::Client() {
 	// std::cout << "Client::Constructor Called" << std::endl;
 }
@@ -69,7 +69,7 @@ vServerConfig&	matchingServer(std::vector<vServerConfig>& servers, std::string& 
 	return (servers[0]);
 }
 
-std::string	queryString(std::string& uri) // protocol://domain/path?query#fragment
+std::string	queryString(std::string& uri) // protocol://domain/path/pathinfo?query#fragment
 {
 	std::string str;
 	
@@ -110,6 +110,21 @@ void	validateUri(struct ResponseInput& input, std::string& location)
 			input.config.root.erase(input.config.root.length() - 1);
 		input.absolutePath = input.config.root + input.uri;
 	}
+	
+	// for (std::map<std::string, std::string>::iterator it = input.config.cgi_ext.begin(); it != input.config.cgi_ext.end(); it++)
+	// {
+	// 	size_t pos = input.absolutePath.find(it->first);
+	// 	if (pos != std::string::npos)
+	// 	{
+	// 		input.isCGI = true;
+	// 		input.cgiInterpreter = it->second;
+			
+	// 		// erase the path info from the absolute path
+	// 		pos = input.absolutePath.find(pos, '/');
+	// 		if (pos != std::string::npos)
+	// 			input.absolutePath.erase(pos);
+	// 	}
+	// }
 
 	if (stat(input.absolutePath.c_str(), &targetStat) == -1)
 	{
