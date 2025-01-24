@@ -37,7 +37,13 @@ enum	State
 
 struct	CGI
 {
-	
+	// not used only for refrence in developement
+	bool		isCgi;
+	std::string	cgiInterpreter;
+	std::string	cgiExt;
+	std::string	scriptName;
+	std::string	pathInfo;
+	std::string	queryString;
 };
 
 struct	ResponseInput
@@ -49,6 +55,7 @@ struct	ResponseInput
 	bool								isDir = false; // is requested resource a directory
 	bool								isCGI = false; // is requested resource CGI
 	std::string							cgiInterpreter; // path to the cgi interpreter ex. /usr/bin/python3 for .py
+	std::string							cgiExt; // cgi script extention
 	int									status;
 	std::map<std::string, std::string>	requestHeaders;
 	Directives							config;
@@ -93,8 +100,8 @@ public:
 	void		directoryListing();
 
 	// CGI
-	bool		isCGI();
-
+	bool		execCGI();
+	char	**generateEnv();
 
 private:
 	// response needed data

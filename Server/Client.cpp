@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:56:05 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/24 18:14:39 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/24 20:10:30 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,8 @@ void	validateUri(struct ResponseInput& input, std::string& location)
 	}
 
 	input.queryString = queryString(input.uri);
-
+	
+	// replaces alias with location if not appends root
 	if (!input.config.alias.empty())
 		input.absolutePath = input.config.alias + input.uri.substr(location.length());
 	else
@@ -111,12 +112,14 @@ void	validateUri(struct ResponseInput& input, std::string& location)
 		input.absolutePath = input.config.root + input.uri;
 	}
 	
+	// checks for CGI and gets the interpreter path
 	// for (std::map<std::string, std::string>::iterator it = input.config.cgi_ext.begin(); it != input.config.cgi_ext.end(); it++)
 	// {
 	// 	size_t pos = input.absolutePath.find(it->first);
 	// 	if (pos != std::string::npos)
 	// 	{
 	// 		input.isCGI = true;
+	// 		input.cgiExt = it->first;
 	// 		input.cgiInterpreter = it->second;
 			
 	// 		// erase the path info from the absolute path

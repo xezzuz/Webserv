@@ -28,11 +28,11 @@ std::string		toHex(size_t num)
 #include <sys/stat.h>
 int main()
 {
-	std::string uri = "/cgi-bin/hello.cgi?name=John";
+	std::string uri = "/cgi-bin/hello.cgi/path";
 
-	size_t pos = uri.find('?');
-	uri.erase(pos);
+	size_t pos = uri.find(".cgi");
+	uri.substr(0, pos + 4);
 
 	// std::string queryString = uri.substr(uri.find('?'));
-	std::cout << uri << std::endl;
+	std::cout << uri.substr(0, pos + 4) << std::endl;
 }

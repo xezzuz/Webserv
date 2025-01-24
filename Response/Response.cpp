@@ -208,12 +208,12 @@ bool	Response::getResource( void )
 		return (false);
 	}
 
-	// if (isCGI())
-	// {
-	// 	execCGI();
-	// }
-	// else
-	// {
+	if (input.isCGI)
+	{
+		execCGI();
+	}
+	else
+	{
 		bodyFile.open(input.absolutePath);
 		if (!bodyFile.is_open())
 		{
@@ -223,7 +223,7 @@ bool	Response::getResource( void )
 
 		contentType = getContentType(input.absolutePath, mimeTypes);
 		contentLength = fileLength(input.absolutePath);
-	// }
+	}
 	return (true);
 }
 
