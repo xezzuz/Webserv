@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
+#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/01/23 17:35:45 by mmaila           ###   ########.fr        #
+#    Updated: 2025/01/25 10:13:48 by nazouz           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,7 @@ SRCS			= 		\
 						./Response/Methods/GET.cpp \
 						./Response/Methods/POST.cpp \
 						./Response/Methods/DELETE.cpp \
+						./Response/CGI.cpp \
 						./Server/Server.cpp \
 						./Server/Client.cpp \
 						./Utils/Helpers.cpp \

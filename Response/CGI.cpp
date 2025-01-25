@@ -56,5 +56,5 @@ bool	Response::execCGI( void )
 		close(fd[1]);
 		return (false);
 	}
-
+	return (true); // i just added this statement due to compiler errors
 }
