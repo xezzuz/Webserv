@@ -9,6 +9,7 @@
 # include <cstdlib>
 # include "../Config/Config.hpp"
 # include "../Utils/Helpers.hpp"
+// #include "../Main/Webserv.hpp";
 
 # define SEND_BUFFER_SIZE 4096
 # define MAX_CONCURRENT_PROCESSES 50
@@ -27,20 +28,22 @@ enum	State
 	READBODY,
 	AUTOINDEX,
 	LISTDIR,
-	BUILDCHUNK,
 	NEXTRANGE,
 	READRANGE,
+	READCGI,
 	SENDDATA,
 	ERROR,
 	FINISHED
 };
 
-struct	CGI
+struct	CgiInput
 {
 	// not used only for refrence in developement
-	bool		isCgi;
-	std::string	cgiInterpreter;
-	std::string	cgiExt;
+	pid_t		pid;
+	int			fd; // file descriptor where cgi writes its output into
+	bool		isCgi = false; // is requested resource CGI
+	std::string	interpreter; // path to the cgi interpreter ex. /usr/bin/python3 for .py
+	std::string	ext; // cgi script extention
 	std::string	scriptName;
 	std::string	pathInfo;
 	std::string	queryString;
@@ -48,18 +51,17 @@ struct	CGI
 
 struct	ResponseInput
 {
+	int									status;
 	std::string							method;
 	std::string							uri;
-	std::string							queryString;
 	std::string							absolutePath;
-	bool								isDir = false; // is requested resource a directory
-	bool								isCGI = false; // is requested resource CGI
-	std::string							cgiInterpreter; // path to the cgi interpreter ex. /usr/bin/python3 for .py
-	std::string							cgiExt; // cgi script extention
-	int									status;
+	bool								isDir = false;
 	std::map<std::string, std::string>	requestHeaders;
 	Directives							config;
+	struct CgiInput						cgi;
 };
+
+class Webserv;
 
 class Response
 {
@@ -100,8 +102,9 @@ public:
 	void		directoryListing();
 
 	// CGI
+	void		readCGI( int& socket );
 	bool		execCGI();
-	char	**generateEnv();
+	char		**generateEnv();
 
 private:
 	// response needed data

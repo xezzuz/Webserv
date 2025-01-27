@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "../Main/Webserv.hpp"
 
 Response::~Response()
 {
@@ -183,32 +184,32 @@ void	Response::handlePOST( void )
 
 bool	Response::getResource( void )
 {
-	if (input.isDir)
-	{
-		std::vector<std::string>::iterator	it;
+	// if (input.isDir)
+	// {
+	// 	std::vector<std::string>::iterator	it;
 
-		for (it = input.config.index.begin(); it != input.config.index.end(); it++)
-		{
-			if (access((input.absolutePath + *it).c_str(), F_OK) == 0) // file exists
-				break;
-		}
-		if (it == input.config.index.end())
-		{
-			if (input.config.autoindex)
-				return (true);
-			input.status = 404;
-			return (false);
-		}
-		input.absolutePath.append(*it);
-		input.isDir = false;
-	}
-	if (access(input.absolutePath.c_str(), R_OK) != 0) // read permission for files
-	{
-		input.status = 403;
-		return (false);
-	}
+	// 	for (it = input.config.index.begin(); it != input.config.index.end(); it++)
+	// 	{
+	// 		if (access((input.absolutePath + *it).c_str(), F_OK) == 0) // file exists
+	// 			break;
+	// 	}
+	// 	if (it == input.config.index.end())
+	// 	{
+	// 		if (input.config.autoindex)
+	// 			return (true);
+	// 		input.status = 404;
+	// 		return (false);
+	// 	}
+	// 	input.absolutePath.append(*it);
+	// 	input.isDir = false;
+	// }
+	// if (access(input.absolutePath.c_str(), R_OK) != 0) // read permission for files
+	// {
+	// 	input.status = 403;
+	// 	return (false);
+	// }
 
-	if (input.isCGI)
+	if (input.cgi.isCgi)
 	{
 		execCGI();
 	}
@@ -333,7 +334,7 @@ void	Response::handleGET( void )
 
 	if (input.config.autoindex && input.isDir)
 	{
-		dirList = opendir(input.absolutePath.c_str());
+		dirList = opendir(input.absolutePath.c_str()); // CHECK LEAK
 		if (dirList == NULL)
 		{
 			std::cerr << "[WEBSERV]\t>";
@@ -431,7 +432,7 @@ void	Response::directoryListing()
 					"</html>");
 		nextState = FINISHED;
 	}
-	state = BUILDCHUNK;
+	buildChunk();
 }
 
 void	Response::getNextRange()
@@ -501,7 +502,7 @@ void	Response::readBody()
 		state = SENDDATA;
 		if (chunked)
 		{
-			state = BUILDCHUNK;
+			buildChunk();
 			if (bodyFile.peek() == EOF)
 				nextState = FINISHED;
 		}
@@ -515,6 +516,30 @@ void	Response::readBody()
 		std::cerr << "[WEBSERV]\tread: " << strerror(errno) << std::endl;
 		state = ERROR;
 	}
+}
+
+void	Response::readCGI( int& socket )
+{
+	(void)socket;
+	char	buffer[SEND_BUFFER_SIZE] = {0};
+	int bytesRead = read(input.cgi.fd, buffer, SEND_BUFFER_SIZE);
+	if (bytesRead > 0)
+	{
+		data = std::string(buffer, bytesRead);
+		state = SENDDATA;
+	}
+	else if (bytesRead == 0)
+	{
+		state = FINISHED;
+	}
+	else
+	{
+		std::cerr << "[WEBSERV]\t";
+		perror("read");
+		state = ERROR;
+	}
+	// Webserv::modPoll(socket, POLLOUT | POLLHUP); // start registering client socket events
+	// Webserv::modPoll(input.cgi.fd, 0); // stop registring pipe fd events until buffer is sent
 }
 
 bool	Response::sendData(int& socket)
@@ -556,18 +581,25 @@ int	Response::sendResponse( int& socket )
 		case LISTDIR:
 			directoryListing();
 			break;
-		case BUILDCHUNK:
-			buildChunk();
-			break;
 		case NEXTRANGE:
 			getNextRange();
 			break;
 		case READRANGE:
 			readRange();
 			break;
+		case READCGI:
+			readCGI( socket );
+			break;
 		case SENDDATA:
 			if(sendData(socket) == true)
+			{
+				if (nextState == READCGI)
+				{
+					Webserv::modPoll(socket, 0); // stop registring client socket events until buffer is read
+					Webserv::modPoll(input.cgi.fd, POLLIN | POLLHUP); // start registering pipe fd events
+				}
 				state = nextState;
+			}
 			break;
 		case ERROR:
 			return (-1);
@@ -596,11 +628,11 @@ void printState(enum State state, std::string name)
 		case LISTDIR:
 			std::cout << name << "==========>LISTING DIR" << std::endl;
 			break;
-		case BUILDCHUNK:
-			std::cout << name << "==========>BUILDING CHUNK" << std::endl;
-			break;
 		case NEXTRANGE:
 			std::cout << name << "==========>GETTING NEXT RANGE" << std::endl;
+			break;
+		case READCGI:
+			std::cout << name << "==========>READING CGI" << std::endl;
 			break;
 		case READRANGE:
 			std::cout << name << "==========>READING RANGE" << std::endl;

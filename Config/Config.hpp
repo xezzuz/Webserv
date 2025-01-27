@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/23 17:20:03 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/27 22:08:43 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,7 @@ typedef struct												Directives {
 	std::string 											upload_store;
 	bool													autoindex;
 	std::vector<std::string>								redirect; // std::pair<int, std::string>
-	std::string												cgi_pass;
-	std::string												cgi_ext; // std::map<std::string, std::string>
+	std::map<std::string, std::string>						cgi_ext; // std::map<std::string, std::string>
 }															Directives;
 
 typedef struct												vServerConfig {

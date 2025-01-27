@@ -6,11 +6,13 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/22 15:44:20 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/27 22:22:25 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
+
+std::vector<pollfd> Webserv::pollSockets;
 
 Webserv::Webserv(const std::string& configFileName) : WebservConfig(configFileName) {
 	
@@ -107,6 +109,19 @@ void			Webserv::addToPoll(int fd, short events) {
 	toAdd.fd = fd;
 	toAdd.events = events;
 	pollSockets.push_back(toAdd);
+}
+
+int		Webserv::modPoll(int fd, short events)
+{
+	for (std::vector<pollfd>::iterator it = pollSockets.begin(); it != pollSockets.end(); it++)
+	{
+		if (it->fd == fd)
+		{
+			it->events = events;
+			return (0);
+		}
+	}
+	return (-1);
 }
 
 void			Webserv::rmFromPoll(int fd) {

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/24 15:13:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/27 22:34:26 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,31 +125,52 @@ bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd
 
 bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd>& pollSockets) {
 	int					clientSocket = pollClientSock.fd;
-	if (pollClientSock.revents & POLLIN) {
-		char				buffer[BUFFER_SIZE + 1];
+	if (pollClientSock.revents & POLLIN)
+	{
+		if (Clients.find(clientSocket) == Clients.end())
+		{
+			int retVal = Clients[clientSocket].getResponse().sendResponse(clientSocket);
+			if(retVal == -1) // can be || (retval == 1 && client.(connection header is "close"))
+			{
+				//disconnectClient();
+				rmFromClientsMap(clientSocket);
+				rmFromPoll(clientSocket, pollSockets);
+				std::cout << "CLIENT REMOVED" << std::endl;
+			}
+			else if (retVal == 1)
+			{
+				std::cout << "CLIENT " << clientSocket << " SERVED. RESETING.." << std::endl;
+				Clients[clientSocket].reset();
+				pollClientSock.events = POLLIN | POLLHUP;
+			}
+		}
+		else
+		{
+			char				buffer[BUFFER_SIZE + 1];
 
-		memset(buffer, 0, BUFFER_SIZE + 1);
-		int	bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
-		if (bytesReceived > 0) {
-			std::cout << "----------REQUEST_OF_CLIENT " << clientSocket << "----------" << std::endl;
-			std::cout << buffer << std::endl;
-			std::cout << "---------------------------------------------------------" << std::endl;
-			handleRequest(buffer, bytesReceived, clientSocket, pollClientSock);
-		} else if (bytesReceived == 0) { // this is for graceful shutdown (client closes the connection willingly)
-			std::cout << "[SERVER]\tClient " << clientSocket
-					  << " disconnected..." << std::endl;
-			rmFromClientsMap(clientSocket);
-			rmFromPoll(clientSocket, pollSockets);
-			return false;
-		} else if (bytesReceived == -1) {
-			std::cerr << "[ERROR]\tReceiving failed..." << std::endl;
-			std::cerr << "[ERROR]\t";
-			// recv failed
-			// close socket
-			// remove from pollSockets
-			rmFromPoll(clientSocket, pollSockets);
-			perror("recv");
-			return false;
+			memset(buffer, 0, BUFFER_SIZE + 1);
+			int	bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+			if (bytesReceived > 0) {
+				std::cout << "----------REQUEST_OF_CLIENT " << clientSocket << "----------" << std::endl;
+				std::cout << buffer << std::endl;
+				std::cout << "---------------------------------------------------------" << std::endl;
+				handleRequest(buffer, bytesReceived, clientSocket, pollClientSock);
+			} else if (bytesReceived == 0) { // this is for graceful shutdown (client closes the connection willingly)
+				std::cout << "[SERVER]\tClient " << clientSocket
+						<< " disconnected..." << std::endl;
+				rmFromClientsMap(clientSocket);
+				rmFromPoll(clientSocket, pollSockets);
+				return false;
+			} else if (bytesReceived == -1) {
+				std::cerr << "[ERROR]\tReceiving failed..." << std::endl;
+				std::cerr << "[ERROR]\t";
+				// recv failed
+				// close socket
+				// remove from pollSockets
+				rmFromPoll(clientSocket, pollSockets);
+				perror("recv");
+				return false;
+			}
 		}
 	} else if (pollClientSock.revents & POLLOUT) {
 

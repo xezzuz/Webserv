@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/19 21:27:54 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/27 22:09:06 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ bool				Config::fillServerDirectives(std::map<std::string, std::string>& ServerP
 	newServerConfig.ServerDirectives.upload_store = ServerParserDirectives["upload_store"];
 	// newServerConfig.ServerDirectives.autoindex = parseAutoIndex();
 	// newServerConfig.ServerDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
-	newServerConfig.ServerDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
-	newServerConfig.ServerDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
+	// newServerConfig.ServerDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
+	// newServerConfig.ServerDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
 
 
 
@@ -112,8 +112,8 @@ bool				Config::fillLocationDirectives(std::map<std::string, std::string>& Serve
 	LocationDirectives.upload_store = ServerDirectives.upload_store;
 	LocationDirectives.autoindex = ServerDirectives.autoindex;
 	LocationDirectives.redirect = ServerDirectives.redirect;
-	LocationDirectives.cgi_pass = ServerDirectives.cgi_pass;
-	LocationDirectives.cgi_ext = ServerDirectives.cgi_ext;
+	// LocationDirectives.cgi_pass = ServerDirectives.cgi_pass;
+	// LocationDirectives.cgi_ext = ServerDirectives.cgi_ext;
 
 
 	// overriding location directives with location block directives
@@ -127,8 +127,8 @@ bool				Config::fillLocationDirectives(std::map<std::string, std::string>& Serve
 	LocationDirectives.upload_store = ServerParserDirectives["upload_store"];
 	// LocationDirectives.autoindex = parseAutoIndex();
 	// LocationDirectives.redirect = splitStringBySpace(ServerParserDirectives["redirect"]);
-	LocationDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
-	LocationDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
+	// LocationDirectives.cgi_pass = ServerParserDirectives["cgi_pass"];
+	// LocationDirectives.cgi_ext = ServerParserDirectives["cgi_ext"];
 	return true;
 }
 
