@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/27 21:50:29 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 12:03:07 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Client {
 		Client& operator=(const Client& rhs);
 		~Client();
 
-		void			decodeUri(struct ResponseInput& input);
+		void			decodeUri(struct ResponseInput& input, std::string& URL);
 		Request&		getRequest();
 		Response&		getResponse();
 		void			reset();

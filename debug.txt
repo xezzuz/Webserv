@@ -1,0 +1,3 @@
+[1m[WEBSERV]	Starting the Webserv...[0m
+5
+[SERVER]	Listening on 0.0.0.0:8080...

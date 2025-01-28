@@ -538,8 +538,8 @@ void	Response::readCGI( int& socket )
 		perror("read");
 		state = ERROR;
 	}
-	// Webserv::modPoll(socket, POLLOUT | POLLHUP); // start registering client socket events
-	// Webserv::modPoll(input.cgi.fd, 0); // stop registring pipe fd events until buffer is sent
+	Webserv::modPoll(socket, POLLOUT | POLLHUP); // start registering client socket events
+	Webserv::modPoll(input.cgi.fd, 0); // stop registring pipe fd events until buffer is sent
 }
 
 bool	Response::sendData(int& socket)

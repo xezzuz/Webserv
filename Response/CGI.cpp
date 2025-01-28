@@ -16,7 +16,7 @@ char	**Response::generateEnv()
 
 	for (std::vector<std::string>::iterator it = envVars.begin(); it != envVars.end(); it++)
 	{
-		env.push_back(&(*(it))[0]);
+		env.push_back(const_cast<char *>(it->c_str()));
 	}
 	env.push_back(NULL);
 	return (env.data());
@@ -57,17 +57,35 @@ bool	Response::execCGI( void )
 		}
 		close(fd[1]);
 
-		if (chdir(input.absolutePath.substr(input.absolutePath.find_last_of('/')).c_str()) == -1)
+		if (chdir(input.absolutePath.substr(0, input.absolutePath.find_last_of('/')).c_str()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("chdir");
 			exit(errno);
 		}
 
-		char *arg[2];
-		arg[0] = const_cast<char *>(input.absolutePath.c_str());
-		arg[1] = NULL;
-		if(execve(input.cgi.interpreter.c_str(), arg, generateEnv()) == -1)
+
+		std::vector<std::string> envVars;
+		
+		envVars.push_back("REQUEST_METHOD=" + input.method);
+		envVars.push_back("SCRIPT_NAME=" + input.cgi.scriptName);
+		envVars.push_back("PATH_INFO=" + input.cgi.pathInfo);
+		envVars.push_back("QUERYSTRING=" + input.cgi.queryString);
+		envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
+		// needs headers to be formatted as env vars;
+		std::vector<char *>	env;
+
+		for (std::vector<std::string>::iterator it = envVars.begin(); it != envVars.end(); it++)
+		{
+			env.push_back(const_cast<char *>(it->c_str()));
+		}
+		env.push_back(NULL);
+
+		char *arg[3];
+		arg[0] = const_cast<char *>(input.cgi.interpreter.c_str());
+		arg[1] = const_cast<char *>(input.cgi.scriptName.c_str());
+		arg[2] = NULL;
+		if(execve(arg[0], arg, env.data()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("execve");

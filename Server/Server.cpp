@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/27 22:34:26 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 11:49:26 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ Server&		Server::operator=(const Server& original) {
 
 
 Server::~Server() {
-	// close(serverSocket);
+	close(serverSocket);
 }
 
 bool		Server::initServer() {
@@ -43,14 +43,19 @@ bool		Server::initServer() {
 		std::cerr << "[SERVER]\t";
 		return (perror("socket"), false);
 	}
-	
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(vServerConfigs[0].port);
 	serverAddress.sin_addr.s_addr = parseIPv4(vServerConfigs[0].host);
 	
-	int reUseAddr = 1;
-	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reUseAddr, sizeof(reUseAddr)); // check return value?
+	int reuseAddr = 1;
+	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) == -1)
+	{
+		std::cerr << "[WEBSERV]\t>";
+		perror("setsockopt");
+		return (false);
+	}
 	
+	std::cout << serverSocket << std::endl;
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
 		std::cerr << "[SERVER]\tBinding failed..." << std::endl;
 		std::cerr << "[SERVER]\t";

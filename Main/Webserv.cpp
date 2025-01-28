@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/27 22:22:25 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 11:55:11 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,53 @@ bool			Webserv::startWebserv() {
 		// std::cout << it->first << " has " << it->second.size() << " configs" << std::endl;
 
 		vServers.push_back(Server(it->second));
-		vServers.back().initServer();
+		// vServers.back().initServer();
+		if (!vServers.back().initServer())
+		{
+			exit(errno);
+		}
 		addToPoll(vServers.back().getServerSocket(), POLLIN);
 	}
 	
 	// std::cout << "Webserv could run " << vServers.size() << " vServers!" << std::endl;
 	return true;
+}
+
+// Map poll events to their string names
+static struct {
+    short event;
+    const char *name;
+} event_names[] = {
+    { POLLIN,  "POLLIN"  },  // Data may be read
+    { POLLPRI, "POLLPRI" },  // Urgent data may be read
+    { POLLOUT, "POLLOUT" },  // Writing now won't block
+    { POLLERR, "POLLERR" },  // Error condition (output only)
+    { POLLHUP, "POLLHUP" },  // Hang up (output only)
+    { POLLNVAL,"POLLNVAL"}   // Invalid request (fd not open)
+};
+
+// Print human-readable event names
+void print_revents(short revents) {
+    const char *sep = "";
+    
+    if (revents == 0) {
+        printf("(no events)");
+        return;
+    }
+
+    // Check each known event
+    for (size_t i = 0; i < sizeof(event_names)/sizeof(event_names[0]); i++) {
+        if (revents & event_names[i].event) {
+            printf("%s%s", sep, event_names[i].name);
+            sep = "|";
+            revents &= ~event_names[i].event;  // Remove handled event
+        }
+    }
+
+    // Show any remaining unrecognized events in hex
+    if (revents != 0) {
+        printf("%s0x%04x", sep, revents);
+    }
 }
 
 bool			Webserv::monitorWebserv() {
@@ -77,6 +118,9 @@ bool			Webserv::monitorWebserv() {
 		}
 
 		for (size_t i = 0; i < pollSockets.size(); i++) {
+			printf("fd %d: ", pollSockets[i].fd);
+            print_revents(pollSockets[i].revents);
+            printf("\n");
 			if (!pollSockets[i].revents)
 				continue;
 			Server*		respServer = getResponsibleServer(pollSockets[i].fd);

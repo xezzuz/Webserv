@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/22 14:24:08 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 12:17:42 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,8 @@ bool			Request::isValidMethod(const std::string& method) {
 	return true;
 }
 
-bool			Request::isValidURI(const std::string& uri) {
+bool			Request::isValidURI(const std::string& uri) 
+{
 	if (uri.size() > 2048)
 		return (setStatusCode(414), false);
 
@@ -85,7 +86,7 @@ bool			Request::isValidURI(const std::string& uri) {
 		return (false);
 	}
 	std::string	allowedURIChars 
-		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._~:/?#[]@!$&'()*+,;=%";
+		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	for (size_t i = 0; i < uri.size(); i++)
 		if (allowedURIChars.find(uri[i]) == std::string::npos)
 			return (setStatusCode(400), false);
@@ -177,8 +178,9 @@ bool			Request::parseRequestLine() {
 	if (!token.empty())
 		return (setStatusCode(400), false);
 	
-	requestLine.uri = tokens[1];
+
 	requestLine.method = tokens[0];
+	requestLine.uri = tokens[1];
 	requestLine.httpversion = tokens[2];
 	return     isValidMethod(requestLine.method)
 			&& isValidURI(requestLine.uri)

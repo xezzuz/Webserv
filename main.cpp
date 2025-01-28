@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/24 17:47:18 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 11:48:46 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,3 @@ int main(int argc, char **argv) {
 	
 	return 0;
 }
-
-#include <sys/epoll.h>
-
-class A
-{
-public:
-	static void registerfd(int fd, uint32_t events)
-	{
-		struct epoll_event ev{};
-        ev.events = events;
-        ev.data.fd = fd;
-		
-		epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
-	}
-private:
-	static int epoll_fd;
-	
-};
-
-int A::epoll_fd = -1;
