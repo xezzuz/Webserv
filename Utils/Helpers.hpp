@@ -8,8 +8,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "../Request/Request.hpp"
-#include "../Config/Config.hpp"
+#include <map>
 
 
 // struct Directives

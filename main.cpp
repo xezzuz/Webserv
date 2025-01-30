@@ -6,14 +6,13 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/28 11:48:46 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/30 18:54:04 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "Request.hpp"
 
-#include "./Main/Webserv.hpp"
-#include "./Server/Server.hpp"
+#include "./HTTPServer/Webserv.hpp"
 #include "./Config/Config.hpp"
 #include "signal.h"
 
@@ -22,12 +21,11 @@ int main(int argc, char **argv) {
 		return (std::cerr << BOLD << "Webserv: Invalid Number of Arguments!\nUse: ./Webserv <config file>" << RESET << std::endl, 1);
 	
 	signal(SIGPIPE, SIG_IGN);
-	Webserv			Main(argv[1]);
+	Config			conf(argv[1]);
+	Webserv			Main(conf.getServers());
 
-	if (!Main.configurateWebserv())
-		return 1;
-	Main.startWebserv();
-	Main.monitorWebserv();
+	Main.initServers();
+	Main.run();
 	
 	return 0;
 }
