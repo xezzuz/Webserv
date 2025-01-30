@@ -64,7 +64,6 @@ bool	Response::execCGI( void )
 			exit(errno);
 		}
 
-
 		std::vector<std::string> envVars;
 		
 		envVars.push_back("REQUEST_METHOD=" + input.method);

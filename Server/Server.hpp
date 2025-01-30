@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 17:28:03 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/24 13:09:02 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 13:56:45 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ class Server {
 		// void	handleRequest(char *buffer, int bufferSize, int clientSocket);
 		
 	public:
+		bool							cgi = false;
+	
 		Server(std::vector<vServerConfig>& allConfigs);
 		Server(const Server& original);
 		Server&		operator=(const Server& original);

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 15:42:01 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/28 11:55:11 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/28 13:57:09 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,17 @@ Server*			Webserv::getResponsibleServer(int eventSocket) {
 			return &vServers[i];
 		std::map<int, Client>::iterator		it = vServers[i].getClients().find(eventSocket);
 		if (it != vServers[i].getClients().end())
+		{
 			return &vServers[i];
+		}
+		for (std::map<int, Client>::iterator it = vServers[i].getClients().begin(); it != vServers[i].getClients().end(); it++)
+		{
+			if (it->second.getResponse().getCgiFd() == eventSocket)
+			{
+				vServers[i].cgi = true;
+				return (&vServers[i]);
+			}
+		}
 	}
 	return NULL;
 }

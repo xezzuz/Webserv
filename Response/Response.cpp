@@ -96,6 +96,11 @@ Response&	Response::operator=(const Response& rhs)
 	return (*this);
 }
 
+int	Response::getCgiFd( void ) const
+{
+	return (input.cgi.fd);
+}
+
 void	Response::setInput(struct ResponseInput& input)
 {
 	this->input = input;
@@ -520,7 +525,7 @@ void	Response::readBody()
 
 void	Response::readCGI( int& socket )
 {
-	(void)socket;
+	std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++CGI READ" << std::endl;
 	char	buffer[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = read(input.cgi.fd, buffer, SEND_BUFFER_SIZE);
 	if (bytesRead > 0)
@@ -599,6 +604,8 @@ int	Response::sendResponse( int& socket )
 					Webserv::modPoll(input.cgi.fd, POLLIN | POLLHUP); // start registering pipe fd events
 				}
 				state = nextState;
+				printState(state, "STATE");
+				printState(nextState, "NEXTSTATE");
 			}
 			break;
 		case ERROR:

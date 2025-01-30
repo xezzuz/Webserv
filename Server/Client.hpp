@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 10:54:09 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/28 12:03:07 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/29 13:30:15 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Client {
 		int				socket;
 		Request			_Request;
 		Response		_Response;
+		//vServerConfig	config;
 		
 		
 	public:

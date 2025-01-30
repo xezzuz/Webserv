@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 19:06:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/28 11:49:26 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/01/30 18:37:59 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ bool		Server::initServer() {
 		return (false);
 	}
 	
-	std::cout << serverSocket << std::endl;
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
 		std::cerr << "[SERVER]\tBinding failed..." << std::endl;
 		std::cerr << "[SERVER]\t";
@@ -107,11 +106,11 @@ bool		Server::handleServerSocketEvent(pollfd&	pollServerSock, std::vector<pollfd
 		}
 
 		// set non blocking mode and close the fd on execve
-		if (fcntl(serverSocket, F_SETFL, FD_CLOEXEC | O_NONBLOCK) == -1)
+		if (fcntl(newSocket, F_SETFL, FD_CLOEXEC | O_NONBLOCK) == -1)
 		{
 			std::cerr << "[WEBSERV]\t" << std::endl;
 			perror("fcntl");
-			close(serverSocket);
+			close(newSocket);
 			return (false);
 		}
 
@@ -132,21 +131,23 @@ bool		Server::handleClientSocketEvent(pollfd&	pollClientSock, std::vector<pollfd
 	int					clientSocket = pollClientSock.fd;
 	if (pollClientSock.revents & POLLIN)
 	{
-		if (Clients.find(clientSocket) == Clients.end())
+		if (cgi)
 		{
 			int retVal = Clients[clientSocket].getResponse().sendResponse(clientSocket);
 			if(retVal == -1) // can be || (retval == 1 && client.(connection header is "close"))
 			{
 				//disconnectClient();
-				rmFromClientsMap(clientSocket);
 				rmFromPoll(clientSocket, pollSockets);
-				std::cout << "CLIENT REMOVED" << std::endl;
+				cgi = false;
+				std::cout << "FAILED ON CGI" << std::endl;
+				pollClientSock.events = 0;
 			}
 			else if (retVal == 1)
 			{
+				cgi = false;
 				std::cout << "CLIENT " << clientSocket << " SERVED. RESETING.." << std::endl;
-				Clients[clientSocket].reset();
-				pollClientSock.events = POLLIN | POLLHUP;
+				// Clients[clientSocket].reset();
+				pollClientSock.events = 0;
 			}
 		}
 		else
@@ -219,8 +220,9 @@ void		Server::handleRequest(char *buffer, int bufferSize, int clientSocket, poll
 	}
 	// could be optimized using iterators
 	Clients[clientSocket].getRequest().feedRequest(buffer, bufferSize);
-	if (Clients[clientSocket].getRequest().getParsingState() == PARSING_FINISHED)
+	if (pState == PARSING_FINISHED)
     {
+		
 		pollClientSock.events = POLLOUT | POLLHUP;
 		// std::cout << Clients[clientSocket].getRequest().getRequestLineSt().uri << std::endl;
 		Clients[clientSocket].initResponse(vServerConfigs);

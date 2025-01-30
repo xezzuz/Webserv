@@ -105,6 +105,7 @@ public:
 	void		readCGI( int& socket );
 	bool		execCGI();
 	char		**generateEnv();
+	int	getCgiFd( void ) const;
 
 private:
 	// response needed data
