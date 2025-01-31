@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 20:25:39 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ int&										Config::getLogs() {
 	return this->logs;
 }
 
-std::vector<vServerConfig>&					Config::getServers() {
+std::vector<ServerConfig>&					Config::getServers() {
 	return this->Servers;
 }
 

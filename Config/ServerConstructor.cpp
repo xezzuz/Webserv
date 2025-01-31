@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 20:27:25 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 bool				Config::constructServers() {
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
 		int						start, end;
-		vServerConfig			newServerBlock;
+		ServerConfig			newServerBlock;
 		
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
@@ -29,7 +29,7 @@ bool				Config::constructServers() {
 	return true;
 }
 
-bool				Config::parseSingleServerBlock(int start, int end, vServerConfig& currentServer) {
+bool				Config::parseSingleServerBlock(int start, int end, ServerConfig& currentServer) {
 	std::vector<std::string>		alreadyParsed;
 	
 	for (int i = start + 1; i < end; i++) {
@@ -59,7 +59,7 @@ bool				Config::parseSingleServerBlock(int start, int end, vServerConfig& curren
 	return true;
 }
 
-bool				Config::parseSingleLocationBlock(int start, int end, vServerConfig& currentServer) {
+bool				Config::parseSingleLocationBlock(int start, int end, ServerConfig& currentServer) {
 	Directives								LocationDirectives = currentServer.ServerDirectives;
 	std::vector<std::string>				alreadyParsed;
 
@@ -91,13 +91,13 @@ bool				Config::parseSingleLocationBlock(int start, int end, vServerConfig& curr
 	return true;
 }
 
-bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, vServerConfig& currentServer) {
+bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, ServerConfig& currentServer) {
 	if (key.empty() || value.empty())
 		return (Logger("'server' invalid line syntax : '" + key + " = " + value + "'"), false);
 	if (std::find(alreadyParsed.begin(), alreadyParsed.end(), key) != alreadyParsed.end() && key != "error_page" && key != "server_name")
 		return (Logger("'server' duplicate '" + key + "' directive : '" + key + " = " + value + "'"), false);
 	
-	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, vServerConfig&)>>	limitedFunctions = {
+	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, ServerConfig&)>>	limitedFunctions = {
 		{"host", &Config::isValidHost},
 		{"port", &Config::isValidPort},
 		{"server_name", &Config::isValidServerName},

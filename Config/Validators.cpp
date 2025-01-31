@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 19:02:26 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int						tokensCounter(const std::string& string) {
 	return count;
 }
 
-bool			Config::isValidPort(const std::string& port, vServerConfig& currentServer) {
+bool			Config::isValidPort(const std::string& port, ServerConfig& currentServer) {
 	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5 || !stringIsDigit(port))
 		return false;
 	
@@ -33,7 +33,7 @@ bool			Config::isValidPort(const std::string& port, vServerConfig& currentServer
 	return false;
 }
 
-bool					Config::isValidHost(const std::string& host, vServerConfig& currentServer) {
+bool					Config::isValidHost(const std::string& host, ServerConfig& currentServer) {
 	std::string					byte;
 	std::stringstream			ss(host);
 	int							bytesCount = 0;
@@ -66,7 +66,7 @@ bool					Config::isValidHost(const std::string& host, vServerConfig& currentServ
 	return bytesCount == 4;
 }
 
-bool					Config::isValidServerName(const std::string& serverName, vServerConfig& currentServer) {
+bool					Config::isValidServerName(const std::string& serverName, ServerConfig& currentServer) {
 	std::string				sub;
 	std::stringstream		ss(serverName);
 	int						subCount = 0;

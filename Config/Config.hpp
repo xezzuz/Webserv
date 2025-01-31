@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 20:24:33 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ typedef struct												Directives {
 	}
 }															Directives;
 
-typedef struct												vServerConfig {
+typedef struct												ServerConfig {
 	std::string												host;
 	int														port;
 	std::vector<std::string>								server_names;
@@ -90,13 +90,13 @@ typedef struct												vServerConfig {
 	std::map<std::string, Directives>						Locations;
 
 	// default values for server only directives
-	vServerConfig() {
+	ServerConfig() {
 		host = "127.0.0.1";
 		port = 8083;
 		server_names.push_back("nazouz.com");
 		server_names.push_back("mmaila.com");
 	}
-}															vServerConfig;
+}															ServerConfig;
 
 class Config {
 	private:
@@ -109,7 +109,7 @@ class Config {
 
 		int																logs;
 
-		std::vector<vServerConfig>										Servers;
+		std::vector<ServerConfig>										Servers;
 		// std::vector<vServerConfigParser>								Parser;
 		
 	public:
@@ -129,12 +129,12 @@ class Config {
 		bool						locationBlockIsInsideAServerBlock(int locationStart, int locationEnd);
 		
 		bool						parseAllServerBlocks();
-		bool						parseSingleServerBlock(int start, int end, vServerConfig& currentServer);
-		bool						fillServerBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, vServerConfig& currentServer);
+		bool						parseSingleServerBlock(int start, int end, ServerConfig& currentServer);
+		bool						fillServerBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, ServerConfig& currentServer);
 		bool						fillLocationBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, Directives& toFill);
 		bool						addToServerParserServerDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
 		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives);
-		bool						parseSingleLocationBlock(int start, int end, vServerConfig& currentServer);
+		bool						parseSingleLocationBlock(int start, int end, ServerConfig& currentServer);
 		bool						addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
 		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives);
 		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
@@ -142,14 +142,14 @@ class Config {
 
 		bool						constructServers();
 		void						setDefaultDirectives(std::map<std::string, std::string>& userDirectives);
-		bool						fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, vServerConfig& newServerConfig);
+		bool						fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, ServerConfig& newServerConfig);
 		std::vector<std::string>	splitStringBySpace(std::string& string);
 		bool						fillLocationDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& Location, Directives& ServerDirectives);
 
 
-		bool						isValidPort(const std::string& port, vServerConfig& currentServer);
-		bool						isValidHost(const std::string& host, vServerConfig& currentServer);
-		bool						isValidServerName(const std::string& serverName, vServerConfig& currentServer);
+		bool						isValidPort(const std::string& port, ServerConfig& currentServer);
+		bool						isValidHost(const std::string& host, ServerConfig& currentServer);
+		bool						isValidServerName(const std::string& serverName, ServerConfig& currentServer);
 		bool						isValidErrorPage(const std::string& errorPage, Directives& toFill);
 		bool						isValidClientMaxBodySize(const std::string& client_max_body_size, Directives& toFill);
 		bool						isValidRoot(const std::string& root, Directives& toFill);
@@ -164,7 +164,7 @@ class Config {
 		void						printServersConfigs();
 
 		int&								getLogs();
-		std::vector<vServerConfig>&			getServers();
+		std::vector<ServerConfig>&			getServers();
 		// std::vector<vServerConfigParser>&	getParser();
 		std::ifstream&						getConfigFile();
 		// std::string&						getConfigFileName();
