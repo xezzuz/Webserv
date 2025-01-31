@@ -17,6 +17,11 @@ ErrorPage::ErrorPage(int code) : status(code)
     description.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
+std::string	ErrorPage::getBuffer( void ) const
+{
+	return (buffer);
+}
+
 void	ErrorPage::generateErrorPage( void )
 {
 	buffer = ("HTTP/1.1 " + _toString(status) + " " + description[status]); // status line

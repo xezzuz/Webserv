@@ -10,7 +10,7 @@ Response::~Response()
 	}
 }
 
-Response::Response() : contentLength(0), chunked(false), currRange(0), state(READBODY), nextState(SENDDATA)
+Response::Response() : contentLength(0), chunked(false), currRange(0), state(READBODY), nextState(READBODY)
 {
 	dirList = NULL;
 	statusCodes.insert(std::make_pair(200, "OK"));
@@ -91,6 +91,16 @@ void	Response::setInput(struct ResponseInput& input)
 	this->input = input;
 }
 
+void	Response::setBuffer(const std::string& data)
+{
+	this->buffer = data;
+}
+
+int		Response::getStatusCode() const
+{
+	return (input.status);
+}
+
 bool	Response::sendData(int& socket)
 {
 	// std::cout <<  "RESOURCE : "<< input.path << std::endl;
@@ -101,9 +111,9 @@ bool	Response::sendData(int& socket)
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "--------" << std::endl;
-	std::cout << "\tSENT DATA OF SIZE: " << buffer.size() << std::endl;
-	std::cout << "-----------------------------------------------------"  << std::endl;
+	// std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "--------" << std::endl;
+	// std::cout << buffer << std::endl;
+	// std::cout << "-----------------------------------------------------"  << std::endl;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }
@@ -112,8 +122,8 @@ void printState(enum State state, std::string name);
 
 int	Response::sendResponse( int& socket )
 {
-	printState(state, "State");
-	printState(nextState, "NextState");
+	// printState(state, "State");
+	// printState(nextState, "NextState");
 	switch (state)
 	{
 		case READBODY:

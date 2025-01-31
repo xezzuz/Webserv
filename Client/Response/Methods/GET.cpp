@@ -13,16 +13,14 @@ void	Response::readBody()
 {
 	char buf[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
+	std::cout << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw (FatalError(strerror(errno)));
 	}
 	if (bytesRead > 0)
 	{
-		// std::cout << "BYTESREAD : "<< bytesRead << std::endl;
-		// buffer[bytesRead] = '\0'; // be CAREFUL
 		buffer.append(std::string(buf, bytesRead));
-		// std::cout << "DATA SIZE AFTER READ: " << buffer.size() << std::endl;
 		state = SENDDATA;
 		if (chunked)
 		{
@@ -62,9 +60,12 @@ void	Response::handleGET( void )
 		{
 			headers.append("\r\nTransfer-Encoding: chunked");
 			chunked = true;
+			state = SENDDATA;
+			nextState = READBODY;
 		}
 		else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
+		openBodyFile(input.path);
 	}
 	headers.append("\r\nContent-Type: " + contentType);
 	headers.append("\r\nAccept-Ranges: bytes");

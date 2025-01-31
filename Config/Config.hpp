@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 23:01:27 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,7 @@ typedef struct												Directives {
 	Directives() {
 		error_pages.push_back(std::make_pair(404, "/home/nazouz/Desktop/Webserv/Errors/400.html"));
 		client_max_body_size = INT_MAX;
-		root = "/home/nazouz/Desktop/Webserv/www/";
-		alias = "/home/nazouz/Desktop/Webserv/www/";
+		root = "/home/mmaila/Desktop/SERV/www/";
 		index.push_back("index.html");
 		index.push_back("index.py");
 		index.push_back("index.php");
@@ -84,7 +83,7 @@ typedef struct												Directives {
 
 typedef struct												ServerConfig {
 	std::string												host;
-	int														port;
+	std::string												port;
 	std::vector<std::string>								server_names;
 	Directives												ServerDirectives;
 	std::map<std::string, Directives>						Locations;
@@ -92,7 +91,7 @@ typedef struct												ServerConfig {
 	// default values for server only directives
 	ServerConfig() {
 		host = "127.0.0.1";
-		port = 8083;
+		port = "8080";
 		server_names.push_back("nazouz.com");
 		server_names.push_back("mmaila.com");
 	}

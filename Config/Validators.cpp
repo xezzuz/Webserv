@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 22:09:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ bool			Config::isValidPort(const std::string& port, ServerConfig& currentServer)
 	
 	int		portDecimal = std::atoi(port.c_str());
 	if (portDecimal > 0 && portDecimal < 65535) {
-		currentServer.port = portDecimal;
+		currentServer.port = port;
 		return true;
 	}
 	return false;

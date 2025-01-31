@@ -74,6 +74,9 @@ public:
 
 	// external functions
 	void		setInput(struct ResponseInput& input);
+	void		setBuffer(const std::string& data);
+	int			getStatusCode() const;
+
 	int			sendResponse( int& socket );
 
 	void		generateHeaders( void );
@@ -89,7 +92,7 @@ public:
 	void		handleDELETE( void );
 
 	// sending body
-	void		openBodyFile();
+	void		openBodyFile(const std::string& path);
 	void		readBody();
 	void		readRange();
 	void		buildRange( void );

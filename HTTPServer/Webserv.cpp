@@ -3,29 +3,42 @@
 
 Webserv::~Webserv() {}
 
-Webserv::Webserv()
+Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
 	epoll_fd = epoll_create1(0);
 }
 
-Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers) {}
-
 void	Webserv::registerHandler(int fd, EventHandler *h, uint32_t events)
 {
 	struct epoll_event ev;
-	ev.events = events | EPOLLET;
+	ev.events = events;
 	ev.data.ptr = h;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
 	handlerMap[fd] = h;
 	h->HTTPserver = this;
 }
 
+	void print_epoll_events(uint32_t events) {
+    printf("Events: ");
+    
+    if (events & EPOLLIN)  printf("EPOLLIN ");
+    if (events & EPOLLOUT) printf("EPOLLOUT ");
+    if (events & EPOLLRDHUP) printf("EPOLLRDHUP ");
+    if (events & EPOLLPRI) printf("EPOLLPRI ");
+    if (events & EPOLLERR) printf("EPOLLERR ");
+    if (events & EPOLLHUP) printf("EPOLLHUP ");
+    if (events & EPOLLET) printf("EPOLLET ");
+    if (events & EPOLLONESHOT) printf("EPOLLONESHOT ");
+
+    printf("\n");
+}
 void	Webserv::updateHandler(const int fd, uint32_t events)
 {
 	struct epoll_event ev;
 
-	ev.events = events | EPOLLET;
+	ev.events = events;
 	ev.data.ptr = handlerMap[fd];
+	print_epoll_events(events);
 	epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &ev);
 }
 
@@ -38,8 +51,8 @@ void	Webserv::removeHandler(int fd)
 		handlerMap.erase(it);
 		delete h;
 	}
-	close(fd);
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+	close(fd);
 }
 
 
@@ -149,7 +162,7 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (true)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 
 		for (int i = 0; i < eventCount; i++)
 		{

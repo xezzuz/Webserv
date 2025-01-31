@@ -1,20 +1,11 @@
 #include "Response.hpp"
 #include "Error.hpp"
 
-void	Response::openBodyFile()
+void	Response::openBodyFile(const std::string& path)
 {
-	if (input.path.empty() || input.isDir || input.method != "GET")
-	{
-		state = nextState;
-	}
-	else
-	{
-		bodyFile.open(input.path);
-		if (!bodyFile.is_open())
-			throw(FatalError("could not open requested resource"));
-		else
-			state = READBODY;
-	}
+	bodyFile.open(path);
+	if (!bodyFile.is_open())
+		throw(FatalError("could not open requested resource"));
 }
 
 void	Response::generateHeaders( void )

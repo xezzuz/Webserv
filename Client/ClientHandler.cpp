@@ -95,6 +95,7 @@ void	ClientHandler::decodeUri(struct ResponseInput& input, std::string& URL)
 		URL.erase(0, pos++);
 		if (stat(input.path.c_str(), &pathStat) == -1)
 		{
+			std::cout << "input.path : " << input.path << std::endl;
 			//throw(ErrorPage(404));
 			input.status = 404;
 			return ;
@@ -202,6 +203,13 @@ void	ClientHandler::initResponse()
 	input.uri = request.getRequestLineSt().uri;
 	input.status = request.getStatusCode();
 	input.requestHeaders = request.getHeaderSt().headersMap;
+
+	std::map<std::string, std::string>::iterator itr = input.requestHeaders.find("Connection");
+	if (itr != input.requestHeaders.end())
+	{
+		if (itr->second == "keep-alive")
+			keepAlive = true;
+	}
 	
 	ServerConfig server = matchingServer(request.getHeaderSt().host);
 
@@ -232,61 +240,72 @@ void	ClientHandler::initResponse()
 		URL = input.config.root + input.uri;
 	}
 	
-	input.config.cgi_ext.insert(std::make_pair(".py", "/usr/bin/python3"));
-	input.config.cgi_ext.insert(std::make_pair(".php", "/usr/bin/php"));
-	input.config.index.push_back("index.html");
-	input.config.autoindex = true;
+	// input.config.cgi_ext.insert(std::make_pair(".py", "/usr/bin/python3"));
+	// input.config.cgi_ext.insert(std::make_pair(".php", "/usr/bin/php"));
+	// input.config.index.push_back("index.html");
 	decodeUri(input, URL);
 	response.setInput(input);
 }
 
+void 	ClientHandler::handleRequest()
+{
+	int state = request.receiveRequest(socket);
+	if (state == PARSING_FINISHED)
+	{
+		// setup response process
+		initResponse();
+		response.generateHeaders();
+		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+	}
+	else if (state == -1) // remove
+	{
+		std::cout << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
+		HTTPserver->removeHandler(socket);
+		std::cout << "CLIENT REMOVED" << std::endl;
+	}
+}
+
+void 	ClientHandler::handleResponse()
+{
+	if (response.sendResponse(socket) == 1)
+	{
+		std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
+		if (keepAlive)
+		{
+			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
+			this->reset();
+		}
+		else
+			this->remove();
+	}
+}
+
 void	ClientHandler::handleEvent(uint32_t events)
 {
-	if (events & EPOLLIN)
+	try
 	{
-		int state = request.receiveRequest(socket);
-		if (state == PARSING_FINISHED)
+		if (events & EPOLLIN)
 		{
-			// setup response process
-			initResponse();
-			response.generateHeaders();
-			response.openBodyFile();
-			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+			handleRequest();
 		}
-		else if (state == -1) // remove
+		else if (events & EPOLLOUT)
 		{
-			HTTPserver->removeHandler(socket);
-			std::cout << "CLIENT REMOVED" << std::endl;
+			handleResponse();
 		}
 	}
-	else if (events & EPOLLOUT)
+	catch (ErrorPage& err)
 	{
-		try
-		{
-			if (response.sendResponse(socket) == 1)
-			{
-				std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
-				if (keepAlive)
-				{
-					HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
-					this->reset();
-				}
-				else
-					this->remove();
-			}
-		}
-		catch (ErrorPage& err)
-		{
-			// darori treseta l body dial response w states 
-			err.generateErrorPage();
-			// response.setBuffer(err.getBuffer);
-			// set PATH darori
-		}
-		catch (FatalError& err)
-		{
-			std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
-			this->remove();
-		}
+		// darori treseta l body dial response w states
+		std::cout << "ERROR : " << response.getStatusCode() << std::endl;
+		err.generateErrorPage();
+		response.setBuffer(err.getBuffer());
+		// response.setBuffer(err.getBuffer);
+		// set PATH darori
+	}
+	catch (FatalError& err)
+	{
+		std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
+		this->remove();
 	}
 }
 

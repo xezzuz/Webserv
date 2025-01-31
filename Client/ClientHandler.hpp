@@ -25,6 +25,8 @@ public:
 	void	reset();
 	void	remove();
 	void 	handleEvent(uint32_t events);
+	void 	handleRequest();
+	void 	handleResponse();
 
 private:
 	int							socket;

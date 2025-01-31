@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 21:38:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 22:10:26 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void				Config::Logger(std::string error) {
 void				Config::printServersConfigs() {
 	for (size_t i = 0; i < Servers.size(); i++) {
 		printf("\n\n----------------- SERVER %zu -----------------\n", i + 1);
-		printf("LISTEN:\t\t\t%s:%d\n", Servers[i].host.c_str(), Servers[i].port);
+		printf("LISTEN:\t\t\t%s:%s\n", Servers[i].host.c_str(), Servers[i].port.c_str());
 		for (size_t j = 0; j < Servers[i].server_names.size(); j++) {
 			printf("SERVER NAME:\t\t%s\n", Servers[i].server_names[j].c_str());
 		}
