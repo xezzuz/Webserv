@@ -110,10 +110,11 @@ bool	Response::sendData(int& socket)
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	// std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "----" << input.path << "----" << std::endl;
-	// std::cout <<  "RESOURCE : "<< input.path << std::endl;
-	// std::cout << buffer << std::endl;
-	// std::cout << "-----------------------------------------------------"  << std::endl;
+	std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "----" << input.path << "----" << std::endl;
+	std::cout <<  "RESOURCE : "<< input.path << std::endl;
+	std::cout << buffer << std::endl;
+	std::cout << buffer.size() << std::endl;
+	std::cout << "-----------------------------------------------------"  << std::endl;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }

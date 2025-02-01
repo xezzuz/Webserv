@@ -24,15 +24,15 @@ void print_epoll_events(uint32_t events)
 	std::cerr << std::endl;
 }
 
-void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
+void	Webserv::registerHandler(int fd, EventHandler *h, uint32_t events)
 {
 	struct epoll_event ev;
 
 	ev.events = events;
-	ev.data.ptr = handler;
+	ev.data.ptr = h;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
-	handlerMap[fd] = handler;
-	handler->HTTPserver = this;
+	handlerMap[fd] = h;
+	h->HTTPserver = this;
 }
 
 void	Webserv::updateHandler(const int fd, uint32_t events)
@@ -51,9 +51,9 @@ void	Webserv::removeHandler(int fd)
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 	{
-		EventHandler	*handler = it->second;
+		EventHandler	*h = it->second;
 		handlerMap.erase(it);
-		delete handler;
+		delete h;
 	}
 }
 
@@ -142,7 +142,7 @@ void	Webserv::initServers()
 		std::pair<std::string, std::string> bindAddress = std::make_pair(it->host, it->port);
 		std::map<std::pair<std::string, std::string>, int>::iterator deja = boundServers.find(bindAddress);
 
-		// if server already bound just add the virtual server config to the ServerHandler that was already bound
+		// if server already bound just add the virtual server config to the ServerHandler
 		if (deja != boundServers.end())
 		{
 			static_cast<ServerHandler *>(handlerMap[deja->second])->addVServer(*it);
@@ -152,12 +152,12 @@ void	Webserv::initServers()
 		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
-		std::cout << "[WEBSERV]\t " << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
+		std::cout << "[WEBSERV]\t> Server listening on " << it->host << ":" << it->port << std::endl;
 
-		ServerHandler	*handler = new ServerHandler(serverSocket);
-		handler->addVServer(*it);
+		ServerHandler	*h = new ServerHandler(serverSocket);
+		h->addVServer(*it);
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
-		registerHandler(serverSocket, handler, EPOLLIN);
+		registerHandler(serverSocket, h, EPOLLIN);
 	}
 }
 
@@ -170,9 +170,9 @@ void	Webserv::run()
 
 		for (int i = 0; i < eventCount; i++)
 		{
-			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
+			EventHandler	*h = static_cast<EventHandler *>(events[i].data.ptr);
 			// print_epoll_events(events[i].events);
-			handler->handleEvent(events[i].events);
+			h->handleEvent(events[i].events);
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;
 		// for (it = Timer.begin(); it != Timer.end(); it++)

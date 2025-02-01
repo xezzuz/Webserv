@@ -16,7 +16,7 @@
 # include "../../Utils/Helpers.hpp"
 # include "../../Config/Config.hpp"
 
-# define SEND_BUFFER_SIZE 4096
+# define SEND_BUFFER_SIZE 16384
 # define MAX_CONCURRENT_PROCESSES 50
 
 enum	State
@@ -97,8 +97,9 @@ public:
 
 private:
 	// range parsing
-	int			rangeContentLength( void );
-	bool		parseRangeHeader( void );
+	int				rangeContentLength( void );
+	unsigned long	parseRangeValue(std::string& value);
+	bool			parseRangeHeader( void );
 	
 	// Methods
 	void		handleGET( void );
