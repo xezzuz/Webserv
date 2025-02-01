@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:38:25 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/01/31 22:10:26 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,15 @@
 Config::Config() {}
 
 Config::Config(const std::string& configFileName) {
-	if (!openConfigFile(configFileName) || !parseConfigFile() || !constructServers()) {
-		ErrorLogger(configFileName + " could not meet the minimum requirements to run Webserv!");
-		configFile.close();
-		exit(1);
-	}
+	// what if the file is deleted?
+	logs = open("../Logs/webserv.log", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (logs == -1)
+		std::cerr << BOLD << "Webserv: can't create error.log!" << RESET << std::endl;
 
+	if (!openConfigFile(configFileName) || !parseConfigFile() || !constructServers())
+		(configFile.close(), exit(1));
+	
+	// should be removed later
 	printServersConfigs();
 }
 
@@ -31,8 +34,10 @@ Config::~Config() {
 	close(logs);
 }
 
-void				Config::ErrorLogger(const std::string& error) {
-	std::cerr << RED << BOLD << "Webserv: " << error << RESET << std::endl;
+void				Config::Logger(std::string error) {
+	std::cerr << BOLD << RED << "Webserv: see error.log" << RESET << std::endl;
+	error += "\n";
+	write(logs, error.c_str(), error.length()); // check for errors?
 }
 
 void				Config::printServersConfigs() {

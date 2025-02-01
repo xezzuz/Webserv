@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:37:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/01 14:52:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,7 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 bool					Config::isValidRoot(const std::string& root, Directives& toFill) {
 	if (tokensCounter(root) != 1)
 		return false;
+	std::cout << "isValidRoot = " << &toFill << std::endl;
 	toFill.root = root;
 	return true;
 }
