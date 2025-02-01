@@ -24,15 +24,15 @@ void print_epoll_events(uint32_t events)
 	std::cerr << std::endl;
 }
 
-void	Webserv::registerHandler(int fd, EventHandler *h, uint32_t events)
+void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
 {
 	struct epoll_event ev;
 
 	ev.events = events;
-	ev.data.ptr = h;
+	ev.data.ptr = handler;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
-	handlerMap[fd] = h;
-	h->HTTPserver = this;
+	handlerMap[fd] = handler;
+	handler->HTTPserver = this;
 }
 
 void	Webserv::updateHandler(const int fd, uint32_t events)
@@ -51,9 +51,9 @@ void	Webserv::removeHandler(int fd)
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 	{
-		EventHandler	*h = it->second;
+		EventHandler	*handler = it->second;
 		handlerMap.erase(it);
-		delete h;
+		delete handler;
 	}
 }
 
@@ -152,12 +152,12 @@ void	Webserv::initServers()
 		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
-		std::cout << "[WEBSERV]\t> Server listening on " << it->host << ":" << it->port << std::endl;
+		std::cout << "[WEBSERV]\t " << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
-		ServerHandler	*h = new ServerHandler(serverSocket);
-		h->addVServer(*it);
+		ServerHandler	*handler = new ServerHandler(serverSocket);
+		handler->addVServer(*it);
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
-		registerHandler(serverSocket, h, EPOLLIN);
+		registerHandler(serverSocket, handler, EPOLLIN);
 	}
 }
 
