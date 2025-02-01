@@ -257,8 +257,6 @@ void 	ClientHandler::handleRequest()
 	{
 		// setup response process
 		gettimeofday(&start, NULL);
-		std::cout << "TIMER STARTED: " << (start.tv_sec * 1000.0) + (start.tv_usec / 1000.0) << std::endl;
-
 		initResponse();
 		response.generateHeaders();
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);

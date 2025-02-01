@@ -142,7 +142,7 @@ void	Webserv::initServers()
 		std::pair<std::string, std::string> bindAddress = std::make_pair(it->host, it->port);
 		std::map<std::pair<std::string, std::string>, int>::iterator deja = boundServers.find(bindAddress);
 
-		// if server already bound just add the virtual server config to the ServerHandler that was already bound
+		// if server already bound just add the virtual server config to the ServerHandler
 		if (deja != boundServers.end())
 		{
 			static_cast<ServerHandler *>(handlerMap[deja->second])->addVServer(*it);

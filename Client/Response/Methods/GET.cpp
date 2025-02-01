@@ -1,7 +1,7 @@
 #include "../Response.hpp"
 #include "../Error.hpp"
 
-std::string	Response::buildChunk(const char *data, size_t size)
+std::string	Response::buildChunk(const char *data, size_t size) // error
 {
 	std::string chunk;
 
@@ -61,8 +61,12 @@ void	Response::handleGET( void )
 		contentType = getContentType(input.path, mimeTypes);
 		contentLength = fileLength(input.path);
 		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
+		{
+			std::cout << "Hello" << std::endl;
 			buildRange();
-		if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
+			
+		}
+		else if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
 		{
 			headers.append("\r\nTransfer-Encoding: chunked");
 			state = READCHUNK;

@@ -22,8 +22,8 @@ void	Response::generateHeaders( void )
 	else if (input.method == "DELETE")
 		handleDELETE();
 
-	if (input.requestHeaders.find("Connection") != input.requestHeaders.end())
-		headers.append("\r\nConnection: " + input.requestHeaders["Connection"]);
+	if (input.requestHeaders.find("connection") != input.requestHeaders.end())
+		headers.append("\r\nConnection: " + input.requestHeaders["connection"]);
 
 	headers.append("\r\n\r\n");
 
