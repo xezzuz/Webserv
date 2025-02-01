@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 22:09:57 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/01 14:52:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,9 @@ bool					Config::isValidHost(const std::string& host, ServerConfig& currentServe
 	std::string					byte;
 	std::stringstream			ss(host);
 	int							bytesCount = 0;
-
+	currentServer.host = host;
+	return true;
+	
 	if (host == "localhost") {
 		currentServer.host = host;
 		return true;

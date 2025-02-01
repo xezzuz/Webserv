@@ -15,7 +15,7 @@ void	Response::readChunk()
 {
 	char buf[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
-	std::cout << bytesRead << std::endl;
+	// std::cout << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw (FatalError(strerror(errno)));
@@ -33,7 +33,7 @@ void	Response::readBody()
 {
 	char buf[SEND_BUFFER_SIZE] = {0};
 	int bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
-	std::cout << bytesRead << std::endl;
+	// std::cout << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw (FatalError(strerror(errno)));
