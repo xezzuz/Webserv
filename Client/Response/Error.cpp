@@ -11,6 +11,7 @@ ErrorPage::ErrorPage(int code) : status(code)
     description.insert(std::make_pair(413, "Payload Too Large"));
     description.insert(std::make_pair(415, "Unsupported Media Type"));
     description.insert(std::make_pair(416, "Range Not Satisfiable"));
+    description.insert(std::make_pair(431, "Request Header Fields Too Large"));
     description.insert(std::make_pair(500, "Internal Server Error"));
     description.insert(std::make_pair(501, "Not Implemented"));
     description.insert(std::make_pair(504, "Gateway Timeout"));

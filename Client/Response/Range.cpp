@@ -18,29 +18,47 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 	while (std::getline(rangess, rangeStr, ','))
 	{
+		unsigned long start;
+		unsigned long end;
+		std::string startStr;
+		std::string endStr;
 		size_t	delim;
 		char	*stop;
 
+		stringtrim(rangeStr, " \t");
 		delim = rangeStr.find("-");
 		if (delim == std::string::npos)
 			return (false);
 
-		std::string startStr = rangeStr.substr(0, delim);
-		if (startStr.empty())
-			return (false);
-		unsigned long start = std::strtoul(startStr.c_str(), &stop, 10);
-		if (errno == ERANGE || !std::isdigit(*stop))
+		startStr = rangeStr.substr(0, delim);
+		endStr = rangeStr.substr(delim + 1);
+		if (startStr.empty() && endStr.empty())
 			return (false);
 
-		std::string endStr = rangeStr.substr(delim + 1);
-		if (endStr.empty())
-			return (false);
-		unsigned long end = std::strtoul(endStr.c_str(), &stop, 10);
-		if (errno == ERANGE || !std::isdigit(*stop))
-			return (false);
+		if (!startStr.empty())
+		{
+			start = std::strtoul(startStr.c_str(), &stop, 10); // 10: base decimal
+			if (errno == ERANGE || !(*stop))
+				return (false);
+			if (endStr.empty())
+				end = contentLength - 1;
+		}
+		if (!endStr.empty())
+		{
+			end = std::strtoul(endStr.c_str(), &stop, 10); // 10: base decimal
+			if (errno == ERANGE || !(*stop))
+				return (false);
+			if (startStr.empty())
+			{
+				start = contentLength - end;
+				end = contentLength - 1;
+			}
+		}
+
 
 		if (start > end || end >= contentLength)
 			throw(ErrorPage(416));
+
 	
 		Range unit;
 
