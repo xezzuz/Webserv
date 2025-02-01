@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 23:26:33 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/01 15:57:46 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,23 +135,23 @@ bool			Request::parseHeaders() {
 	}
 
 	std::map<std::string, std::string>::iterator it;
-	it = header.headersMap.find("Host");
+	it = header.headersMap.find("host");
 	if (it != header.headersMap.end())
 		header.host = it->second;
 	
-	it = header.headersMap.find("Content-Type");
+	it = header.headersMap.find("content-type");
 	if (it != header.headersMap.end())
 		header.contentType = it->second;
 	
-	it = header.headersMap.find("Connection");
+	it = header.headersMap.find("connection");
 	if (it != header.headersMap.end())
 		header.connection = it->second;
 	
-	it = header.headersMap.find("Transfer-Encoding");
+	it = header.headersMap.find("transfer-encoding");
 	if (it != header.headersMap.end())
 		header.transferEncoding = stringtolower(it->second);
 	
-	it = header.headersMap.find("Content-Length");
+	it = header.headersMap.find("content-length");
 	if (it != header.headersMap.end() && stringIsDigit(it->second))
 		body.contentLength = std::atoi(it->second.c_str());
 	
@@ -204,7 +204,7 @@ bool			Request::storeHeadersInVector() {
 		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
-		header.rawHeaders.push_back(line);
+		header.rawHeaders.push_back(stringtolower(line));
 		opos = rpos + 2;
 	}
 	return true;
@@ -212,8 +212,8 @@ bool			Request::storeHeadersInVector() {
 
 bool			Request::validateRequestHeaders() {
 	return true; // ???
-	bool			ContentLength = headerExists("Content-Length");
-	bool			TransferEncoding = headerExists("Transfer-Encoding");
+	bool			ContentLength = headerExists("content-length");
+	bool			TransferEncoding = headerExists("transfer-encoding");
 
 	if (ContentLength == TransferEncoding)
 		return (setStatusCode(400), false);
@@ -226,16 +226,16 @@ bool			Request::validateRequestHeaders() {
 	if (ContentLength && body.contentLength == -1)
 		return (setStatusCode(400), false);
 	
-	if (!headerExists("Host") || !headerExists("Connection"))
+	if (!headerExists("host") || !headerExists("connection"))
 		return (setStatusCode(400), false);
 	
 	if (header.host.empty() || header.connection.empty())
 		return (setStatusCode(400), false);
 
 	int pos = header.contentType.find("multipart/form-data; boundary=") + 30;
-	if (headerExists("Content-Type") && pos != 30)
+	if (headerExists("content-type") && pos != 30)
 		return (setStatusCode(501), false);
-	else if (headerExists("Content-Type") && pos == 30 && header.contentType[pos])
+	else if (headerExists("content-type") && pos == 30 && header.contentType[pos])
 		body.boundaryBegin = "--" + header.contentType.substr(pos), body.boundaryEnd = body.boundaryBegin + "--", isMultipart = true;
 
 	return true;
