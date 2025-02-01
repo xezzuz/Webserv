@@ -24,11 +24,12 @@ public:
 
 	void	reset();
 	void	remove();
-	void 	handleEvent(uint32_t events);
+	void	handleEvent(uint32_t events);
 	void 	handleRequest();
 	void 	handleResponse();
 
 private:
+	clock_t						start;
 	int							socket;
 	Request						request;
 	Response					response;

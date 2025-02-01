@@ -4,13 +4,16 @@
 
 ClientHandler::~ClientHandler()
 {
-	delete this;
+	if (cgifd != -1)
+		HTTPserver->removeHandler(cgifd);
 }
 
 ClientHandler::ClientHandler(int fd, std::vector<ServerConfig> vServers) : socket(fd), vServers(vServers), cgifd(-1), keepAlive(false) {}
 
 void	ClientHandler::reset()
 {
+	if (cgifd != -1)
+		HTTPserver->removeHandler(cgifd);
 	response = Response();
 	request = Request();
 	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
@@ -18,10 +21,10 @@ void	ClientHandler::reset()
 
 void	ClientHandler::remove()
 {
+	std::cout << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
 	if (cgifd != -1)
 		HTTPserver->removeHandler(cgifd);
 	HTTPserver->removeHandler(socket);
-	std::cout << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
 }
 
 // void	ClientHandler::setResponseBuffer(std::string buffer)
@@ -253,6 +256,8 @@ void 	ClientHandler::handleRequest()
 	if (state == PARSING_FINISHED)
 	{
 		// setup response process
+		start = clock();
+
 		initResponse();
 		response.generateHeaders();
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
@@ -260,8 +265,7 @@ void 	ClientHandler::handleRequest()
 	else if (state == -1) // remove
 	{
 		std::cout << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
-		HTTPserver->removeHandler(socket);
-		std::cout << "CLIENT REMOVED" << std::endl;
+		this->remove();
 	}
 }
 
@@ -270,13 +274,14 @@ void 	ClientHandler::handleResponse()
 	if (response.sendResponse(socket) == 1)
 	{
 		std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
+		std::cout << "TIME TO SERVE: " << double(clock() - start) * 1000.0 / CLOCKS_PER_SEC << "ms" << std::endl;
 		if (keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
 			this->reset();
 		}
 		else
-			this->remove();
+			this->remove(); // this call is very unsafe it should remain at the end of an EventHandler object Call T-T
 	}
 }
 
@@ -296,7 +301,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 	catch (ErrorPage& err)
 	{
 		// darori treseta l body dial response w states
-		std::cout << "ERROR : " << response.getStatusCode() << std::endl;
+		std::cout << "[WEBSERV][ERROR]\t" << response.getStatusCode() << std::endl;
 		err.generateErrorPage();
 		response.setBuffer(err.getBuffer());
 		// response.setBuffer(err.getBuffer);

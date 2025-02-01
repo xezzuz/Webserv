@@ -8,9 +8,26 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 	epoll_fd = epoll_create1(0);
 }
 
+void print_epoll_events(uint32_t events)
+{
+	printf("Events: ");
+
+	if (events & EPOLLIN)  std::cerr << "EPOLLIN ";
+	if (events & EPOLLOUT) std::cerr << "EPOLLOUT ";
+	if (events & EPOLLRDHUP) std::cerr << "EPOLLRDHUP ";
+	if (events & EPOLLPRI) std::cerr << "EPOLLPRI ";
+	if (events & EPOLLERR) std::cerr << "EPOLLERR ";
+	if (events & EPOLLHUP) std::cerr << "EPOLLHUP ";
+	if (events & EPOLLET) std::cerr << "EPOLLET ";
+	if (events & EPOLLONESHOT) std::cerr << "EPOLLONESHOT ";
+
+	std::cerr << std::endl;
+}
+
 void	Webserv::registerHandler(int fd, EventHandler *h, uint32_t events)
 {
 	struct epoll_event ev;
+
 	ev.events = events;
 	ev.data.ptr = h;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
@@ -18,32 +35,19 @@ void	Webserv::registerHandler(int fd, EventHandler *h, uint32_t events)
 	h->HTTPserver = this;
 }
 
-	void print_epoll_events(uint32_t events) {
-    printf("Events: ");
-    
-    if (events & EPOLLIN)  printf("EPOLLIN ");
-    if (events & EPOLLOUT) printf("EPOLLOUT ");
-    if (events & EPOLLRDHUP) printf("EPOLLRDHUP ");
-    if (events & EPOLLPRI) printf("EPOLLPRI ");
-    if (events & EPOLLERR) printf("EPOLLERR ");
-    if (events & EPOLLHUP) printf("EPOLLHUP ");
-    if (events & EPOLLET) printf("EPOLLET ");
-    if (events & EPOLLONESHOT) printf("EPOLLONESHOT ");
-
-    printf("\n");
-}
 void	Webserv::updateHandler(const int fd, uint32_t events)
 {
 	struct epoll_event ev;
 
 	ev.events = events;
 	ev.data.ptr = handlerMap[fd];
-	print_epoll_events(events);
 	epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &ev);
 }
 
 void	Webserv::removeHandler(int fd)
 {
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+	close(fd);
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 	{
@@ -51,8 +55,6 @@ void	Webserv::removeHandler(int fd)
 		handlerMap.erase(it);
 		delete h;
 	}
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-	close(fd);
 }
 
 
@@ -167,6 +169,7 @@ void	Webserv::run()
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*h = static_cast<EventHandler *>(events[i].data.ptr);
+			// print_epoll_events(events[i].events);
 			h->handleEvent(events[i].events);
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;

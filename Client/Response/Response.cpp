@@ -10,7 +10,7 @@ Response::~Response()
 	}
 }
 
-Response::Response() : contentLength(0), chunked(false), currRange(0), state(READBODY), nextState(READBODY)
+Response::Response() : contentLength(0), currRange(0), state(READBODY), nextState(READBODY)
 {
 	dirList = NULL;
 	statusCodes.insert(std::make_pair(200, "OK"));
@@ -68,7 +68,6 @@ Response&	Response::operator=(const Response& rhs)
 		contentType = rhs.contentType;
 		contentLength = rhs.contentLength;
 		headers = rhs.headers;
-		chunked = rhs.chunked;
 		dirList = rhs.dirList;
 		ranges = rhs.ranges;
 		boundary = rhs.boundary;
@@ -103,17 +102,18 @@ int		Response::getStatusCode() const
 
 bool	Response::sendData(int& socket)
 {
-	// std::cout <<  "RESOURCE : "<< input.path << std::endl;
-	// std::cout << "SENT DATA's SIZE : " << buffer.length() << std::endl;
 	ssize_t bytesSent = send(socket, buffer.c_str(), buffer.length(), 0);
-	// std::cout << "BYTESSENT: "  << bytesSent << std::endl;
+	// int err = errno;
+	// std::cerr << bytesSent << std::endl;
+	// errno = err;
 	if (bytesSent == -1)
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	// std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "--------" << std::endl;
-	// std::cout << buffer << std::endl;
-	// std::cout << "-----------------------------------------------------"  << std::endl;
+	std::cout << "--------RESPONSE_DATA_TO_CLIENT " << socket << "----" << input.path << "----" << std::endl;
+	std::cout <<  "RESOURCE : "<< input.path << std::endl;
+	std::cout << buffer << std::endl;
+	std::cout << "-----------------------------------------------------"  << std::endl;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }
@@ -129,8 +129,8 @@ int	Response::sendResponse( int& socket )
 		case READBODY:
 			readBody();
 			break;
-		case AUTOINDEX:
-			autoIndex();
+		case READCHUNK:
+			readChunk();
 			break;
 		case LISTDIR:
 			directoryListing();
@@ -161,8 +161,8 @@ void printState(enum State state, std::string name)
 		case READBODY:
 			std::cout << name << "==========>READING BODY" << std::endl;
 			break;
-		case AUTOINDEX:
-			std::cout << name << "==========>AUTOINDEX" << std::endl;
+		case READCHUNK:
+			std::cout << name << "==========>READING CHUNK" << std::endl;
 			break;
 		case LISTDIR:
 			std::cout << name << "==========>LISTING DIR" << std::endl;

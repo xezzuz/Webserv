@@ -1,12 +1,32 @@
 #include "../Response.hpp"
 #include "../Error.hpp"
 
-void	Response::buildChunk()
+std::string	Response::buildChunk(const char *data, size_t size)
 {
-	buffer = toHex(buffer.size()) + "\r\n" + buffer + "\r\n";
+	std::string chunk;
+
+	chunk = toHex(size) + "\r\n" + std::string(data, size) + "\r\n";
 	if (nextState == FINISHED)
-		buffer.append("0\r\n\r\n");
-	state = SENDDATA;
+		chunk.append("0\r\n\r\n");
+	return (chunk);
+}
+
+void	Response::readChunk()
+{
+	char buf[SEND_BUFFER_SIZE] = {0};
+	int bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
+	std::cout << bytesRead << std::endl;
+	if (bytesRead == -1)
+	{
+		throw (FatalError(strerror(errno)));
+	}
+	if (bytesRead > 0)
+	{
+		if (bodyFile.peek() == EOF)
+			nextState = FINISHED;
+		buffer.append(buildChunk(buf, bytesRead));
+		state = SENDDATA;
+	}
 }
 
 void	Response::readBody()
@@ -22,16 +42,8 @@ void	Response::readBody()
 	{
 		buffer.append(std::string(buf, bytesRead));
 		state = SENDDATA;
-		if (chunked)
-		{
-			buildChunk();
-			if (bodyFile.peek() == EOF)
-				nextState = FINISHED;
-		}
-	}
-	else if (bytesRead == 0)
-	{
-		state = FINISHED;
+		if (bodyFile.peek() == EOF)
+			nextState = FINISHED;
 	}
 }
 
@@ -39,16 +51,10 @@ void	Response::handleGET( void )
 {
 	if (input.config.autoindex && input.isDir)
 	{
-		dirList = opendir(input.path.c_str()); // CHECK LEAK
-		if (dirList == NULL)
-		{
-			std::cerr << "[WEBSERV][ERROR]\t>";
-			perror("opendir");
-			throw(ErrorPage(500));
-		}
+		autoIndex();
 		headers.append("\r\nTransfer-Encoding: chunked");
 		contentType = "text/html";
-		state = AUTOINDEX;
+		state = LISTDIR;
 	}
 	else
 	{
@@ -59,9 +65,7 @@ void	Response::handleGET( void )
 		if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
 		{
 			headers.append("\r\nTransfer-Encoding: chunked");
-			chunked = true;
-			state = SENDDATA;
-			nextState = READBODY;
+			state = READCHUNK;
 		}
 		else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));

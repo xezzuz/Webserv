@@ -60,16 +60,16 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 
 int	Response::rangeContentLength( void )
 {
-	int ret = 0;
+	int length = 0;
 	std::vector<Range>::iterator it = ranges.begin();
 
 	for (; it != ranges.end(); it++)
 	{
-		ret += it->header.length();
-		ret += it->rangeLength;
+		length += it->header.length();
+		length += it->rangeLength;
 	}
-	ret += 8 + boundary.length(); // 8 is  the length of the constant "\r\n--" "--\r\n"
-	return (ret);
+	length += 8 + boundary.length(); // 8 is  the length of the constant "\r\n--" "--\r\n"
+	return (length);
 }
 
 void	Response::buildRange( void )
@@ -103,8 +103,6 @@ void	Response::getNextRange()
 			state = SENDDATA;
 			nextState = FINISHED;
 		}
-		else
-			state = FINISHED;
 	}
 	else
 	{
@@ -112,6 +110,8 @@ void	Response::getNextRange()
 		buffer.append(ranges[currRange].header);
 		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
 		state = READRANGE;
+		if (ranges.size() == 1)
+			nextState = FINISHED;
 	}
 }
 
