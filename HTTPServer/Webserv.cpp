@@ -60,7 +60,7 @@ void	Webserv::removeHandler(int fd)
 
 int	Webserv::bindSocket(std::string& host, std::string& port)
 {
-	struct addrinfo	hints;
+	struct addrinfo		hints;
 	
 	// initialize addrinfo
 	memset(&hints, 0, sizeof(hints));
@@ -76,13 +76,13 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	}
 
 	// create socket and assign (bind) that socket an address returned in res
-	int listener;
-	struct addrinfo	*p;
+	struct addrinfo		*it;
+	int					serverSocket;
 
-	for (p = res; p; p = p->ai_next)
+	for (it = res; it; it = it->ai_next)
 	{
-		listener = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
-		if (listener == -1)
+		serverSocket = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
+		if (serverSocket == -1)
 			continue;
 
 		// kernel has a wait period for ports to be reusable after a socket has been closed under normal behaviour
@@ -91,49 +91,51 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		// that would be if the server crashed and restarted the previous address bound to the socket wouldn't be unavaible due to the kernel wait period 
 
 		int yes = 1;
-		if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
 		{
 			std::cerr << "[WEBSERV]\t>";
 			perror("setsockopt");
-			close(listener);
+			close(serverSocket);
 			freeaddrinfo(res);
 			exit(errno);
 		}
 
-		if (bind(listener, p->ai_addr, p->ai_addrlen) == 0)
+		if (bind(serverSocket, it->ai_addr, it->ai_addrlen) == 0)
 			break;
-		close(listener);
+		close(serverSocket);
 	}
 	freeaddrinfo(res);
-	if (!p)
+	if (!it)
 	{
-		close(listener);
-		std::cerr << "[WEBSERV]\t> Could Not Bind Any Socket..." << std::endl;
+		close(serverSocket);
+		std::cerr << "[WEBSERV]\t> Failed to Bind Any Socket..." << std::endl;
 		exit(errno);
 	}
-	return (listener);
+	return (serverSocket);
 }
 
-void    Webserv::listenForConnections(int& listener)
+void    Webserv::listenForConnections(int& serverSocket)
 {
-	if(listen(listener, BACKLOG) == -1)
+	if (listen(serverSocket, BACKLOG) == -1)
 	{
 		std::cerr << "[WEBSERV]\t>";
 		perror("listen");
+		close(serverSocket);
 		exit(errno);
 	}
-	if (fcntl(listener, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
+	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
 	{
-		std::cerr << "[WEBSERV]\t> fcntl: " << strerror(errno) << std::endl;
-		close(listener);
+		std::cerr << "[WEBSERV]\t>";
+		perror("fcntl");
+		close(serverSocket);
 		exit(errno);
 	}
 }
 
 void	Webserv::initServers()
 {
-	int serverSocket;
-	std::vector<ServerConfig>::iterator it;
+	int													serverSocket;
+	std::vector<ServerConfig>::iterator					it;
 	std::map<std::pair<std::string, std::string>, int>	boundServers;
 
 	for (it = servers.begin(); it != servers.end(); it++)
@@ -148,6 +150,7 @@ void	Webserv::initServers()
 			continue ;
 		}
 
+		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
 		std::cout << "[WEBSERV]\t> Server listening on " << it->host << ":" << it->port << std::endl;
