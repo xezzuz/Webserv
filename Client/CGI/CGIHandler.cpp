@@ -43,7 +43,7 @@ int	CGIHandler::setup()
 	else if (pid == 0)
 	{
 		close(pipe_fd[0]);
-		if(dup2(pipe_fd[1], 1) == -1)
+		if (dup2(pipe_fd[1], 1) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			close(pipe_fd[1]);
@@ -59,7 +59,7 @@ int	CGIHandler::setup()
 			exit(errno);
 		}
 
-		if(execve(args[0], args, env) == -1)
+		if (execve(args[0], args, env) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("execve");

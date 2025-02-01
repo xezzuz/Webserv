@@ -170,9 +170,9 @@ void	Webserv::run()
 
 		for (int i = 0; i < eventCount; i++)
 		{
-			EventHandler	*h = static_cast<EventHandler *>(events[i].data.ptr);
+			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
 			// print_epoll_events(events[i].events);
-			h->handleEvent(events[i].events);
+			handler->handleEvent(events[i].events);
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;
 		// for (it = Timer.begin(); it != Timer.end(); it++)

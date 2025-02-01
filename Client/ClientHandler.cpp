@@ -252,8 +252,8 @@ void	ClientHandler::initResponse()
 #include <sys/time.h>
 void 	ClientHandler::handleRequest()
 {
-	int state = request.receiveRequest(socket);
-	if (state == PARSING_FINISHED)
+	int reqState = request.receiveRequest(socket);
+	if (reqState == PARSING_FINISHED) // i.e request is ready => start to form response
 	{
 		// setup response process
 		gettimeofday(&start, NULL);
@@ -262,9 +262,8 @@ void 	ClientHandler::handleRequest()
 		initResponse();
 		response.generateHeaders();
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-	}
-	else if (state == -1) // remove
-	{
+
+	} else if (reqState == -1) { // remove
 		std::cout << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
 		this->remove();
 	}
