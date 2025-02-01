@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 12:10:01 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/01 20:37:07 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ void			Request::setRequestState() {
 	if (pState == PARSING_INIT && bufferContainHeaders())
     {
 		pState = HEADERS_RECEIVED;
-		std::cout << pState << std::endl;
     }
 	else if (pState == HEADERS_FINISHED && bufferSize != 0)
     {

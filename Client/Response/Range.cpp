@@ -38,7 +38,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (!startStr.empty())
 		{
 			start = std::strtoul(startStr.c_str(), &stop, 10); // 10: base decimal
-			if (errno == ERANGE || !(*stop))
+			if (errno == ERANGE || *stop)
 				return (false);
 			if (endStr.empty())
 				end = contentLength - 1;
@@ -46,7 +46,7 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (!endStr.empty())
 		{
 			end = std::strtoul(endStr.c_str(), &stop, 10); // 10: base decimal
-			if (errno == ERANGE || !(*stop))
+			if (errno == ERANGE || *stop)
 				return (false);
 			if (startStr.empty())
 			{
@@ -59,7 +59,8 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (start > end || end >= contentLength)
 			throw(ErrorPage(416));
 
-	
+		
+		std::cout << "Start >> " << start << " | End >> " << end << std::endl;
 		Range unit;
 
 		unit.range = std::make_pair(start, end);

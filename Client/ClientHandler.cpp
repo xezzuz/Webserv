@@ -98,7 +98,6 @@ void	ClientHandler::decodeUri(struct ResponseInput& input, std::string& URL)
 		URL.erase(0, pos++);
 		if (stat(input.path.c_str(), &pathStat) == -1)
 		{
-			std::cout << "input.path : " << input.path << std::endl;
 			//throw(ErrorPage(404));
 			input.status = 404;
 			return ;
@@ -274,12 +273,12 @@ void 	ClientHandler::handleResponse()
 	{
 		struct timeval end;
 		gettimeofday(&end, NULL);
-		std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
-		std::cout << "TIMER STARTED: " << std::fixed << std::setprecision(2) << (start.tv_sec * 1000.0) + (start.tv_usec / 1000.0) << std::endl;
-		std::cout << "TIMER ENDED: " << std::fixed << std::setprecision(2) << (end.tv_sec * 1000.0) + (end.tv_usec / 1000.0) << std::endl;
-		double ms = (end.tv_sec - start.tv_sec) * 1000.0;
-		ms += (end.tv_usec - start.tv_usec) / 1000.0;
-		std::cout << "TIME TO SERVE: " << ms << "ms" << std::endl;
+		// std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
+		// std::cout << "TIMER STARTED: " << std::fixed << std::setprecision(2) << (start.tv_sec * 1000.0) + (start.tv_usec / 1000.0) << std::endl;
+		// std::cout << "TIMER ENDED: " << std::fixed << std::setprecision(2) << (end.tv_sec * 1000.0) + (end.tv_usec / 1000.0) << std::endl;
+		// double ms = (end.tv_sec - start.tv_sec) * 1000.0;
+		// ms += (end.tv_usec - start.tv_usec) / 1000.0;
+		// std::cout << "TIME TO SERVE: " << ms << "ms" << std::endl;
 		if (keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);

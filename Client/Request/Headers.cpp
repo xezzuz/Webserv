@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:59:23 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/01 20:37:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,13 +244,13 @@ bool			Request::validateRequestHeaders() {
 // HEADERS CONTROL CENTER
 bool			Request::parseRequestLineAndHeaders() {
 	if (!storeHeadersInVector())
-		std::cout << "[ERROR]\tstoreHeadersInVector();" << std::endl;
+		std::cerr << "[ERROR]\tstoreHeadersInVector();" << std::endl;
 	if (!parseRequestLine())
-		std::cout << "[ERROR]\tparseRequestLine();" << std::endl;
+		std::cerr << "[ERROR]\tparseRequestLine();" << std::endl;
 	if (!parseHeaders())
-		std::cout << "[ERROR]\tparseHeaders();" << std::endl;
+		std::cerr << "[ERROR]\tparseHeaders();" << std::endl;
 	if (!validateRequestHeaders())
-		std::cout << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
+		std::cerr << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
 	if (statusCode == 200)
 		pState = HEADERS_FINISHED;
 	else
