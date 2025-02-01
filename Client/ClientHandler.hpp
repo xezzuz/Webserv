@@ -29,7 +29,7 @@ public:
 	void 	handleResponse();
 
 private:
-	clock_t						start;
+	struct timeval				start;
 	int							socket;
 	Request						request;
 	Response					response;

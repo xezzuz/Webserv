@@ -57,7 +57,6 @@ void	Webserv::removeHandler(int fd)
 	}
 }
 
-
 int	Webserv::bindSocket(std::string& host, std::string& port)
 {
 	struct addrinfo		hints;

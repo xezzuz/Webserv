@@ -106,8 +106,6 @@ private:
 	void		handleDELETE( void );
 
 
-
-
 	// response needed data
 	struct ResponseInput	input;
 

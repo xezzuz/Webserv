@@ -249,14 +249,15 @@ void	ClientHandler::initResponse()
 	decodeUri(input, URL);
 	response.setInput(input);
 }
-
+#include <sys/time.h>
 void 	ClientHandler::handleRequest()
 {
 	int state = request.receiveRequest(socket);
 	if (state == PARSING_FINISHED)
 	{
 		// setup response process
-		start = clock();
+		gettimeofday(&start, NULL);
+		std::cout << "TIMER STARTED: " << (start.tv_sec * 1000.0) + (start.tv_usec / 1000.0) << std::endl;
 
 		initResponse();
 		response.generateHeaders();
@@ -268,13 +269,19 @@ void 	ClientHandler::handleRequest()
 		this->remove();
 	}
 }
-
+#include <iomanip>
 void 	ClientHandler::handleResponse()
 {
 	if (response.sendResponse(socket) == 1)
 	{
+		struct timeval end;
+		gettimeofday(&end, NULL);
 		std::cout << "[WEBSERV]\tCLIENT " << socket << " SERVED." << std::endl;
-		std::cout << "TIME TO SERVE: " << double(clock() - start) * 1000.0 / CLOCKS_PER_SEC << "ms" << std::endl;
+		std::cout << "TIMER STARTED: " << std::fixed << std::setprecision(2) << (start.tv_sec * 1000.0) + (start.tv_usec / 1000.0) << std::endl;
+		std::cout << "TIMER ENDED: " << std::fixed << std::setprecision(2) << (end.tv_sec * 1000.0) + (end.tv_usec / 1000.0) << std::endl;
+		double ms = (end.tv_sec - start.tv_sec) * 1000.0;
+		ms += (end.tv_usec - start.tv_usec) / 1000.0;
+		std::cout << "TIME TO SERVE: " << ms << "ms" << std::endl;
 		if (keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
