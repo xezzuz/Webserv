@@ -61,7 +61,7 @@ void	Response::handleGET( void )
 		// state = READCHUNK;
 		contentType = getContentType(input.path, mimeTypes);
 		contentLength = fileLength(input.path);
-		if (input.requestHeaders.find("range") != input.requestHeaders.end())
+		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
 		{
 			buildRange();
 		}
