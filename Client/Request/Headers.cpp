@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 16:00:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 19:04:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ bool			Request::parseHeaders() {
 		if (!isValidFieldLine(header.rawHeaders[i]))
 			return false;
 		int colonPos = header.rawHeaders[i].find(':');
-		fieldname = header.rawHeaders[i].substr(0, colonPos);
+		fieldname = stringtolower(header.rawHeaders[i].substr(0, colonPos));
 		fieldvalue = stringtrim(header.rawHeaders[i].substr(colonPos + 1), " \t");
 		header.headersMap[fieldname] = fieldvalue;
 	}
@@ -204,7 +204,7 @@ bool			Request::storeHeadersInVector() {
 		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
-		header.rawHeaders.push_back(stringtolower(line));
+		header.rawHeaders.push_back(line);
 		opos = rpos + 2;
 	}
 	return true;

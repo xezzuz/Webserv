@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:37:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 16:20:26 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,9 +227,22 @@ bool					Config::isValidAutoIndex(const std::string& autoindex, Directives& toFi
 }
 
 bool					Config::isValidCgiExt(const std::string& cgi_pass, Directives& toFill) {
-	if (tokensCounter(cgi_pass) != 1)
+	if (tokensCounter(cgi_pass) < 1) // should we limit the maximum of cgis?
 		return false;
 	toFill.cgi_ext.clear();
-	// toFill.cgi_ext[key] = value;
+	
+	std::string						token;
+	std::stringstream				ss(cgi_pass);
+
+	while (ss >> token) {
+		size_t	colonPos = token.find(':');
+		if (colonPos == std::string::npos)
+			return false;
+		std::string key = stringtrim(token.substr(0, colonPos), " \t");
+		std::string value = stringtrim(token.substr(colonPos + 1), " \t");
+		if (key.empty() || value.empty() || key[0] != '.' || value[0] != '/') // should we allow just some cgis?
+			return false;
+		toFill.cgi_ext[key] = value;
+	}
 	return true;
 }

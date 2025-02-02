@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 20:58:13 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/02 19:06:52 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ class Request {
 
 bool			stringIsDigit(const std::string& str);
 std::string		stringtrim(const std::string& str, const std::string& set);
-std::string		stringtolower(std::string& str);
+std::string		stringtolower(std::string str);
 bool			isHexa(const std::string& num);
 int				hexToInt(const std::string& num);
 

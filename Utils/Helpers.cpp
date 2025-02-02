@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 13:34:39 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/02 19:04:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ std::string			stringtrim(const std::string& str, const std::string& set) {
     return str.substr(first, last - first + 1);
 }
 
-std::string		stringtolower(std::string& str) {
+std::string		stringtolower(std::string str) {
 	for (size_t i = 0; i < str.size(); i++) {
 		if (str[i] >= 'A' && str[i] <= 'Z')
 			str[i] += 32;

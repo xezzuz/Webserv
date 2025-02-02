@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:38:25 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 16:26:06 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,11 @@ void				Config::printServersConfigs() {
 
 			printf("REDIRECT:\t\t%d | %s\n", it->second.redirect.first, it->second.redirect.second.c_str());
 			
-			// printf("CGI_EXT:\t\t\t%s\n", it->second.cgi_ext.c_str());
+			std::map<std::string, std::string>::iterator	ite = it->second.cgi_ext.begin();
+			for (; ite != it->second.cgi_ext.end();) {
+				printf("CGI_EXT:\t\t\t%s:%s\n", ite->first.c_str(), ite->second.c_str());
+				++ite;
+			}
 			
 			printf("----------------- END LOCATION -----------------\n");
 		}
