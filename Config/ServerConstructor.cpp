@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:33:53 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 13:39:39 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,25 +92,23 @@ bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, 
 	if (std::find(alreadyParsed.begin(), alreadyParsed.end(), key) != alreadyParsed.end() && key != "error_page" && key != "server_name")
 		return (ErrorLogger("[SERVER] duplicate <" + key + "> directive  : " + key + " = " + value), false);
 	
-	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, ServerConfig&)>>	limitedFunctions = {
-		{"host", &Config::isValidHost},
-		{"port", &Config::isValidPort},
-		{"server_name", &Config::isValidServerName},
-		
-		// the following are only allowed in server block : host - port - server_name
-	};
+	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, ServerConfig&)> >	limitedFunctions;
 
-	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, Directives&)>>	sharedFunctions = {
-		{"error_page", &Config::isValidErrorPage},
-		{"client_max_body_size", &Config::isValidClientMaxBodySize},
-		{"root", &Config::isValidRoot},
-		{"index", &Config::isValidIndex},
-		{"auto_index", &Config::isValidAutoIndex},
-		{"redirect", &Config::isValidRedirect},
-		{"upload_store", &Config::isValidUploadStore},
+	// the following are only allowed in server block : host - port - server_name
+	limitedFunctions.push_back(std::make_pair("host", &Config::isValidHost));
+	limitedFunctions.push_back(std::make_pair("port", &Config::isValidPort));
+	limitedFunctions.push_back(std::make_pair("server_name", &Config::isValidServerName));
 
-		// the following are only allowed in location block : location - methods - alias - cgi_pass - cgi_ext
-	};
+	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, Directives&)> >	sharedFunctions;
+
+	// the following are only allowed in location block : location - methods - alias - cgi_pass - cgi_ext
+	sharedFunctions.push_back(std::make_pair("error_page", &Config::isValidErrorPage));
+	sharedFunctions.push_back(std::make_pair("client_max_body_size", &Config::isValidClientMaxBodySize));
+	sharedFunctions.push_back(std::make_pair("root", &Config::isValidRoot));
+	sharedFunctions.push_back(std::make_pair("index", &Config::isValidIndex));
+	sharedFunctions.push_back(std::make_pair("auto_index", &Config::isValidAutoIndex));
+	sharedFunctions.push_back(std::make_pair("redirect", &Config::isValidRedirect));
+	sharedFunctions.push_back(std::make_pair("upload_store", &Config::isValidUploadStore));
 
 	for (size_t i = 0; i < limitedFunctions.size(); i++) {
 		if (limitedFunctions[i].first == key) {
@@ -136,25 +134,18 @@ bool				Config::fillLocationBlockDirectives(std::string& key, std::string& value
 	if (std::find(alreadyParsed.begin(), alreadyParsed.end(), key) != alreadyParsed.end())
 		return (ErrorLogger("[LOCATION] duplicate <" + key + "> directive  : " + key + " = " + value), false);
 	
-	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, Directives&)>>	sharedFunctions = {
-		// the following only allowed in server block
-		
-		// {"host", &Config::isValidHost},
-		// {"port", &Config::isValidPort},
-		// {"server_name", &Config::isValidServerName},
-		
-		{"error_page", &Config::isValidErrorPage},
-		{"client_max_body_size", &Config::isValidClientMaxBodySize},
-		{"root", &Config::isValidRoot},
-		{"index", &Config::isValidIndex},
-		{"auto_index", &Config::isValidAutoIndex},
-		{"redirect", &Config::isValidRedirect},
-		{"upload_store", &Config::isValidUploadStore},
-		// {"location", &Config::isValidLocation},
-		{"methods", &Config::isValidMethods},
-		{"alias", &Config::isValidAlias},
-		{"cgi_ext", &Config::isValidCgiExt}
-	};
+	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, Directives&)> >	sharedFunctions;
+
+	sharedFunctions.push_back(std::make_pair("error_page", &Config::isValidErrorPage));
+	sharedFunctions.push_back(std::make_pair("client_max_body_size", &Config::isValidClientMaxBodySize));
+	sharedFunctions.push_back(std::make_pair("root", &Config::isValidRoot));
+	sharedFunctions.push_back(std::make_pair("index", &Config::isValidIndex));
+	sharedFunctions.push_back(std::make_pair("auto_index", &Config::isValidAutoIndex));
+	sharedFunctions.push_back(std::make_pair("redirect", &Config::isValidRedirect));
+	sharedFunctions.push_back(std::make_pair("upload_store", &Config::isValidUploadStore));
+	sharedFunctions.push_back(std::make_pair("methods", &Config::isValidMethods));
+	sharedFunctions.push_back(std::make_pair("alias", &Config::isValidAlias));
+	sharedFunctions.push_back(std::make_pair("cgi_ext", &Config::isValidCgiExt));
 
 	for (size_t i = 0; i < sharedFunctions.size(); i++) {
 		if (sharedFunctions[i].first == key) {

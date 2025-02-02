@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:28:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 13:19:34 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,10 @@
 
 bool				Config::openConfigFile(const std::string& configFileName) {
 	size_t				pos = configFileName.find(".conf");
-	if (pos == 0 || pos == std::string::npos || configFileName.substr(pos) != ".conf") {
-		// std::cerr << BOLD << RED << "Webserv: invalid config file extention! " << configFileName << RESET << std::endl;
+	if (pos == 0 || pos == std::string::npos || configFileName.substr(pos) != ".conf")
 		return (ErrorLogger("Invalid config file extention!"), false);
-	}
 	
-	configFile.open(configFileName, std::ios::in);
+	configFile.open(configFileName.c_str(), std::ios::in);
 	if (configFile.is_open())
 		return true;
 	return (ErrorLogger("can't open config file!"), false);
