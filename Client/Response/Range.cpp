@@ -55,11 +55,9 @@ bool	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 			}
 		}
 
-
 		if (start > end || end >= contentLength)
 			throw(ErrorPage(416));
 
-		
 		std::cout << "Start >> " << start << " | End >> " << end << std::endl;
 		Range unit;
 
@@ -102,6 +100,7 @@ void	Response::buildRange( void )
 		ranges[0].headerSent = true;
 		contentLength = ranges[0].rangeLength;
 		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.path)));
+		headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
 	else
 	{
@@ -122,7 +121,9 @@ void	Response::getNextRange()
 			nextState = FINISHED;
 		}
 		if (ranges.size() == 1)
-			nextState = FINISHED;
+		{
+			state = FINISHED;
+		}
 	}
 	else
 	{
@@ -130,7 +131,7 @@ void	Response::getNextRange()
 		if (ranges.size() > 1)
 			buffer.append(ranges[currRange].header);
 		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
-		readRange();
+		state = READRANGE;
 		nextState = READRANGE;
 	}
 }
@@ -163,7 +164,5 @@ void	Response::readRange()
 			nextState = NEXTRANGE;
 			currRange++;
 		}
-		else
-			nextState = READRANGE;
 	}
 }

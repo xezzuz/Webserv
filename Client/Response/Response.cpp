@@ -117,8 +117,8 @@ bool	Response::sendData(int& socket)
 
 int	Response::sendResponse( int& socket )
 {
-	// printState(state, "State");
-	// printState(nextState, "NextState");
+	printState(state, "State");
+	printState(nextState, "NextState");
 	switch (state)
 	{
 		case READBODY:
