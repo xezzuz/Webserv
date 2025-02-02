@@ -1,7 +1,7 @@
 #include "Response.hpp"
 #include "Error.hpp"
 
-void	Response::autoIndex()
+void	Response::initDirList(std::string& list)
 {
 	dirList = opendir(input.path.c_str()); // CHECK LEAK
 	if (dirList == NULL)
@@ -10,20 +10,25 @@ void	Response::autoIndex()
 		perror("opendir");
 		throw(ErrorPage(500));
 	}
-	buffer.append("<html>\n"
-				"<head>\n"
-				"<title>Index of " + input.uri + "</title>\n"
-				"</head>\n"
-				"<body>\n"
-				"<h1>Index of " + input.uri + "</h1>\n"
-				"<hr>\n"
-				"<pre>\n");
+	list = "<html>\n"
+			"<head>\n"
+			"<title>Index of " + input.uri + "</title>\n"
+			"</head>\n"
+			"<body>\n"
+			"<h1>Index of " + input.uri + "</h1>\n"
+			"<hr>\n"
+			"<pre>\n";
+	
 }
 
 void	Response::directoryListing()
 {
+	std::string		list;
 	struct dirent	*entry;
 	int 			i = 0;
+
+	if (!dirList)
+		initDirList(list);
 
 	while (i < 100 && (entry = readdir(dirList)) != NULL)
 	{
@@ -32,12 +37,12 @@ void	Response::directoryListing()
 			continue ;
 		if (entry->d_type == DT_DIR)
 			name.append("/");
-		buffer.append("<a href=\"" + name + "\">" + name + "</a>\n");
+		list.append("<a href=\"" + name + "\">" + name + "</a>\n");
 		i++;
 	}
 	if (entry == NULL)
 	{
-		buffer.append("</pre>\n"
+		list.append("</pre>\n"
 					"<hr>\n"
 					"</body>\n"
 					"</html>");
@@ -45,6 +50,6 @@ void	Response::directoryListing()
 		dirList = NULL;
 		nextState = FINISHED;
 	}
-	buffer = buildChunk(buffer.c_str(), buffer.size());
+	buffer = buildChunk(list.c_str(), list.size());
 	state = SENDDATA;
 }

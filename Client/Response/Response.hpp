@@ -79,7 +79,7 @@ public:
 	bool		sendData(int& socket);
 
 	// autoindex
-	void		autoIndex();
+	void	initDirList(std::string& list);
 	void		directoryListing();
 
 private:

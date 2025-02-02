@@ -51,7 +51,6 @@ void	Response::handleGET( void )
 {
 	if (input.config.autoindex && input.isDir)
 	{
-		autoIndex();
 		headers.append("\r\nTransfer-Encoding: chunked");
 		contentType = "text/html";
 		state = LISTDIR;
