@@ -138,4 +138,6 @@ private:
 	std::string buffer;
 };
 
+void printState(enum State state, std::string name);
+
 #endif

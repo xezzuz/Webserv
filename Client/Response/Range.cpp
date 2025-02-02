@@ -122,15 +122,16 @@ void	Response::getNextRange()
 			state = SENDDATA;
 			nextState = FINISHED;
 		}
+		if (ranges.size() == 1)
+			nextState = FINISHED;
 	}
 	else
 	{
 		std::cout << "RANGE LENGTH OF INDEX " << currRange << ": " << ranges[currRange].rangeLength << std::endl;
 		buffer.append(ranges[currRange].header);
 		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
-		state = READRANGE;
-		if (ranges.size() == 1)
-			nextState = FINISHED;
+		readRange();
+		nextState = READRANGE;
 	}
 }
 
@@ -152,7 +153,9 @@ void	Response::readRange()
 	else if (bytesRead > 0)
 	{
 		buffer.append(std::string(buf, bytesRead));
-		std::cout << "BUFFER SIZE IN RANGE : " << buffer.size() << std::endl;
+		// std::cout << "BUFFER SIZE IN RANGE : " << buffer.size() << std::endl;
+		// printState(state, "STATE");
+		// printState(nextState, "NEXT_STATE");
 		ranges[currRange].rangeLength -= bytesRead;
 		state = SENDDATA;
 		if (ranges[currRange].rangeLength == 0)

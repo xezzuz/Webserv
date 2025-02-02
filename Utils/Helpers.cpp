@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/29 22:00:43 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/02 13:34:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,12 +129,17 @@ std::string	getContentType(const std::string& target, std::map<std::string, std:
 	std::map<std::string, std::string>::iterator it;
 	std::string ext;
 	std::string file = target.substr(target.find_last_of('/'));
-	ext = file.substr(file.find('.'));
-	it = mimeTypes.find(ext);
-	if (it != mimeTypes.end())
-		return (it->second);
-	else
-		return ("text/plain");
+	
+	size_t pos;
+	pos = file.find('.');
+	if (pos != std::string::npos)
+	{
+		ext = file.substr(pos);
+		it = mimeTypes.find(ext);
+		if (it != mimeTypes.end())
+			return (it->second);
+	}
+	return ("text/plain");
 }
 
 std::string	getDate( void )

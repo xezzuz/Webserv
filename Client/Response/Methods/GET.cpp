@@ -5,9 +5,6 @@ std::string	Response::buildChunk(const char *data, size_t size) // error
 {
 	std::string chunk;
 
-	std::cout << "   CHUNK   " << std::endl;
-	std::cout << toHex(size) << std::endl;
-	std::cout << "---KNUHC---" << std::endl;
 	chunk = toHex(size) + "\r\n" + std::string(data, size) + "\r\n";
 	if (nextState == FINISHED)
 		chunk.append("0\r\n\r\n");
@@ -61,20 +58,18 @@ void	Response::handleGET( void )
 	}
 	else
 	{
+		// state = READCHUNK;
 		contentType = getContentType(input.path, mimeTypes);
 		contentLength = fileLength(input.path);
-		std::cout << "ContentLength: " << contentLength << std::endl;
 		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
 		{
-			std::cout << "Hello" << std::endl;
 			buildRange();
-			
 		}
-		else if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
-		{
-			headers.append("\r\nTransfer-Encoding: chunked");
-			state = READCHUNK;
-		}
+		// else //if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
+		// {
+		// 	headers.append("\r\nTransfer-Encoding: chunked");
+		// 	state = READCHUNK;
+		// }
 		else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
 		openBodyFile(input.path);
