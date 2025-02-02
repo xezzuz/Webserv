@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 20:23:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/01 19:28:12 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,23 @@
 bool				Config::openConfigFile(const std::string& configFileName) {
 	size_t				pos = configFileName.find(".conf");
 	if (pos == 0 || pos == std::string::npos || configFileName.substr(pos) != ".conf") {
-		std::cerr << BOLD << RED << "Webserv: invalid config file extention! " << configFileName << RESET << std::endl;
-		return false;
+		// std::cerr << BOLD << RED << "Webserv: invalid config file extention! " << configFileName << RESET << std::endl;
+		return (ErrorLogger("Invalid config file extention!"), false);
 	}
 	
 	configFile.open(configFileName, std::ios::in);
 	if (configFile.is_open())
 		return true;
-	std::cerr << BOLD << RED << "Webserv: can't open config file! " << configFileName << RESET << std::endl;
-	return false;
+	return (ErrorLogger("can't open config file!"), false);
 }
 
 bool				Config::parseConfigFile() {
-	if (!configFile.is_open())
-		return false;
 	storeConfigFileInVector();
 	if (!basicBlocksCountCheck())
-		return false;
+		return (ErrorLogger("Invalid Server/Location blocks syntax!"), false);
 	fillServerBlocksIndexes();
 	if (!validateBlocksIndexes())
-		return (Logger("'server/location' blocks opening and closing mismatch"), false);
+		return (ErrorLogger("Invalid Server/Location blocks syntax!"), false);
 	return true;
 }
 
@@ -73,9 +70,9 @@ bool				Config::basicBlocksCountCheck() {
 			locationEnd++;
 	}
 	if (!serverStart || !serverEnd)
-		return (Logger("'server' blocks count is zero"), false);
+		return false;
 	if ((serverStart != serverEnd) || (locationStart != locationEnd))
-		return (Logger("'server' blocks opening and closing mismatch"), false);
+		return false;
 	return true;
 }
 

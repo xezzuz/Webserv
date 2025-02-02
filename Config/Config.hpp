@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 23:01:27 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/01 19:38:34 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,6 @@
 #include <fstream>
 #include <algorithm>
 #include <limits.h>
-
-#define SERVER "SERVER"
-#define LOCATION "LOCATION"
 
 #define RESET      "\033[0m"
 #define BOLD       "\033[1m"
@@ -59,8 +56,8 @@ typedef struct												Directives {
 	std::vector<std::string> 								methods;
 	std::string 											upload_store;
 	bool													autoindex;
-	std::pair<int, std::string>								redirect; // std::pair<int, std::string>
-	std::map<std::string, std::string>						cgi_ext; // std::map<std::string, std::string>
+	std::pair<int, std::string>								redirect;
+	std::map<std::string, std::string>						cgi_ext;
 
 	// default values for every directives
 	Directives() {
@@ -99,7 +96,6 @@ typedef struct												ServerConfig {
 
 class Config {
 	private:
-		// std::string														configFileName;
 		std::ifstream													configFile;
 		std::vector<std::string>										configFileVector;
 		
@@ -109,7 +105,6 @@ class Config {
 		int																logs;
 
 		std::vector<ServerConfig>										Servers;
-		// std::vector<vServerConfigParser>								Parser;
 		
 	public:
 		Config();
@@ -117,7 +112,6 @@ class Config {
 		~Config();
 
 		bool						openConfigFile(const std::string& configFileName);
-		// void						fillDefaultDirectives();
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();
 		
@@ -127,23 +121,13 @@ class Config {
 		bool						validateBlocksIndexes();
 		bool						locationBlockIsInsideAServerBlock(int locationStart, int locationEnd);
 		
-		bool						parseAllServerBlocks();
 		bool						parseSingleServerBlock(int start, int end, ServerConfig& currentServer);
 		bool						fillServerBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, ServerConfig& currentServer);
 		bool						fillLocationBlockDirectives(std::string& key, std::string& value, std::vector<std::string>& alreadyParsed, Directives& toFill);
-		bool						addToServerParserServerDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
-		bool						validateServerBlockDirectives(std::map<std::string, std::string>& directives);
 		bool						parseSingleLocationBlock(int start, int end, ServerConfig& currentServer);
-		bool						addToServerParserLocationDirectives(const std::string& key, const std::string& value, std::map<std::string, std::string>& directives);
-		bool						validateLocationBlockDirectives(std::map<std::string, std::string>& directives);
-		bool						isAllowedDirective(const std::string& directive, const std::string& blockType);
-		void						Logger(std::string error);
+		void						ErrorLogger(const std::string& error);
 
 		bool						constructServers();
-		void						setDefaultDirectives(std::map<std::string, std::string>& userDirectives);
-		bool						fillServerDirectives(std::map<std::string, std::string>& ServerParserDirectives, ServerConfig& newServerConfig);
-		std::vector<std::string>	splitStringBySpace(std::string& string);
-		bool						fillLocationDirectives(std::map<std::string, std::string>& ServerParserDirectives, Directives& Location, Directives& ServerDirectives);
 
 
 		bool						isValidPort(const std::string& port, ServerConfig& currentServer);
