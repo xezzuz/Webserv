@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/01/31 22:49:15 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/02 15:22:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int	Request::receiveRequest(int socket)
 	int	bytesReceived = recv(socket, buf, REQUEST_BUFFER_SIZE, 0);
 	if (bytesReceived > 0) {
 		std::cout << "----------REQUEST_OF_CLIENT " << socket << "----------" << std::endl;
-		std::cout << buf << std::endl;
+		std::cout << buf;
 		std::cout << "---------------------------------------------------------" << std::endl;
 		buffer += std::string(buf, bytesReceived);
 		bufferSize += bytesReceived;

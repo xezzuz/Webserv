@@ -99,7 +99,6 @@ void	Response::buildRange( void )
 	input.status = 206;
 	if (ranges.size() == 1)
 	{
-		ranges[0].header.clear();
 		ranges[0].headerSent = true;
 		contentLength = ranges[0].rangeLength;
 		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.path)));
@@ -128,7 +127,8 @@ void	Response::getNextRange()
 	else
 	{
 		std::cout << "RANGE LENGTH OF INDEX " << currRange << ": " << ranges[currRange].rangeLength << std::endl;
-		buffer.append(ranges[currRange].header);
+		if (ranges.size() > 1)
+			buffer.append(ranges[currRange].header);
 		bodyFile.seekg(ranges[currRange].range.first, std::ios::beg);
 		readRange();
 		nextState = READRANGE;

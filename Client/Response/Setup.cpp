@@ -29,5 +29,8 @@ void	Response::generateHeaders( void )
 
 	headers = ("HTTP/1.1 " + _toString(input.status) + " " + statusCodes[input.status]) + headers; // status line
 	buffer.insert(0, headers);
+	std::cout << "-----CLIENT RESPONSE HEADERS-----" << std::endl;
+	std::cout << headers;
+	std::cout << "---------------------------------" << std::endl;
 	nextState = state;
 }

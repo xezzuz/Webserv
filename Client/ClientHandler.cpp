@@ -279,6 +279,7 @@ void 	ClientHandler::handleResponse()
 		// double ms = (end.tv_sec - start.tv_sec) * 1000.0;
 		// ms += (end.tv_usec - start.tv_usec) / 1000.0;
 		// std::cout << "TIME TO SERVE: " << ms << "ms" << std::endl;
+		std::cout << "[WEBSERV]\tCLIENT SERVED" << std::endl;
 		if (keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
