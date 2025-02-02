@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 19:04:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/02 19:43:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,10 @@ bool			Request::isValidMethod(const std::string& method) {
 	// 	method != "OPTIONS" && method != "TRACE" && method != "PATCH")
 	// 	return false;
 	if (method != "GET" && method != "POST" && method != "DELETE")
+	{
+		std::cout << "METHOD >>>> " << method << std::endl;
 		return (setStatusCode(405), false);
+	}
 	if (method == "DELETE")
 		statusCode = 204;
 	return true;

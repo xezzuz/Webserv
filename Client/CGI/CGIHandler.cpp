@@ -10,10 +10,10 @@ CGIHandler::CGIHandler(int& clientSocket, std::string& path, char **args, char *
 	this->env = env;
 }
 
-int CGIHandler::getFd() const
-{
-	return (fd);
-}
+// int CGIHandler::getFd() const
+// {
+// 	return (fd);
+// }
 
 pid_t CGIHandler::getPid() const
 {

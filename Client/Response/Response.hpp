@@ -74,7 +74,7 @@ public:
 	std::string	buildChunk(const char *data, size_t size);
 	void		readChunk();
 	void		readRange();
-	void		buildRange( void );
+	bool		buildRange( void );
 	void		getNextRange();
 	bool		sendData(int& socket);
 

@@ -59,20 +59,18 @@ void	Response::handleGET( void )
 	else
 	{
 		// state = READCHUNK;
+		openBodyFile(input.path);
 		contentType = getContentType(input.path, mimeTypes);
 		contentLength = fileLength(input.path);
-		if (input.requestHeaders.find("Range") != input.requestHeaders.end())
+		if (!buildRange() &&
+			(contentType.find("video") != std::string::npos ||
+			contentType.find("audio") != std::string::npos))
 		{
-			buildRange();
+				headers.append("\r\nTransfer-Encoding: chunked");
+				state = READCHUNK;
 		}
-		// else if (contentType.find("video") != std::string::npos || contentType.find("audio") != std::string::npos)
-		// {
-		// 	headers.append("\r\nTransfer-Encoding: chunked");
-		// 	state = READCHUNK;
-		// }
 		else
 			headers.append("\r\nContent-Length: " + _toString(contentLength));
-		openBodyFile(input.path);
 	}
 	headers.append("\r\nContent-Type: " + contentType);
 	headers.append("\r\nAccept-Ranges: bytes");
