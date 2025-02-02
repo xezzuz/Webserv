@@ -35,20 +35,8 @@ struct Range
 	std::pair<int, int> range;
 	std::string			header;
 	size_t				rangeLength;
-	bool				headerSent = false;
-};
-
-struct	CgiInput
-{
-	// not used only for refrence in developement
-	pid_t		pid;
-	int			fd; // file descriptor where cgi writes its output into
-	bool		isCgi = false; // is requested resource CGI
-	std::string	interpreter; // path to the cgi interpreter ex. /usr/bin/python3 for .py
-	std::string	ext; // cgi script extention
-	std::string	scriptName;
-	std::string	pathInfo;
-	std::string	queryString;
+	bool				headerSent;
+	Range() : headerSent(false) {}
 };
 
 struct	ResponseInput
@@ -57,11 +45,10 @@ struct	ResponseInput
 	std::string							method;
 	std::string							uri;
 	std::string							path;
-	bool								isDir = false;
-	bool								isCgi = false;
+	bool								isDir;
 	std::map<std::string, std::string>	requestHeaders;
 	Directives							config;
-	// struct CgiInput						cgi;
+	ResponseInput() : isDir(false) {}
 };
 
 class Response

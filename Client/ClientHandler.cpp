@@ -184,7 +184,7 @@ void	ClientHandler::decodeUri(struct ResponseInput& input, std::string& URL)
 					delete cgi;
 					return;
 				}
-				input.isCgi = true;
+				// input.isCgi = true;
 				HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
 			}
 		}

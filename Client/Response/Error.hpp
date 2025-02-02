@@ -7,18 +7,19 @@
 class FatalError : public std::exception
 {
 public:
-	FatalError(std::string msg);
+	FatalError(const char *msg);
 
 	virtual const char *what() const throw();
 
 private:
-	std::string msg;
+	const char	*msg;
 };
 
 
 class ErrorPage : public std::exception
 {
 public:
+	virtual ~ErrorPage() throw();
 	ErrorPage(int code);
 
 	std::string	getBuffer( void ) const;

@@ -1,6 +1,9 @@
 #include "Error.hpp"
 
-FatalError::FatalError(std::string msg) : msg(msg) {}
+FatalError::FatalError(const char *msg) : msg(msg) {}
+
+
+ErrorPage::~ErrorPage() throw() {}
 
 ErrorPage::ErrorPage(int code) : status(code)
 {
@@ -54,5 +57,5 @@ void	ErrorPage::generateErrorPage( void )
 
 const char *FatalError::what() const throw()
 {
-	return (msg.c_str());
+	return (msg);
 }

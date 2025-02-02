@@ -3,7 +3,7 @@
 
 void	Response::openBodyFile(const std::string& path)
 {
-	bodyFile.open(path);
+	bodyFile.open(path.c_str());
 	if (!bodyFile.is_open())
 		throw(FatalError("could not open requested resource"));
 }
