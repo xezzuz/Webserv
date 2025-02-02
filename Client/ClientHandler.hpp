@@ -24,9 +24,13 @@ public:
 
 	void	reset();
 	void	remove();
-	void	handleEvent(uint32_t events);
 	void 	handleRequest();
 	void 	handleResponse();
+	void	handleEvent(uint32_t events);
+	int		getFd() const
+	{
+		return (socket);
+	}
 
 private:
 	struct timeval				start;

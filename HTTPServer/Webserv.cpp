@@ -55,6 +55,11 @@ void	Webserv::removeHandler(int fd)
 		handlerMap.erase(it);
 		delete handler;
 	}
+	if (handlerMap.size() == 0)
+	{
+		std::cerr << "[WEBSERV] No Servers Left. Exiting..." << std::endl;
+		exit(1);
+	}
 }
 
 int	Webserv::bindSocket(std::string& host, std::string& port)
@@ -172,7 +177,30 @@ void	Webserv::run()
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
 			// print_epoll_events(events[i].events);
-			handler->handleEvent(events[i].events);
+			if (events[i].events & EPOLLERR)
+			{
+				int fd = handler->getFd();
+				int error = 0;
+				socklen_t errlen = sizeof(error);
+				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) {
+					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
+				}
+				std::cerr << "[WEBSERV][ERROR]\t Fatal Error On Socket " << fd << std::endl;
+				removeHandler(fd);
+			}
+			else if (events[i].events & EPOLLHUP)
+			{
+				int fd = handler->getFd();
+				int error = 0;
+				socklen_t errlen = sizeof(error);
+				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) {
+					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
+				}
+				std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;
+				removeHandler(fd);
+			}
+			else
+				handler->handleEvent(events[i].events);
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;
 		// for (it = Timer.begin(); it != Timer.end(); it++)

@@ -206,12 +206,9 @@ void	ClientHandler::initResponse()
 	input.status = request.getStatusCode();
 	input.requestHeaders = request.getHeaderSt().headersMap;
 
-	std::map<std::string, std::string>::iterator itr = input.requestHeaders.find("Connection");
+	std::map<std::string, std::string>::iterator itr = input.requestHeaders.find("connection");
 	if (itr != input.requestHeaders.end())
-	{
-		if (itr->second == "keep-alive")
-			keepAlive = true;
-	}
+		keepAlive = (itr->second == "keep-alive");
 	
 	ServerConfig server = matchingServer(request.getHeaderSt().host);
 

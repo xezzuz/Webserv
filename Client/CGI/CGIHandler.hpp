@@ -20,12 +20,16 @@ public:
 	CGIHandler(int& clientSocket, std::string& path, char **args, char **env);
 
 	int		setup();
-	void	handleEvent(uint32_t events);
 	void	readCgi();
+	void	handleEvent(uint32_t events);
+	int		getFd() const
+	{
+		return (fd);
+	}
 
 
 
-	int		getFd() const;
+	// int		getFd() const;
 	pid_t	getPid() const;
 
 

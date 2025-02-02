@@ -23,7 +23,10 @@ void	Response::generateHeaders( void )
 		handleDELETE();
 
 	if (input.requestHeaders.find("connection") != input.requestHeaders.end())
+	{
 		headers.append("\r\nConnection: " + input.requestHeaders["connection"]);
+	
+	}
 
 	headers.append("\r\n\r\n");
 

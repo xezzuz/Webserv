@@ -27,7 +27,7 @@
 
 std::string		stringtrim(const std::string& str, const std::string& set);
 bool			isHexa(const std::string& num);
-std::string		stringtolower(std::string& str);
+std::string		stringtolower(std::string str);
 bool			stringIsDigit(const std::string& str);
 int				hexToInt(const std::string& num);
 unsigned int	parseIPv4(const std::string& ipAddress);

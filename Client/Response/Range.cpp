@@ -89,10 +89,13 @@ int	Response::rangeContentLength( void )
 	return (length);
 }
 
-void	Response::buildRange( void )
+bool	Response::buildRange( void )
 {
+	if (input.requestHeaders.find("range") == input.requestHeaders.end())
+		return (false);
+
 	if (!parseRangeHeader())
-		return ;
+		return (false);
 	
 	input.status = 206;
 	if (ranges.size() == 1)
@@ -100,7 +103,6 @@ void	Response::buildRange( void )
 		ranges[0].headerSent = true;
 		contentLength = ranges[0].rangeLength;
 		headers.append("\r\nContent-Range: bytes " + _toString(ranges[0].range.first) + "-" + _toString(ranges[0].range.second) + "/" + _toString(fileLength(input.path)));
-		headers.append("\r\nContent-Length: " + _toString(contentLength));
 	}
 	else
 	{
@@ -108,6 +110,7 @@ void	Response::buildRange( void )
 		contentLength = rangeContentLength();
 	}
 	state = NEXTRANGE;
+	return (true);
 }
 
 void	Response::getNextRange()
