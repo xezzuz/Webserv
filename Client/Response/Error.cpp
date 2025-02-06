@@ -27,13 +27,14 @@ void	Response::generateErrorPage(int& status)
 		if (error_page == reqCtx->_Config->error_pages.end())
 			throw(status);
 
-		// decodeUri
-		// bodyFile.open(reqCtx.fullPath.c_str());
-		// if (!bodyFile.is_open)
-		//	throw(500);
+		fillRequestData(error_page->second, *reqCtx);
+		bodyFile.open(reqCtx->fullPath.c_str());
+		if (!bodyFile.is_open())
+			throw(500);
 
 		headers.append("\r\nContent-Type: " + getContentType(reqCtx->fullPath, mimeTypes));
-		headers.append("\r\nContent-Length: " + fileLength(reqCtx->fullPath));
+		headers.append("\r\nContent-Length: " + _toString(fileLength(reqCtx->fullPath)));
+		headers.append("\r\n\r\n");
 		nextState = READ; // remove it is obselete
 		// status = 302;
 		// headers.append("\r\nLocation: " + error_page->second);
@@ -51,9 +52,11 @@ void	Response::generateErrorPage(int& status)
 				"</html>";
 		headers.append("\r\nContent-Type: text/html");
 		headers.append("\r\nContent-Length: " + _toString(buffer.size()));
+		headers.append("\r\n\r\n");
 		headers.append(buffer);
 		nextState = DONE;
 	}
 
 	headers.insert(0, "HTTP/1.1 " + _toString(status) + " " + statusCodes[status]) ; // status line
+	// std::cout << headers << std::endl;
 }

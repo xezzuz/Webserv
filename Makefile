@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/06 17:19:14 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/06 18:34:13 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ CPP				= 		c++
 CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -g -std=c++98
 
 INCLUDE			=		\
-						./Config/Config.hpp \
+						./_Config/Config.hpp \
 						./IEventHandler.hpp \
 						./Client/Request/Request.hpp \
 						./Client/Response/Response.hpp \
@@ -29,10 +29,10 @@ INCLUDE			=		\
 
 
 SRCS			= 		\
-						./Config/Config.cpp \
-						./Config/Parsing.cpp \
-						./Config/ServerConstructor.cpp \
-						./Config/Validators.cpp \
+						./_Config/Config.cpp \
+						./_Config/Parsing.cpp \
+						./_Config/ServerConstructor.cpp \
+						./_Config/Validators.cpp \
 						./HTTPServer/Webserv.cpp \
 						./Client/Request/Request.cpp \
 						./Client/Request/_ControlCenter.cpp \

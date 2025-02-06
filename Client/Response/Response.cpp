@@ -167,7 +167,7 @@ bool	Response::sendBody()
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	std::cout << buffer;
+	// std::cout << buffer;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }

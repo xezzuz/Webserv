@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 17:19:05 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 18:35:10 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <sys/socket.h>
 # include <unistd.h>
 # include "../../Utils/Helpers.hpp"
-# include "../../Config/Config.hpp"
+# include "../../_Config/Config.hpp"
 
 # define REQUEST_BUFFER_SIZE 16000
 

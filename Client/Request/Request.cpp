@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 13:40:20 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 18:04:29 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	statusCode = 200;
 	bufferSize = 0;
 	
+	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
 	isMultipart = false;
 	pState = PARSING_INIT;
@@ -25,7 +26,6 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	_RequestRaws.bodySize = 0;
 	_RequestRaws.contentLength = -1;
 
-	_RequestData._Config = NULL;
 	// debugFD = open("DEBUG.DEBUG", O_CREAT | O_RDWR | O_TRUNC, 0644);
 	// rawBodyFD = open("REQUEST_BODY_DECODED.DEBUG", O_CREAT | O_RDWR | O_TRUNC, 0644);
 	// bufferFD = open("BUFFER.DEBUG", O_CREAT | O_RDWR | O_TRUNC, 0644);

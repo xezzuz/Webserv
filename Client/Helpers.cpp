@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 17:13:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 18:57:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,10 +117,9 @@ void						setRequestedResourceType(std::string& requestedResource, RequestData& 
 	while (!requestedResource.empty()) {
 		pos = requestedResource.find('/', 1);
 		_RequestData.fullPath += requestedResource.substr(0, pos);
-		if (stat(_RequestData.fullPath.c_str(), &pathStats) != 0) {
-			_RequestData.StatusCode = 404;
-			return ;
-		}
+		requestedResource.erase(0, pos);
+		if (stat(_RequestData.fullPath.c_str(), &pathStats) != 0) 
+			throw(404);
 		if (!S_ISDIR(pathStats.st_mode))
 			break ;
 	}
@@ -131,10 +130,8 @@ void						setRequestedResourceType(std::string& requestedResource, RequestData& 
 }
 
 void						handleDirectoryResource(RequestData& _RequestData) {
-	if (access(_RequestData.fullPath.c_str(), X_OK) != 0) {
-		_RequestData.StatusCode = 403;
-		return ;
-	}
+	if (access(_RequestData.fullPath.c_str(), X_OK) != 0)
+		throw(403);
 	
 	if (_RequestData.Method == "GET") {
 		std::vector<std::string>::iterator	it = _RequestData._Config->index.begin();
@@ -148,8 +145,8 @@ void						handleDirectoryResource(RequestData& _RequestData) {
 		}
 		
 		if (it == _RequestData._Config->index.end()) {
-			_RequestData.StatusCode = _RequestData._Config->autoindex ? _RequestData.StatusCode : 404;
-			return ;
+			if (!_RequestData._Config->autoindex)
+				throw(404);
 		}
 	}
 	
@@ -167,10 +164,8 @@ bool						extensionIsCGI(const std::string& extension, RequestData& _RequestData
 }
 
 void						handleFileResource(const std::string& path_info, RequestData& _RequestData) {
-	if (access(_RequestData.fullPath.c_str(), R_OK) != 0) {
-		_RequestData.StatusCode = 403;
-		return ;
-	}
+	if (access(_RequestData.fullPath.c_str(), R_OK) != 0)
+		throw(403);
 	
 	std::string filename = _RequestData.fullPath.substr(_RequestData.fullPath.find_last_of('/') + 1);
 	size_t		pos		 = filename.find_last_of('.');
@@ -182,15 +177,16 @@ void						handleFileResource(const std::string& path_info, RequestData& _Request
 		_RequestData.scriptName = filename;
 		// setupCGI();
 	}
-	else
-		_RequestData.StatusCode = (path_info.empty()) ? _RequestData.StatusCode : 404;
+	else if (!path_info.empty())
+		throw(404);
 }
 
 void			fillRequestData(const std::string URI, RequestData& _RequestData) {
-	if (!rootJail(URI)) {
-		_RequestData.StatusCode = 403;
-		return ;
-	}
+	_RequestData.fullPath.clear();
+	_RequestData.URI = URI;
+	
+	if (!rootJail(URI))
+		throw(403);
 
 	std::string				requestedResource;
 

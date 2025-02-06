@@ -4,9 +4,9 @@
 LISTEN:			0.0.0.0:8080
 SERVER NAME:		nazouz.com
 SERVER NAME:		mmaila.com
-ERROR PAGES:		404 | /home/nazouz/Desktop/Webserv/Errors/400.html
+ERROR PAGES:		404 | /index.html
 CLIENT_MBS:		2147483647
-ROOT:			/home/nazouz/Desktop/Webserv/www
+ROOT:			/home/mmaila/Desktop/SERV/www/
 ALIAS:			
 INDEX:			index.html
 METHODS:		GET
@@ -16,3 +16,102 @@ REDIRECT:		0 |
 
 ----------------- END SERVER -----------------
 [WEBSERV]	 [34m[1mServer listening on 0.0.0.0:8080[0m
+[SERVER]	Client Connected To Socket 6...
+----------REQUEST_OF_CLIENT 6----------
+GET /dwqdq HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+sec-ch-ua: "Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+
+---------------------------------------------------------
+stat FULL Path ::/home
+stat FULL Path ::/home/mmaila
+stat FULL Path ::/home/mmaila/Desktop
+stat FULL Path ::/home/mmaila/Desktop/SERV
+stat FULL Path ::/home/mmaila/Desktop/SERV/www
+stat FULL Path ::/home/mmaila/Desktop/SERV/www/dwqdq
+STATUS : 404
+stat FULL Path ::/home
+stat FULL Path ::/home/mmaila
+stat FULL Path ::/home/mmaila/Desktop
+stat FULL Path ::/home/mmaila/Desktop/SERV
+stat FULL Path ::/home/mmaila/Desktop/SERV/www
+stat FULL Path ::/home/mmaila/Desktop/SERV/www/index.html
+AFTER FILL: 
+[34mFULL_PATH AFTER ISFILE ISDIR: /home/mmaila/Desktop/SERV/www/index.html[0m
+27
+text/html
+1175
+------
+Server: webserv/1.0
+Date: Thu, 06 Feb 2025 17:56:13 GMT
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 1175
+
+----------
+HTTP/1.1 404 Not Found
+Server: webserv/1.0
+Date: Thu, 06 Feb 2025 17:56:13 GMT
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 1175
+
+[WEBSERV]	CLIENT SERVED
+[WEBSERV]	RESETING 6..
+----------REQUEST_OF_CLIENT 6----------
+GET /favicon.ico HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+sec-ch-ua-platform: "Linux"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+sec-ch-ua: "Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Referer: http://localhost:8080/dwqdq
+Accept-Encoding: gzip, deflate, br, zstd
+
+---------------------------------------------------------
+stat FULL Path ::/home
+stat FULL Path ::/home/mmaila
+stat FULL Path ::/home/mmaila/Desktop
+stat FULL Path ::/home/mmaila/Desktop/SERV
+stat FULL Path ::/home/mmaila/Desktop/SERV/www
+stat FULL Path ::/home/mmaila/Desktop/SERV/www/favicon.ico
+AFTER FILL: 
+[34mFULL_PATH AFTER ISFILE ISDIR: /home/mmaila/Desktop/SERV/www/favicon.ico[0m
+/home/mmaila/Desktop/SERV/www/favicon.ico
+status code : 200
+5
+/home/mmaila/Desktop/SERV/www/favicon.ico
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Thu, 06 Feb 2025 17:56:13 GMT
+Content-Length: 7990
+Content-Type: text/plain
+Accept-Ranges: bytes
+Connection: keep-alive
+
+[WEBSERV]	CLIENT SERVED
+[WEBSERV]	RESETING 6..
