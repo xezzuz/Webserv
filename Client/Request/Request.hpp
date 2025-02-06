@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/05 17:14:56 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 12:59:50 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,8 +150,9 @@ class Request {
 		int								statusCode;
 	
 	public:
-		Request(std::vector<ServerConfig>&		vServers);
+		Request(std::vector<ServerConfig>& vServers);
 		~Request();
+		Request();
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 

@@ -1,111 +1,93 @@
 #include "Response.hpp"
-#include "Error.hpp"
 
 Response::~Response()
 {
 	if (dirList)
-	{
 		closedir(dirList);
-		dirList = NULL;
-	}
 }
 
-Response::Response() : contentLength(0), currRange(0), state(READBODY), nextState(READBODY)
+Response::Response() : state(READ), nextState(READ)
 {
-	dirList = NULL;
-	statusCodes.insert(std::make_pair(200, "OK"));
-    statusCodes.insert(std::make_pair(201, "Created"));
-    statusCodes.insert(std::make_pair(204, "No Content"));
-    statusCodes.insert(std::make_pair(206, "Partial Content"));
-    statusCodes.insert(std::make_pair(301, "Moved Permanently"));
-    statusCodes.insert(std::make_pair(302, "Found"));
-    statusCodes.insert(std::make_pair(303, "See Other"));
-    statusCodes.insert(std::make_pair(307, "Temporary Redirect"));
-    statusCodes.insert(std::make_pair(308, "Permanent Redirect"));
-
-	// *****************MIME_TYPES****************** //
-
-
-	mimeTypes.insert(std::make_pair(".html", "text/html"));
-	mimeTypes.insert(std::make_pair(".htm", "text/html"));
-	mimeTypes.insert(std::make_pair(".css", "text/css"));
-	mimeTypes.insert(std::make_pair(".csv", "text/csv"));
-	mimeTypes.insert(std::make_pair(".doc", "application/doc"));
-	mimeTypes.insert(std::make_pair(".gif", "image/gif"));
-	mimeTypes.insert(std::make_pair(".jpg", "image/jpeg"));
-	mimeTypes.insert(std::make_pair(".jpeg", "image/jpeg"));
-	mimeTypes.insert(std::make_pair(".js", "text/javascript"));
-	mimeTypes.insert(std::make_pair(".json", "application/json"));
-	mimeTypes.insert(std::make_pair(".jar", "application/java-archive"));
-	mimeTypes.insert(std::make_pair(".mp3", "audio/mpeg"));
-	mimeTypes.insert(std::make_pair(".mp4", "video/mp4"));
-	mimeTypes.insert(std::make_pair(".mpeg", "video/mpeg"));
-	mimeTypes.insert(std::make_pair(".png", "image/png"));
-	mimeTypes.insert(std::make_pair(".pdf", "application/pdf"));
-	mimeTypes.insert(std::make_pair(".sh", "application/x-sh"));
-	mimeTypes.insert(std::make_pair(".wav", "audio/wav"));
-	mimeTypes.insert(std::make_pair(".weba", "audio/webm"));
-	mimeTypes.insert(std::make_pair(".webm", "video/webm"));
-	mimeTypes.insert(std::make_pair(".webp", "image/webp"));
-	mimeTypes.insert(std::make_pair(".xml", "application/xml"));
-	mimeTypes.insert(std::make_pair(".zip", "application/zip"));
-	mimeTypes.insert(std::make_pair(".tar", "application/x-tar"));
-	mimeTypes.insert(std::make_pair(".bin", "application/octet-stream"));
-	mimeTypes.insert(std::make_pair(".avif", "image/avif"));
-	mimeTypes.insert(std::make_pair(".avi", "video/x-msvideo"));
+	reader = &Response::readBody;
+	sender = &Response::sendHeaders;
 }
 
-Response::Response(const Response& rhs)
+Response::Response(int &clientSocket) : socket(clientSocket), state(READ), nextState(READ)
 {
-	*this = rhs;
+	reader = &Response::readBody;
+	sender = &Response::sendHeaders;
 }
 
-Response&	Response::operator=(const Response& rhs)
+void	Response::setContext(struct RequestContext	*ctx)
 {
-	if (this != &rhs)
-    {
-        input = rhs.input;
-		contentType = rhs.contentType;
-		contentLength = rhs.contentLength;
-		headers = rhs.headers;
-		dirList = rhs.dirList;
-		ranges = rhs.ranges;
-		boundary = rhs.boundary;
-		currRange = rhs.currRange;
-		state = rhs.state;
-		nextState = rhs.nextState;
-		buffer = rhs.buffer;
-		bodyFile.close();
-		if (dirList)
+	reqCtx = ctx;
+}
+
+void	Response::setSocket(int& clientSocket)
+{
+	socket = clientSocket;
+}
+
+std::string	Response::buildChunk(const char *data, size_t size) // error
+{
+	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
+}
+
+void	Response::nextRange()
+{
+	if (reqCtx->rangeData.current == reqCtx->rangeData.ranges.end())
+	{
+		if (reqCtx->rangeData.ranges.size() > 1)
 		{
-			closedir(dirList);
-			dirList = NULL;
+			buffer = "\r\n--" + reqCtx->rangeData.boundary + "--\r\n";
+			state = WRITE;
+			nextState = DONE;
+		}
+		if (reqCtx->rangeData.ranges.size() == 1)//////// FIIIIX
+		{
+			state = DONE;
 		}
 	}
-	return (*this);
+	else
+	{
+		// std::cout << "RANGE LENGTH OF INDEX " << reqCtx->rangeData.index << ": " << reqCtx->rangeData.ranges[reqCtx->rangeData.index].rangeLength << std::endl;
+		if (reqCtx->rangeData.ranges.size() > 1)
+			buffer.append(reqCtx->rangeData.current->header);
+		bodyFile.seekg(reqCtx->rangeData.current->range.first, std::ios::beg);
+		reqCtx->rangeData.rangeState = GET;
+	}
 }
 
-void	Response::setInput(struct ResponseInput& input)
+void		Response::range()
 {
-	this->input = input;
+	switch (reqCtx->rangeData.rangeState)
+	{
+		case NEXT:
+			nextRange();
+			break;
+		case GET:
+			readRange();
+			break;
+	}
 }
 
-void	Response::setBuffer(const std::string& data)
+bool	Response::sendHeaders()
 {
-	this->buffer = data;
+	ssize_t bytesSent = send(socket, headers.c_str(), headers.length(), 0);
+	if (bytesSent == -1)
+	{
+		throw(FatalError(strerror(errno)));
+	}
+	std::cout << headers;
+	headers.erase(0, bytesSent);
+	if (headers.empty())
+		sender = &Response::sendBody;
+	return (headers.empty());
 }
 
-int		Response::getStatusCode() const
-{
-	return (input.status);
-}
-
-bool	Response::sendData(int& socket)
+bool	Response::sendBody()
 {
 	ssize_t bytesSent = send(socket, buffer.c_str(), buffer.length(), 0);
-	// int err = errno;
-	// std::cerr << bytesSent << std::endl;
-	// errno = err;
 	if (bytesSent == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -115,64 +97,18 @@ bool	Response::sendData(int& socket)
 	return (buffer.empty());
 }
 
-int	Response::sendResponse( int& socket )
+int	Response::respond()
 {
-	printState(state, "State");
-	printState(nextState, "NextState");
 	switch (state)
 	{
-		case READBODY:
-			readBody();
+		case READ:
+			(this->*reader)();
 			break;
-		case READCHUNK:
-			readChunk();
-			break;
-		case LISTDIR:
-			directoryListing();
-			break;
-		case NEXTRANGE:
-			getNextRange();
-			break;
-		case READRANGE:
-			readRange();
-			break;
-		case SENDDATA:
-			if(sendData(socket) == true)
+		case WRITE:
+			if ((this->*sender)() == true)
 				state = nextState;
-			break;
-		case FINISHED:
+		case DONE:
 			return (1);
 	}
 	return (0);
-}
-
-
-/////////////////
-
-void printState(enum State state, std::string name)
-{
-	switch (state)
-	{
-		case READBODY:
-			std::cout << name << "==========>READING BODY" << std::endl;
-			break;
-		case READCHUNK:
-			std::cout << name << "==========>READING CHUNK" << std::endl;
-			break;
-		case LISTDIR:
-			std::cout << name << "==========>LISTING DIR" << std::endl;
-			break;
-		case NEXTRANGE:
-			std::cout << name << "==========>GETTING NEXT RANGE" << std::endl;
-			break;
-		case READRANGE:
-			std::cout << name << "==========>READING RANGE" << std::endl;
-			break;
-		case SENDDATA:
-			std::cout << name << "==========>SENDING DATA" << std::endl;
-			break;
-		case FINISHED:
-			std::cout << name << "==========>FINISHED" << std::endl;
-			break;
-	}
 }

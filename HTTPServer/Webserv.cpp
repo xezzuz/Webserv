@@ -182,7 +182,7 @@ void	Webserv::run()
 				int fd = handler->getFd();
 				int error = 0;
 				socklen_t errlen = sizeof(error);
-				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) {
+				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) { // forbidden
 					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
 				}
 				std::cerr << "[WEBSERV][ERROR]\t Fatal Error On Socket " << fd << std::endl;
@@ -193,7 +193,7 @@ void	Webserv::run()
 				int fd = handler->getFd();
 				int error = 0;
 				socklen_t errlen = sizeof(error);
-				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) {
+				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) { // forbidden
 					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
 				}
 				std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;

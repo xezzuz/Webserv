@@ -1,33 +1,29 @@
-#ifndef RESPONSE_HPP
-# define RESPONSE_HPP
+#ifndef RES_HPP
+# define RES_HPP
 
-# include <sys/socket.h>
-# include <sys/stat.h>
-# include <unistd.h>
-# include <string.h>
-# include <cstdio>
-# include <algorithm>
-# include <dirent.h>
-# include <cstdlib>
 # include <iostream>
-# include <fstream>
-# include <map>
 # include <vector>
-# include "../../Utils/Helpers.hpp"
+# include <map>
 # include "../../Config/Config.hpp"
+# include <dirent.h>
+# include <cstring>
+# include <sys/socket.h>
+# include <algorithm>
+# include "Error.hpp"
 
 # define SEND_BUFFER_SIZE 4096
-# define MAX_CONCURRENT_PROCESSES 50
 
-enum	State
+enum State
 {
-	READBODY,
-	READCHUNK,
-	LISTDIR,
-	NEXTRANGE,
-	READRANGE,
-	SENDDATA,
-	FINISHED
+	READ,
+	WRITE,
+	DONE
+};
+
+enum RangeState
+{
+	NEXT,
+	GET
 };
 
 struct Range
@@ -39,16 +35,32 @@ struct Range
 	Range() : headerSent(false) {}
 };
 
-struct	ResponseInput
+struct RangeData
+{
+	std::vector<Range>				ranges;
+	std::vector<Range>::iterator	current;
+	std::string						boundary;
+	enum RangeState					rangeState;
+};
+
+struct RequestContext
 {
 	int									status;
 	std::string							method;
 	std::string							uri;
 	std::string							path;
+	std::string							queryString;
+	std::string							pathInfo;
+	std::string							scriptName;
+	bool								isCGI;
 	bool								isDir;
+	bool								isRange;
+	bool								keepAlive;
+	struct RangeData					rangeData;
+	std::string							content_type;
+	size_t								content_length;
 	std::map<std::string, std::string>	requestHeaders;
-	Directives							config;
-	ResponseInput() : isDir(false) {}
+	Directives							*config;
 };
 
 class Response
@@ -56,75 +68,57 @@ class Response
 public:
 	~Response();
 	Response();
-	Response(const Response& rhs);
-	Response&	operator=(const Response& rhs);
+	Response(int &clientSocket);
 
-	// external functions
-	void		setInput(struct ResponseInput& input);
-	void		setBuffer(const std::string& data);
-	int			getStatusCode() const;
-
-	int			sendResponse( int& socket );
-	void		generateHeaders( void );
+	// this is for stack Response
+	void	setPath(const std::string& path);
+	void	setFunc(const enum Operation& op);
+	void	setRange(const RangeData& data);
+	void	setSocket(int& clientSocket);
+	void	setContext(struct RequestContext *ctx);
 
 
-	// sending body
-	void		openBodyFile(const std::string& path);
-	void		readBody();
+
 	std::string	buildChunk(const char *data, size_t size);
-	void		readChunk();
-	void		readRange();
-	bool		buildRange( void );
-	void		getNextRange();
-	bool		sendData(int& socket);
+	void		initDirList();
 
-	// autoindex
-	void	initDirList(std::string& list);
-	void		directoryListing();
+
+	bool	sendHeaders();
+	bool	sendBody();
+	int		respond();
+	
+protected:
+	enum State		state;
+	enum State		nextState;
+	std::string		headers;
+	std::string		buffer;
+	bool			(Response::*sender)();
+	void			(Response::*reader)();
+	int				socket;
+	RequestContext	*reqCtx;
 
 private:
-	// range parsing
-	int				rangeContentLength( void );
-	unsigned long	parseRangeValue(std::string& value);
-	bool			parseRangeHeader( void );
-	
-	// Methods
-	void		handleGET( void );
-	void		handlePOST( void );
-	void		handleDELETE( void );
 
+	void	directoryListing();
+	void	readBody();
+	void	nextRange();
+	void	readRange();
+	void	range();
+	int		rangeContentLength( void );
+	void	handleRange();
+	void	handlePOST( void );
+	void	handleGET( void );
+	void	generateHeaders( void );
 
-	// response needed data
-	struct ResponseInput	input;
+	std::ifstream	bodyFile;
+	DIR				*dirList;
 
-	// response constants
 	std::map<std::string, std::string>	mimeTypes;
 	std::map<int, std::string>			statusCodes;
 
-
-	// response frequent uses
 	std::string		contentType;
 	unsigned long	contentLength;
 
-
-	// response creating process
-	std::string		headers;
-	std::ifstream	bodyFile;
-	DIR				*dirList; // might produce leaks
-
-	// range
-	std::vector<Range>	ranges;
-	size_t				currRange;
-	std::string			boundary;
-
-	// response state
-	enum State	state;
-	enum State	nextState;
-
-	// response buffer
-	std::string buffer;
 };
-
-void printState(enum State state, std::string name);
 
 #endif

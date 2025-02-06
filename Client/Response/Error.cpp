@@ -21,23 +21,22 @@ ErrorPage::ErrorPage(int code) : status(code)
     description.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
-std::string	ErrorPage::getBuffer( void ) const
-{
-	return (buffer);
-}
 
-void	ErrorPage::generateErrorPage( void )
-{
-	buffer = ("HTTP/1.1 " + _toString(status) + " " + description[status]); // status line
-	buffer.append("\r\nServer: webserv/1.0");
-	buffer.append("\r\nDate: " + getDate());
 
-	 // if (error_page directive exists)
-	 	// open the error page in bodyFD
-		// content-type and content length hna
-	 //else
-		std::string error;
-		error = "<!DOCTYPE html>\n"
+void	ErrorPage::generateErrorPage()
+{
+	headers.clear();
+	headers = ("HTTP/1.1 " + _toString(status) + " " + description[status]); // status line
+	headers.append("\r\nServer: webserv/1.0");
+	headers.append("\r\nDate: " + getDate());
+
+	if (reqCtx->config)
+	{
+		
+	}
+	else
+	{
+		buffer = "<!DOCTYPE html>\n"
 				"<html>\n"
 				"<head>\n"
 				"    <title> " + _toString(status) + " " + description[status] + " </title>\n"
@@ -50,9 +49,11 @@ void	ErrorPage::generateErrorPage( void )
 				"    <center>webserv/1.0</center>\n"
 				"</body>\n"
 				"</html>";
-		buffer.append("\r\nContent-Type: text/html");
-		buffer.append("\r\nContent-Length: " + _toString(error.size()));
-		buffer.append(error);
+		state = WRITE;
+		nextState = DONE;
+		headers.append("\r\nContent-Type: text/html");
+		headers.append("\r\nContent-Length: " + _toString(buffer.size()));
+	}
 }
 
 const char *FatalError::what() const throw()

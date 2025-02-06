@@ -11,7 +11,7 @@ class ClientHandler : public EventHandler
 {
 public:
 	~ClientHandler();
-	ClientHandler(int fd, std::vector<ServerConfig> vServers);
+	ClientHandler(int fd, std::vector<ServerConfig>& vServers);
 
 
 	ServerConfig&	matchingServer(std::string& host);
@@ -33,12 +33,15 @@ public:
 	}
 
 private:
-	struct timeval				start;
 	int							socket;
 	Request						request;
-	Response					response;
-	std::vector<ServerConfig>	vServers;
-	int							cgifd; // for cleanup
+
+	Response							*response;
+
+	std::vector<ServerConfig>&	vServers;
+	Directives					config;
+	
+	int							cgifd;
 	bool						keepAlive;
 	
 };
