@@ -8,18 +8,16 @@
 #include <string>
 
 int main() {
-    std::string line = "appleorange"; // Example input
-    std::istringstream stream(line);
-    std::string token;
-    char delimiter = ','; // The delimiter you are using
+    int i;
 
-	size_t pos = 0;
-	std::cout << "a" << std::endl;
-    while (getline(stream, token, ','))
-	{
+    bool b = false;
 
-        std::cout << "Token: " << token << std::endl;
-    }
+    std::cout << i << std::endl;
+    if (b)
+        std::cout << "true" << std::endl;
+    else
+        std::cout << "false" << std::endl;
+    std::cout << b << std::endl;
 
     return 0;
 }

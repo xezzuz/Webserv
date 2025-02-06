@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/05 17:09:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 17:13:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,14 +86,11 @@
 // }
 
 void						resolveRootAlias(std::string& requestedResource, RequestData& _RequestData) {
-	std::string				matchingLocation;
-	
-	setMatchingConfig(matchingLocation);
 	
 	if (!_RequestData._Config->alias.empty()) {
 		if (_RequestData._Config->alias[_RequestData._Config->alias.length() - 1] == '/')
 			_RequestData._Config->alias.erase(_RequestData._Config->alias.length() - 1);
-		requestedResource = _RequestData._Config->alias + _RequestData.URI.substr(matchingLocation.length());
+		requestedResource = _RequestData._Config->alias + _RequestData.URI.substr(_RequestData.matchingLocation.length());
 	}
 	else {
 		if (_RequestData._Config->root[_RequestData._Config->root.length() - 1] == '/')
@@ -110,7 +107,7 @@ void						setQueryString(std::string& requestedResource, RequestData& _RequestDa
 		requestedResource.erase(pos);
 	pos = requestedResource.find_last_of('?'); // should we check for the first or the last??
 	if (pos != std::string::npos)
-		_RequestData.QUERYSTRING = requestedResource.substr(pos + 1), requestedResource.erase(pos);
+		_RequestData.queryString = requestedResource.substr(pos + 1), requestedResource.erase(pos);
 }
 
 void						setRequestedResourceType(std::string& requestedResource, RequestData& _RequestData) {
@@ -181,8 +178,8 @@ void						handleFileResource(const std::string& path_info, RequestData& _Request
 	
 	_RequestData.isCGI = extensionIsCGI(file_ext, _RequestData);
 	if (_RequestData.isCGI) {
-		_RequestData.PATH_INFO = path_info;
-		_RequestData.SCRIPT_NAME = filename;
+		_RequestData.pathInfo = path_info;
+		_RequestData.scriptName = filename;
 		// setupCGI();
 	}
 	else

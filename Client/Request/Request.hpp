@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 13:40:29 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 17:14:47 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,6 +236,8 @@ class Request {
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();
 };
+
+void			fillRequestData(const std::string URI, RequestData& _RequestData);
 
 bool			stringIsDigit(const std::string& str);
 std::string		stringtrim(const std::string& str, const std::string& set);

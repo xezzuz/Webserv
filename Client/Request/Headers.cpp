@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 14:13:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 17:15:16 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,6 +260,8 @@ bool			Request::parseRequestLineAndHeaders() {
 		std::cerr << "[ERROR]\tparseHeaders();" << std::endl;
 	if (!validateRequestHeaders())
 		std::cerr << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
+	setMatchingConfig();
+	fillRequestData(_RequestData.URI, _RequestData);
 	std::cout << "status code : " << statusCode << std::endl;
 	if (statusCode == 200)
 		pState = HEADERS_FINISHED;
