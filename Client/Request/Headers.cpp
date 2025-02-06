@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/05 17:10:36 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:13:06 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,33 +217,36 @@ bool			Request::storeHeadersInVector() {
 
 // this function should be revised against RFC
 bool			Request::validateRequestHeaders() {
-	// return true; // ???
-	bool			ContentLength = headerExists("content-length");
-	bool			TransferEncoding = headerExists("transfer-encoding");
-
-	if (ContentLength == TransferEncoding)
+	if (!headerExists("host") || _RequestData.host.empty())
 		return (setStatusCode(400), false);
 	
-	if (TransferEncoding && _RequestData.transferEncoding == "chunked")
-		isEncoded = true;
-	else if (TransferEncoding && _RequestData.transferEncoding != "chunked")
-		return (setStatusCode(501), false);
-
-	if (ContentLength && _RequestRaws.contentLength == -1) // && body.contentLength == -1 ???
+	if (!headerExists("host") || _RequestData.connection.empty())
 		return (setStatusCode(400), false);
+	else
+		_RequestData.Headers.insert(std::make_pair("host", "keep-alive"));
 	
-	if (!headerExists("host") || !headerExists("connection"))
-		return (setStatusCode(400), false);
-	
-	if (_RequestData.host.empty() || _RequestData.connection.empty())
-		return (setStatusCode(400), false);
+	if (_RequestData.Method == "POST") {
+		bool			ContentLength = headerExists("content-length");
+		bool			TransferEncoding = headerExists("transfer-encoding");
 
-	int pos = _RequestData.contentType.find("multipart/form-data; boundary=") + 30;
-	if (headerExists("content-type") && pos != 30)
-		return (setStatusCode(501), false);
-	else if (headerExists("content-type") && pos == 30 && _RequestData.contentType[pos])
-		_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(pos), _RequestRaws.boundaryEnd = _RequestRaws.boundaryBegin + "--", isMultipart = true;
+		if (ContentLength == TransferEncoding)
+			return (setStatusCode(400), false);
+		
+		if (TransferEncoding && _RequestData.transferEncoding == "chunked")
+			isEncoded = true;
+		else if (TransferEncoding && _RequestData.transferEncoding != "chunked")
+			return (setStatusCode(501), false);
 
+		if (ContentLength && _RequestRaws.contentLength == -1) // && body.contentLength == -1 ???
+			return (setStatusCode(400), false);
+		
+
+		int pos = _RequestData.contentType.find("multipart/form-data; boundary=") + 30;
+		if (headerExists("content-type") && pos != 30)
+			return (setStatusCode(501), false);
+		else if (headerExists("content-type") && pos == 30 && _RequestData.contentType[pos])
+			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(pos), _RequestRaws.boundaryEnd = _RequestRaws.boundaryBegin + "--", isMultipart = true;
+	}
 	return true;
 }
 
@@ -257,6 +260,7 @@ bool			Request::parseRequestLineAndHeaders() {
 		std::cerr << "[ERROR]\tparseHeaders();" << std::endl;
 	if (!validateRequestHeaders())
 		std::cerr << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
+	std::cout << "status code : " << statusCode << std::endl;
 	if (statusCode == 200)
 		pState = HEADERS_FINISHED;
 	else

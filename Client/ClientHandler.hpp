@@ -36,7 +36,7 @@ private:
 	int							socket;
 	Request						request;
 
-	Response							*response;
+	Response					*response;
 
 	std::vector<ServerConfig>&	vServers;
 	Directives					config;
