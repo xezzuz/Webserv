@@ -324,7 +324,6 @@ void	ClientHandler::handleEvent(uint32_t events)
 	}
 	catch (int& status)
 	{
-		std::cout << "STATUS : " << status << std::endl;
 		if (response)
 			delete response;
 		this->response = new Response(socket);

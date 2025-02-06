@@ -4,7 +4,7 @@
 LISTEN:			0.0.0.0:8080
 SERVER NAME:		nazouz.com
 SERVER NAME:		mmaila.com
-ERROR PAGES:		404 | /index.html
+ERROR PAGES:		404 | /noreadperm
 CLIENT_MBS:		2147483647
 ROOT:			/home/mmaila/Desktop/SERV/www/
 ALIAS:			
@@ -38,40 +38,23 @@ Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br, zstd
 
 ---------------------------------------------------------
-stat FULL Path ::/home
-stat FULL Path ::/home/mmaila
-stat FULL Path ::/home/mmaila/Desktop
-stat FULL Path ::/home/mmaila/Desktop/SERV
-stat FULL Path ::/home/mmaila/Desktop/SERV/www
-stat FULL Path ::/home/mmaila/Desktop/SERV/www/dwqdq
 STATUS : 404
-stat FULL Path ::/home
-stat FULL Path ::/home/mmaila
-stat FULL Path ::/home/mmaila/Desktop
-stat FULL Path ::/home/mmaila/Desktop/SERV
-stat FULL Path ::/home/mmaila/Desktop/SERV/www
-stat FULL Path ::/home/mmaila/Desktop/SERV/www/index.html
-AFTER FILL: 
-[34mFULL_PATH AFTER ISFILE ISDIR: /home/mmaila/Desktop/SERV/www/index.html[0m
-27
-text/html
-1175
-------
+[34mFULL_PATH AFTER ISFILE ISDIR: /home/mmaila/Desktop/SERV/www/noreadperm[0m
+HTTP/1.1 403 Forbidden
 Server: webserv/1.0
-Date: Thu, 06 Feb 2025 17:56:13 GMT
+Date: Thu, 06 Feb 2025 18:00:58 GMT
 Connection: keep-alive
 Content-Type: text/html
-Content-Length: 1175
+Content-Length: 164
 
-----------
-HTTP/1.1 404 Not Found
-Server: webserv/1.0
-Date: Thu, 06 Feb 2025 17:56:13 GMT
-Connection: keep-alive
-Content-Type: text/html
-Content-Length: 1175
-
-[WEBSERV]	CLIENT SERVED
+<!DOCTYPE html>
+<html>
+<head><title> 403 Forbidden </title></head>
+<body>
+<center><h1> 403 Forbidden </h1></center>
+<hr><center>webserv/1.0</center>
+</body>
+</html>[WEBSERV]	CLIENT SERVED
 [WEBSERV]	RESETING 6..
 ----------REQUEST_OF_CLIENT 6----------
 GET /favicon.ico HTTP/1.1
@@ -93,21 +76,13 @@ Referer: http://localhost:8080/dwqdq
 Accept-Encoding: gzip, deflate, br, zstd
 
 ---------------------------------------------------------
-stat FULL Path ::/home
-stat FULL Path ::/home/mmaila
-stat FULL Path ::/home/mmaila/Desktop
-stat FULL Path ::/home/mmaila/Desktop/SERV
-stat FULL Path ::/home/mmaila/Desktop/SERV/www
-stat FULL Path ::/home/mmaila/Desktop/SERV/www/favicon.ico
-AFTER FILL: 
 [34mFULL_PATH AFTER ISFILE ISDIR: /home/mmaila/Desktop/SERV/www/favicon.ico[0m
 /home/mmaila/Desktop/SERV/www/favicon.ico
 status code : 200
 5
-/home/mmaila/Desktop/SERV/www/favicon.ico
 HTTP/1.1 200 OK
 Server: webserv/1.0
-Date: Thu, 06 Feb 2025 17:56:13 GMT
+Date: Thu, 06 Feb 2025 18:00:58 GMT
 Content-Length: 7990
 Content-Type: text/plain
 Accept-Ranges: bytes

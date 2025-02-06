@@ -20,8 +20,8 @@ void	Response::generateErrorPage(int& status)
 
 	try
 	{
-		if (!reqCtx->_Config)
-			throw(status);
+		// if (!reqCtx->_Config)
+		// 	throw(status);
 	
 		std::map<int, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(status);
 		if (error_page == reqCtx->_Config->error_pages.end())
@@ -36,8 +36,6 @@ void	Response::generateErrorPage(int& status)
 		headers.append("\r\nContent-Length: " + _toString(fileLength(reqCtx->fullPath)));
 		headers.append("\r\n\r\n");
 		nextState = READ; // remove it is obselete
-		// status = 302;
-		// headers.append("\r\nLocation: " + error_page->second);
 	}
 	catch (int& newStatus)
 	{
