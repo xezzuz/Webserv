@@ -276,15 +276,16 @@ void 	ClientHandler::handleRequest()
 		{
 			CGIHandler	*cgi = new CGIHandler(socket);
 			HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
+			response->setContext(request.getRequestData());
 			this->response = cgi;
 		}
 		else
 		{
 			this->response = new Response(socket);
 			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+			response->setContext(request.getRequestData());
 			response->generateHeaders();
 		}
-		response->setContext(request.getRequestData());
 	}
 	else if (reqState == -1) // remove
 	{
@@ -298,7 +299,7 @@ void 	ClientHandler::handleResponse()
 	if (response->respond() == 1)
 	{
 		std::cout << "[WEBSERV]\tCLIENT SERVED" << std::endl;
-		if (keepAlive)
+		if (request.getRequestData()->keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
 			this->reset();
@@ -326,6 +327,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 		if (response)
 			delete response;
 		this->response = new Response(socket);
+		response->setContext(request.getRequestData());
 		response->generateErrorPage(status);
 	}
 	catch (FatalError& err)

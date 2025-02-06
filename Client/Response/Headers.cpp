@@ -62,6 +62,7 @@ void	Response::handleGET( void )
 
 void	Response::generateHeaders( void )
 {
+		std::cout << reqCtx->StatusCode << std::endl;
 	headers = "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]; // status line
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());

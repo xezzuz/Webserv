@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
+#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/06 17:16:47 by nazouz           ###   ########.fr        #
+#    Updated: 2025/02/06 17:19:14 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME			= 		webserv
 
 CPP				= 		c++
 
-CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -std=c++98
+CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -g -std=c++98
 
 INCLUDE			=		\
 						./Config/Config.hpp \
