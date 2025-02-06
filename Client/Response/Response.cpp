@@ -18,7 +18,7 @@ Response::Response(int &clientSocket) : socket(clientSocket), state(READ), nextS
 	sender = &Response::sendHeaders;
 }
 
-void	Response::setContext(struct RequestContext	*ctx)
+void	Response::setContext(struct RequestData	*ctx)
 {
 	reqCtx = ctx;
 }

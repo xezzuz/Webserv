@@ -6,19 +6,21 @@ ClientHandler::~ClientHandler()
 {
 	if (cgifd != -1)
 		HTTPserver->removeHandler(cgifd);
+	if (response)
+		delete response;
 }
 
 ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false) {}
 
 void	ClientHandler::reset()
 {
+	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
 	if (cgifd != -1)
 		HTTPserver->removeHandler(cgifd);
 	if (response)
 		delete response;
 	response = NULL;
 	request = Request();
-	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
 }
 
 void	ClientHandler::remove()
@@ -270,7 +272,7 @@ void 	ClientHandler::handleRequest()
 	{
 		
 		// setup response process
-		if(request.getContext().isCgi)
+		if(request.getRequestData()->isCGI)
 		{
 			CGIHandler	*cgi = new CGIHandler(socket);
 			HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
@@ -281,7 +283,7 @@ void 	ClientHandler::handleRequest()
 			this->response = new Response(socket);
 			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		}
-		response->setContext(&request.getContext());
+		response->setContext(request.getRequestData());
 	}
 	else if (reqState == -1) // remove
 	{
@@ -325,7 +327,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 		if (response)
 			delete response;
 
-		err.setContext(&request.getContext());
+		err.setContext(request.getRequestData());
 		err.generateErrorPage();
 		// response.setBuffer(err.getBuffer);
 		// set PATH darori

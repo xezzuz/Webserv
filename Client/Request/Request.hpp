@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 12:59:50 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 13:13:09 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,10 @@ typedef struct								RequestData {
 	std::string								HTTPversion;
 	
 	/*						CGI						*/
-	std::string								QUERYSTRING;
-	std::string								PATH_INFO;
-	std::string								SCRIPT_NAME;
+	std::string								queryString;
+	std::string								pathInfo;
+	std::string								scriptName;
+	std::string								cgiIntrepreter;
 	
 	/*					  RESPONSE   				*/
 	std::string								fullPath;
@@ -66,11 +67,11 @@ typedef struct								RequestData {
 	std::string								matchingLocation;
 
 	std::map<std::string, std::string>		Headers;
-	// RangeData								rangeData;
+	struct RangeData						rangeData;
 	Directives								*_Config; // ptr
 };											RequestData;
 
-// typedef	struct								RequestContext {
+// typedef	struct								RequestData {
 //     // int                                    status;
 //     // std::string                            method;
 //     // std::string                            uri;
@@ -185,7 +186,7 @@ class Request {
 
 		std::string&				getBuffer() { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
-		RequestData&				getRequestData() { return _RequestData; };
+		RequestData					*getRequestData() { return &_RequestData; };
 
 		int&						getStatusCode();
 		std::vector<std::string>&	getRawRequest();

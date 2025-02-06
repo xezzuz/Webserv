@@ -35,11 +35,11 @@ public:
 	std::vector<std::string>	headersToEnv();
 	char						**buildEnv();
 
-	void	parseCGIHeaders();
+	bool	parseCGIHeaders();
 	void	generateCGIHeaders();
 
 	void	readCgi();
-	int	feedCgi(const char *buf);
+	int		feedCgi(const char *buf);
 
 
 private:

@@ -2,17 +2,17 @@
 
 void	Response::initDirList()
 {
-	dirList = opendir(reqCtx->path.c_str());
+	dirList = opendir(reqCtx->fullPath.c_str());
 	if (!dirList)
 	{
 		throw(ErrorPage(500));
 	}
 	buffer = "<html>\n"
 			"<head>\n"
-			"<title>Index of " + reqCtx->uri + "</title>\n"
+			"<title>Index of " + reqCtx->URI + "</title>\n"
 			"</head>\n"
 			"<body>\n"
-			"<h1>Index of " + reqCtx->uri + "</h1>\n"
+			"<h1>Index of " + reqCtx->URI + "</h1>\n"
 			"<hr>\n"
 			"<pre>\n";
 }

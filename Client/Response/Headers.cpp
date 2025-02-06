@@ -37,30 +37,18 @@ void	Response::handleRange()
 
 void	Response::handleGET( void )
 {
-	if (reqCtx->config->autoindex && reqCtx->isDir)
+	if (reqCtx->_Config->autoindex && reqCtx->isDir)
 	{
-		dirList = opendir(reqCtx->path.c_str());
-		if (!dirList)
-		{
-			throw(ErrorPage(500));
-		}
+		initDirList();
 		headers.append("\r\nTransfer-Encoding: chunked");
 		contentType = "text/html";
-		buffer = "<html>\n"
-			"<head>\n"
-			"<title>Index of " + reqCtx->uri + "</title>\n"
-			"</head>\n"
-			"<body>\n"
-			"<h1>Index of " + reqCtx->uri + "</h1>\n"
-			"<hr>\n"
-			"<pre>\n";
 		reader = &Response::directoryListing;
 	}
 	else
 	{
-		bodyFile.open(reqCtx->path); // no protection
-		contentType = getContentType(reqCtx->path, mimeTypes);
-		contentLength = fileLength(reqCtx->path);
+		bodyFile.open(reqCtx->fullPath); // no protection
+		contentType = getContentType(reqCtx->fullPath, mimeTypes);
+		contentLength = fileLength(reqCtx->fullPath);
 	
 		if (reqCtx->isRange)
 			handleRange();
@@ -72,15 +60,15 @@ void	Response::handleGET( void )
 
 void	Response::generateHeaders( void )
 {
-	headers = "HTTP/1.1 " + _toString(reqCtx->status) + " " + statusCodes[reqCtx->status]; // status line
+	headers = "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]; // status line
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
-	if (reqCtx->method == "GET") // check allowed methods
+	if (reqCtx->Method == "GET") // check allowed methods
 		handleGET();
-	else if (reqCtx->method == "POST")
+	else if (reqCtx->Method == "POST")
 		handlePOST();
-	else if (reqCtx->method == "DELETE")
+	else if (reqCtx->Method == "DELETE")
 		nextState = DONE;
 
 	if (reqCtx->keepAlive)

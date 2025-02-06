@@ -30,7 +30,7 @@ void	ErrorPage::generateErrorPage()
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
-	if (reqCtx->config)
+	if (reqCtx->_Config)
 	{
 		
 	}

@@ -10,6 +10,7 @@
 # include <sys/socket.h>
 # include <algorithm>
 # include "Error.hpp"
+# include "../Request/Request.hpp"
 
 # define SEND_BUFFER_SIZE 4096
 
@@ -43,26 +44,6 @@ struct RangeData
 	enum RangeState					rangeState;
 };
 
-struct RequestContext
-{
-	int									status;
-	std::string							method;
-	std::string							uri;
-	std::string							path;
-	std::string							queryString;
-	std::string							pathInfo;
-	std::string							scriptName;
-	bool								isCGI;
-	bool								isDir;
-	bool								isRange;
-	bool								keepAlive;
-	struct RangeData					rangeData;
-	std::string							content_type;
-	size_t								content_length;
-	std::map<std::string, std::string>	requestHeaders;
-	Directives							*config;
-};
-
 class Response
 {
 public:
@@ -75,7 +56,7 @@ public:
 	void	setFunc(const enum Operation& op);
 	void	setRange(const RangeData& data);
 	void	setSocket(int& clientSocket);
-	void	setContext(struct RequestContext *ctx);
+	void	setContext(struct RequestData *ctx);
 
 
 
@@ -95,7 +76,7 @@ protected:
 	bool			(Response::*sender)();
 	void			(Response::*reader)();
 	int				socket;
-	RequestContext	*reqCtx;
+	RequestData		*reqCtx;
 
 private:
 

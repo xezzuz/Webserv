@@ -34,7 +34,7 @@ char	**CGIHandler::buildEnv()
 	std::vector<std::string> envVars;
 
 	// envVars.push_back("SERVER_NAME=" + reqCtx->config.);
-	envVars.push_back("REQUEST_METHOD=" + reqCtx->method);
+	envVars.push_back("REQUEST_METHOD=" + reqCtx->Method);
 	envVars.push_back("SCRIPT_NAME=" + reqCtx->scriptName);
 	envVars.push_back("PATH_INFO=" + reqCtx->pathInfo);
 	envVars.push_back("QUERYSTRING=" + reqCtx->queryString);
@@ -44,7 +44,7 @@ char	**CGIHandler::buildEnv()
 
 	// headers to ENV
 	std::map<std::string, std::string>::iterator header;
-	for (header = reqCtx->requestHeaders.begin(); header != reqCtx->requestHeaders.end(); header++)
+	for (header = reqCtx->Headers.begin(); header != reqCtx->Headers.end(); header++)
 	{
 		envVars.push_back(headerToEnv(header->first) + header->second);
 	}
@@ -92,7 +92,7 @@ int	CGIHandler::setup()
 		}
 		close(pipe_fd[1]);
 
-		if (chdir(reqCtx->path.c_str()) == -1)
+		if (chdir(reqCtx->fullPath.c_str()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("chdir");
@@ -100,7 +100,7 @@ int	CGIHandler::setup()
 		}
 
 		char *arg[3];
-		arg[0] = const_cast<char *>(reqCtx->cgiExec.c_str());
+		arg[0] = const_cast<char *>(reqCtx->cgiIntrepreter.c_str());
 		arg[1] = const_cast<char *>(reqCtx->scriptName.c_str());
 		arg[2] = NULL;
 		if (execve(arg[0], arg, buildEnv()) == -1)
@@ -111,24 +111,24 @@ int	CGIHandler::setup()
 		}
 	}
 	pid = pid;
-	fd = pipe_fd[0];
-	return (fd);
+	outfd = pipe_fd[0];
+	return (outfd);
 }
 
-void	processHeaders()
-{
-	std::stringstream header(buffer);
-	std::string field;
+// void	processHeaders()
+// {
+// 	std::stringstream header(buffer);
+// 	std::string field;
 
-	std::map<std::string, std::string>					singleValue;
-	std::map<std::string, std::vector<std::string> >	multiValue;
+// 	std::map<std::string, std::string>					singleValue;
+// 	std::map<std::string, std::vector<std::string> >	multiValue;
 
 
-	while (getline(header, field, '\r'))
-	{
+// 	while (getline(header, field, '\r'))
+// 	{
 		
-	}
-}
+// 	}
+// }
 
 bool	CGIHandler::parseCGIHeaders()
 {
@@ -200,8 +200,8 @@ void	CGIHandler::handleEvent(uint32_t events)
 				break;
 		}
 	}
-	else if (events& EPOLLOUT)
-	{
-		feedCgi();
-	}
+	// else if (events& EPOLLOUT)
+	// {
+	// 	feedCgi();
+	// }
 }
