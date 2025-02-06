@@ -17,3 +17,5 @@ rje3 stdin stdout kima kano mora child kill
 reuse port error
 
 html text in the config file
+
+error page directive is not absolute path

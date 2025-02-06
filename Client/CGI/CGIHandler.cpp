@@ -135,7 +135,7 @@ bool	CGIHandler::parseCGIHeaders()
 {
 	size_t pos = buffer.find("\r\n\r\n");
 	if (pos == std::string::npos)
-		throw(ErrorPage(500));
+		throw(500);
 
 	headers = buffer.substr(0, pos + 2);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 16:26:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:49:55 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,8 @@ void				Config::printServersConfigs() {
 			printf("SERVER NAME:\t\t%s\n", Servers[i].server_names[j].c_str());
 		}
 		
-		for (size_t j = 0; j < Servers[i].ServerDirectives.error_pages.size(); j++) {
-			printf("ERROR PAGES:\t\t%d | %s\n", Servers[i].ServerDirectives.error_pages[j].first, Servers[i].ServerDirectives.error_pages[j].second.c_str());
+		for (std::map<int, std::string>::iterator errorPage = Servers[i].ServerDirectives.error_pages.begin(); errorPage != Servers[i].ServerDirectives.error_pages.end(); errorPage++) {
+			printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
 		}
 		printf("CLIENT_MBS:\t\t%d\n", Servers[i].ServerDirectives.client_max_body_size);
 		printf("ROOT:\t\t\t%s\n", Servers[i].ServerDirectives.root.c_str());
@@ -71,8 +71,8 @@ void				Config::printServersConfigs() {
 		std::map<std::string, Directives>::iterator it = Servers[i].Locations.begin();
 		for (; it != Servers[i].Locations.end(); ++it) {
 			printf("\n----------------- LOCATION %s -----------------\n", it->first.c_str());
-			for (size_t j = 0; j < it->second.error_pages.size(); j++) {
-				printf("ERROR PAGES:\t\t%d | %s\n", it->second.error_pages[j].first, it->second.error_pages[j].second.c_str());
+			for (std::map<int, std::string>::iterator errorPage = it->second.error_pages.begin(); errorPage != it->second.error_pages.end(); errorPage++) {
+				printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
 			}
 			printf("CLIENT_MBS:\t\t%d\n", it->second.client_max_body_size);
 			printf("ROOT:\t\t\t%s\n", it->second.root.c_str());

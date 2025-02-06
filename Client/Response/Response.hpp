@@ -48,6 +48,7 @@ public:
 	void	readRange();
 	void	range();
 
+	void	generateErrorPage(int& status);
 	void	generateHeaders( void );
 	bool	sendHeaders();
 	bool	sendBody();
@@ -62,6 +63,7 @@ protected:
 	bool			(Response::*sender)();
 	void			(Response::*reader)();
 	RequestData		*reqCtx;
+	std::ifstream	bodyFile;
 
 private:
 
@@ -71,7 +73,6 @@ private:
 	void	handlePOST( void );
 	void	handleGET( void );
 
-	std::ifstream	bodyFile;
 	DIR				*dirList;
 
 	std::map<std::string, std::string>	mimeTypes;

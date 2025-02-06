@@ -17,19 +17,4 @@ private:
 	const char	*msg;
 };
 
-
-class ErrorPage : public std::exception, public Response
-{
-public:
-	virtual ~ErrorPage() throw();
-	ErrorPage(int code);
-
-
-	void	generateErrorPage();
-
-private:
-	int											status;
-	std::map<int, std::string>					description;
-};
-
 #endif

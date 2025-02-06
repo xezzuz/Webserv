@@ -48,7 +48,7 @@ void	Response::handleGET( void )
 	{
 		bodyFile.open(reqCtx->fullPath.c_str()); // no protection
 		if (!bodyFile.is_open())
-			throw(ErrorPage(500));
+			throw(500);
 		contentType = getContentType(reqCtx->fullPath, mimeTypes);
 		contentLength = fileLength(reqCtx->fullPath);
 	

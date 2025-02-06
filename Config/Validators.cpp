@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 16:20:26 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:50:25 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ bool					Config::isValidErrorPage(const std::string& errorPage, Directives& toFi
 	for (size_t i = 0; i < tokens.size() - 1; i++) {
 		if (!stringIsDigit(tokens[i]))
 			return false;
-		toFill.error_pages.push_back(std::make_pair(std::atoi(tokens[i].c_str()), tokens.back()));
+		toFill.error_pages.insert(std::make_pair(std::atoi(tokens[i].c_str()), tokens.back()));
 	}
 	return true;
 }

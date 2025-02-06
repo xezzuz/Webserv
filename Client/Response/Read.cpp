@@ -6,7 +6,7 @@ void	Response::initDirList()
 	dirList = opendir(reqCtx->fullPath.c_str());
 	if (!dirList)
 	{
-		throw(ErrorPage(500));
+		throw(500);
 	}
 	buffer = "<html>\n"
 			"<head>\n"

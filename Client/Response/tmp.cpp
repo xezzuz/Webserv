@@ -56,7 +56,7 @@
 // 		}
 
 // 		if (start > end || end >= contentLength)
-// 			throw(ErrorPage(416));
+// 			throw(416);
 
 // 		std::cout << "Start >> " << start << " | End >> " << end << std::endl;
 // 		Range unit;

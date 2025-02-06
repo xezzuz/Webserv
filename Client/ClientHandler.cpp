@@ -77,7 +77,7 @@ int	ClientHandler::getSocket() const
 // {
 // 	if (!rootJail(input.uri))
 // 	{
-// 		//throw(ErrorPage(403));
+// 		//throw(403);
 // 		input.status = 403;
 // 		return ;
 // 	}
@@ -103,7 +103,7 @@ int	ClientHandler::getSocket() const
 // 		URL.erase(0, pos++);
 // 		if (stat(input.path.c_str(), &pathStat) == -1)
 // 		{
-// 			//throw(ErrorPage(404));
+// 			//throw(404);
 // 			input.status = 404;
 // 			return ;
 // 		}
@@ -116,7 +116,7 @@ int	ClientHandler::getSocket() const
 // 	{
 // 		if (access(input.path.c_str(), X_OK) != 0)
 // 		{
-// 			//throw(ErrorPage(403));
+// 			//throw(403);
 // 			input.status = 403;
 // 			return ;
 // 		}
@@ -137,7 +137,7 @@ int	ClientHandler::getSocket() const
 // 			if (it == input.config.index.end())
 // 			{
 // 				if (!input.config.autoindex)
-// 					input.status = 404;//throw(ErrorPage(404));
+// 					input.status = 404;//throw(404);
 // 				return;
 // 			}
 // 		}
@@ -148,7 +148,7 @@ int	ClientHandler::getSocket() const
 // 	{	
 // 		if (access(input.path.c_str(), R_OK) != 0)
 // 		{
-// 			//throw(ErrorPage(403));
+// 			//throw(403);
 // 			input.status = 403;
 // 			return ;
 // 		}
@@ -184,7 +184,7 @@ int	ClientHandler::getSocket() const
 
 // 				if((cgifd = cgi->setup()) == -1)
 // 				{
-// 					//throw(ErrorPage(500));
+// 					//throw(500);
 // 					input.status = 500;
 // 					delete cgi;
 // 					return;
@@ -195,7 +195,7 @@ int	ClientHandler::getSocket() const
 // 		}
 // 		else if (URL.size() > 0)
 // 		{
-// 			//throw(ErrorPage(404));
+// 			//throw(404);
 // 			input.status = 404;
 // 			return;
 // 		}
@@ -321,19 +321,12 @@ void	ClientHandler::handleEvent(uint32_t events)
 			handleResponse();
 		}
 	}
-	catch (ErrorPage& err)
+	catch (int& status)
 	{
-		// darori treseta l body dial response w states
-		// reset response
 		if (response)
 			delete response;
-
-		err.setContext(request.getRequestData());
-		err.generateErrorPage();
-		err.setSocket(socket);
-		response = &err;
-		// response.setBuffer(err.getBuffer);
-		// set PATH darori
+		this->response = new Response(socket);
+		response->generateErrorPage(status);
 	}
 	catch (FatalError& err)
 	{

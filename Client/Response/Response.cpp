@@ -15,8 +15,59 @@ Response::Response() : state(WRITE), nextState(READ)
 
 Response::Response(int &clientSocket) : socket(clientSocket), state(WRITE), nextState(READ)
 {
+	dirList = NULL;
 	reader = &Response::readBody;
 	sender = &Response::sendHeaders;
+
+	statusCodes.insert(std::make_pair(200, "OK"));
+    statusCodes.insert(std::make_pair(201, "Created"));
+    statusCodes.insert(std::make_pair(204, "No Content"));
+    statusCodes.insert(std::make_pair(206, "Partial Content"));
+	statusCodes.insert(std::make_pair(301, "Moved Permanently"));
+    statusCodes.insert(std::make_pair(302, "Found"));
+    statusCodes.insert(std::make_pair(303, "See Other"));
+    statusCodes.insert(std::make_pair(307, "Temporary Redirect"));
+    statusCodes.insert(std::make_pair(308, "Permanent Redirect"));
+    statusCodes.insert(std::make_pair(400, "Bad Request"));
+    statusCodes.insert(std::make_pair(403, "Forbidden"));
+    statusCodes.insert(std::make_pair(404, "Not Found"));
+    statusCodes.insert(std::make_pair(405, "Method Not Allowed"));
+    statusCodes.insert(std::make_pair(413, "Payload Too Large"));
+    statusCodes.insert(std::make_pair(415, "Unsupported Media Type"));
+    statusCodes.insert(std::make_pair(416, "Range Not Satisfiable"));
+    statusCodes.insert(std::make_pair(431, "Request Header Fields Too Large"));
+    statusCodes.insert(std::make_pair(500, "Internal Server Error"));
+    statusCodes.insert(std::make_pair(501, "Not Implemented"));
+    statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
+    statusCodes.insert(std::make_pair(505, "HTTP Version Not Supported"));
+
+	mimeTypes.insert(std::make_pair(".html", "text/html"));
+	mimeTypes.insert(std::make_pair(".htm", "text/html"));
+	mimeTypes.insert(std::make_pair(".css", "text/css"));
+	mimeTypes.insert(std::make_pair(".csv", "text/csv"));
+	mimeTypes.insert(std::make_pair(".doc", "application/doc"));
+	mimeTypes.insert(std::make_pair(".gif", "image/gif"));
+	mimeTypes.insert(std::make_pair(".jpg", "image/jpeg"));
+	mimeTypes.insert(std::make_pair(".jpeg", "image/jpeg"));
+	mimeTypes.insert(std::make_pair(".js", "text/javascript"));
+	mimeTypes.insert(std::make_pair(".json", "application/json"));
+	mimeTypes.insert(std::make_pair(".jar", "application/java-archive"));
+	mimeTypes.insert(std::make_pair(".mp3", "audio/mpeg"));
+	mimeTypes.insert(std::make_pair(".mp4", "video/mp4"));
+	mimeTypes.insert(std::make_pair(".mpeg", "video/mpeg"));
+	mimeTypes.insert(std::make_pair(".png", "image/png"));
+	mimeTypes.insert(std::make_pair(".pdf", "application/pdf"));
+	mimeTypes.insert(std::make_pair(".sh", "application/x-sh"));
+	mimeTypes.insert(std::make_pair(".wav", "audio/wav"));
+	mimeTypes.insert(std::make_pair(".weba", "audio/webm"));
+	mimeTypes.insert(std::make_pair(".webm", "video/webm"));
+	mimeTypes.insert(std::make_pair(".webp", "image/webp"));
+	mimeTypes.insert(std::make_pair(".xml", "application/xml"));
+	mimeTypes.insert(std::make_pair(".zip", "application/zip"));
+	mimeTypes.insert(std::make_pair(".tar", "application/x-tar"));
+	mimeTypes.insert(std::make_pair(".bin", "application/octet-stream"));
+	mimeTypes.insert(std::make_pair(".avif", "image/avif"));
+	mimeTypes.insert(std::make_pair(".avi", "video/x-msvideo"));
 }
 
 Response::Response(const Response& rhs)

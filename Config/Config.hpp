@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/05 16:21:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 14:46:32 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,17 +47,17 @@
 #define BG_WHITE   "\033[47m"
 
 
-typedef struct												Directives {
-	std::vector<std::pair<int, std::string> >				error_pages;
-	int														client_max_body_size;
-	std::string												root;
-	std::string												alias;
-	std::vector<std::string>								index;
-	std::vector<std::string> 								methods;
-	std::string 											upload_store;
-	bool													autoindex;
-	std::pair<int, std::string>								redirect;
-	std::map<std::string, std::string>						cgi_ext;
+typedef struct								Directives{
+	std::map<int, std::string>				error_pages;
+	int										client_max_body_size;
+	std::string								root;
+	std::string								alias;
+	std::vector<std::string>				index;
+	std::vector<std::string> 				methods;
+	std::string 							upload_store;
+	bool									autoindex;
+	std::pair<int, std::string>				redirect;
+	std::map<std::string, std::string>		cgi_ext;
 
 	// default values for every directives
 	Directives() {
