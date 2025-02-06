@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "Error.hpp"
 
 Response::~Response()
 {
@@ -16,6 +17,29 @@ Response::Response(int &clientSocket) : socket(clientSocket), state(READ), nextS
 {
 	reader = &Response::readBody;
 	sender = &Response::sendHeaders;
+}
+
+Response::Response(const Response& rhs)
+{
+	*this = rhs;
+}
+
+Response& Response::operator=(const Response& rhs)
+{
+	if (this != &rhs)
+	{
+		socket = rhs.socket;
+		state = rhs.state;
+		nextState = rhs.nextState;
+		headers = rhs.headers;
+		buffer = rhs.buffer;
+		sender = rhs.sender;
+		reqCtx = rhs.reqCtx;
+		dirList = rhs.dirList;
+		contentType = rhs.contentType;
+		contentLength = rhs.contentLength;
+	}
+	return (*this);
 }
 
 void	Response::setContext(struct RequestData	*ctx)
@@ -107,6 +131,7 @@ int	Response::respond()
 		case WRITE:
 			if ((this->*sender)() == true)
 				state = nextState;
+			break;
 		case DONE:
 			return (1);
 	}

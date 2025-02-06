@@ -10,7 +10,7 @@ ClientHandler::~ClientHandler()
 		delete response;
 }
 
-ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false) {}
+ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false) {}
 
 void	ClientHandler::reset()
 {
@@ -20,7 +20,7 @@ void	ClientHandler::reset()
 	if (response)
 		delete response;
 	response = NULL;
-	request = Request();
+	request = Request(vServers);
 }
 
 void	ClientHandler::remove()
@@ -329,6 +329,8 @@ void	ClientHandler::handleEvent(uint32_t events)
 
 		err.setContext(request.getRequestData());
 		err.generateErrorPage();
+		err.setSocket(socket);
+		response = &err;
 		// response.setBuffer(err.getBuffer);
 		// set PATH darori
 	}

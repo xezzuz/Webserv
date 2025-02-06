@@ -12,6 +12,10 @@ enum CGIState
 	BRIDGE
 };
 
+class ErrorPage;
+
+class FatalError;
+
 class CGIHandler : public EventHandler, public Response
 {
 public:

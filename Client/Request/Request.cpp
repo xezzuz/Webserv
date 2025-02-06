@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/05 16:56:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/06 13:40:20 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-Request::~Request() {
-	// free DIR*
-}
+Request::~Request() {}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	statusCode = 200;

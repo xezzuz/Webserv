@@ -1,5 +1,6 @@
 #include "CGIHandler.hpp"
 #include "../../HTTPServer/Webserv.hpp"
+#include "../Response/Error.hpp"
 
 CGIHandler::~CGIHandler() {}
 
@@ -151,6 +152,7 @@ bool	CGIHandler::parseCGIHeaders()
 	}
 	
 	// if \r\n\r\n set headers bool to !headers;
+	return (true);
 }
 
 

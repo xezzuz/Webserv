@@ -46,7 +46,9 @@ void	Response::handleGET( void )
 	}
 	else
 	{
-		bodyFile.open(reqCtx->fullPath); // no protection
+		bodyFile.open(reqCtx->fullPath.c_str()); // no protection
+		if (!bodyFile.is_open())
+			throw(ErrorPage(500));
 		contentType = getContentType(reqCtx->fullPath, mimeTypes);
 		contentLength = fileLength(reqCtx->fullPath);
 	
@@ -66,8 +68,8 @@ void	Response::generateHeaders( void )
 
 	if (reqCtx->Method == "GET") // check allowed methods
 		handleGET();
-	else if (reqCtx->Method == "POST")
-		handlePOST();
+	// else if (reqCtx->Method == "POST")
+	// 	handlePOST();
 	else if (reqCtx->Method == "DELETE")
 		nextState = DONE;
 

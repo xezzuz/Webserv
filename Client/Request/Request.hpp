@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 13:13:09 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 13:40:29 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,29 @@ enum e_parsingState {
 	BODY_RECEIVED,		// 3
 	BODY_FINISHED,		// 4
 	PARSING_FINISHED	// 5
+};
+
+enum RangeState
+{
+	NEXT,
+	GET
+};
+
+struct Range
+{
+	std::pair<int, int> range;
+	std::string			header;
+	size_t				rangeLength;
+	bool				headerSent;
+	Range() : headerSent(false) {}
+};
+
+struct RangeData
+{
+	std::vector<Range>				ranges;
+	std::vector<Range>::iterator	current;
+	std::string						boundary;
+	enum RangeState					rangeState;
 };
 
 typedef struct								RequestData {
@@ -69,7 +92,7 @@ typedef struct								RequestData {
 	std::map<std::string, std::string>		Headers;
 	struct RangeData						rangeData;
 	Directives								*_Config; // ptr
-};											RequestData;
+}											RequestData;
 
 // typedef	struct								RequestData {
 //     // int                                    status;
@@ -153,7 +176,6 @@ class Request {
 	public:
 		Request(std::vector<ServerConfig>& vServers);
 		~Request();
-		Request();
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 

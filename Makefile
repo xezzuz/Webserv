@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
+#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/02 13:33:12 by nazouz           ###   ########.fr        #
+#    Updated: 2025/02/06 13:26:58 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,12 +40,8 @@ SRCS			= 		\
 						./Client/Request/Body.cpp \
 						./Client/Response/Response.cpp \
 						./Client/Response/Error.cpp \
-						./Client/Response/Setup.cpp \
-						./Client/Response/AutoIndex.cpp \
-						./Client/Response/Range.cpp \
-						./Client/Response/Methods/GET.cpp \
-						./Client/Response/Methods/POST.cpp \
-						./Client/Response/Methods/DELETE.cpp \
+						./Client/Response/Read.cpp \
+						./Client/Response/Headers.cpp \
 						./Client/CGI/CGIHandler.cpp \
 						./Client/ClientHandler.cpp \
 						./Server/ServerHandler.cpp \

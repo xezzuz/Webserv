@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "Error.hpp"
 
 void	Response::initDirList()
 {
