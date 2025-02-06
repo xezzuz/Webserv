@@ -270,22 +270,19 @@ void 	ClientHandler::handleRequest()
 	// }
 	if (reqState == PARSING_FINISHED)
 	{
-		
 		// setup response process
 		if(request.getRequestData()->isCGI)
 		{
-			CGIHandler	*cgi = new CGIHandler(socket);
+			CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 			cgifd = cgi->getFd();
-			HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
-			response->setContext(request.getRequestData());
 			cgi->setup();
+			HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
 			this->response = cgi;
 		}
 		else
 		{
-			this->response = new Response(socket);
+			this->response = new Response(socket, request.getRequestData());
 			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-			response->setContext(request.getRequestData());
 			response->generateHeaders();
 		}
 	}
@@ -334,8 +331,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 	{
 		if (response)
 			delete response;
-		this->response = new Response(socket);
-		response->setContext(request.getRequestData());
+		this->response = new Response(socket, request.getRequestData());
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		response->generateErrorPage(status);
 	}

@@ -27,7 +27,7 @@ class Response
 public:
 	~Response();
 	Response();
-	Response(int &clientSocket);
+	Response(int &clientSocket, RequestData *data);
 	Response(const Response& rhs);
 	Response& operator=(const Response& rhs);
 

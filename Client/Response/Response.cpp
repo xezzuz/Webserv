@@ -11,9 +11,11 @@ Response::Response() : state(WRITE), nextState(READ)
 {
 	reader = &Response::readBody;
 	sender = &Response::sendHeaders;
+	dirList = NULL;
+	reqCtx = NULL;
 }
 
-Response::Response(int &clientSocket) : socket(clientSocket), state(WRITE), nextState(READ)
+Response::Response(int &clientSocket, RequestData *data) : socket(clientSocket), state(WRITE), nextState(READ), reqCtx(data)
 {
 	dirList = NULL;
 	reader = &Response::readBody;
@@ -95,7 +97,11 @@ Response& Response::operator=(const Response& rhs)
 
 void	Response::setContext(struct RequestData	*ctx)
 {
-	std::cout << ctx << std::endl;
+	if (!ctx)
+	{
+		std::cout << "ADWAD" << std::endl;
+		exit(0);
+	}
 	reqCtx = ctx;
 }
 
@@ -154,6 +160,7 @@ bool	Response::sendHeaders()
 	{
 		throw(FatalError(strerror(errno)));
 	}
+	std::cout << "test" << std::endl;
 	std::cout << headers;
 	headers.erase(0, bytesSent);
 	if (headers.empty())
@@ -168,7 +175,7 @@ bool	Response::sendBody()
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	// std::cout << buffer;
+	std::cout << buffer;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }

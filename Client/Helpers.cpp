@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 19:17:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 19:26:35 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,6 @@ void			fillRequestData(const std::string URI, RequestData& _RequestData) {
 		handleDirectoryResource(_RequestData);
 	if (!_RequestData.isDir)
 		handleFileResource(requestedResource, _RequestData);
-	std::cout << "FULL PATH AFTER ALL : " << _RequestData.fullPath << std::endl;
-	std::cout << "CGI : " << _RequestData.isCGI << std::endl;
+	// std::cout << "FULL PATH AFTER ALL : " << _RequestData.fullPath << std::endl;
+	// std::cout << "CGI : " << _RequestData.isCGI << std::endl;
 }

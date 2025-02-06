@@ -18,7 +18,7 @@ class CGIHandler : public EventHandler, public Response
 {
 public:
 	~CGIHandler();
-	CGIHandler(int& clientSocket);
+	CGIHandler(int& clientSocket, RequestData *data);
 
 	int		setup();
 	// void	readCgi();
@@ -35,7 +35,7 @@ public:
 	}
 
 	std::vector<std::string>	headersToEnv();
-	char						**buildEnv();
+	void						buildEnv();
 
 	bool	parseCGIHeaders();
 	void	generateCGIHeaders();
@@ -50,6 +50,7 @@ private:
 	int				infd; // file descriptor where cgi reads input from
 	pid_t			pid;
 	enum CGIState	CGIState;
+	std::vector<std::string> envvars;
 };
 
 #endif
