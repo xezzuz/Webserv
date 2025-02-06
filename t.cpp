@@ -7,21 +7,9 @@
 #include <sstream>
 #include <string>
 
-int main() {
-    std::string line = "appleorange"; // Example input
-    std::istringstream stream(line);
-    std::string token;
-    char delimiter = ','; // The delimiter you are using
+int main()
+{
 
-	size_t pos = 0;
-	std::cout << "a" << std::endl;
-    while (getline(stream, token, ','))
-	{
-
-        std::cout << "Token: " << token << std::endl;
-    }
-
-    return 0;
 }
 
 
