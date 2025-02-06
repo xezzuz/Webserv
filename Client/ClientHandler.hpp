@@ -43,4 +43,6 @@ private:
 	
 };
 
+void			fillRequestData(const std::string URI, RequestData& _RequestData);
+
 #endif

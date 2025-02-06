@@ -197,72 +197,82 @@ void	ClientHandler::decodeUri(struct ResponseInput& input, std::string& URL)
 	}
 }
 
-void	ClientHandler::initResponse()
-{
-	struct ResponseInput				input;
+// void	ClientHandler::initResponse()
+// {
+// 	struct ResponseInput				input;
 
-	input.method = request.getRequestLineSt().method;
-	input.uri = request.getRequestLineSt().uri;
-	input.status = request.getStatusCode();
-	input.requestHeaders = request.getHeaderSt().headersMap;
+// 	input.method = request.getRequestLineSt().method;
+// 	input.uri = request.getRequestLineSt().uri;
+// 	input.status = request.getStatusCode();
+// 	input.requestHeaders = request.getHeaderSt().headersMap;
 
-	std::map<std::string, std::string>::iterator itr = input.requestHeaders.find("connection");
-	if (itr != input.requestHeaders.end())
-		keepAlive = (itr->second == "keep-alive");
+// 	std::map<std::string, std::string>::iterator itr = input.requestHeaders.find("connection");
+// 	if (itr != input.requestHeaders.end())
+// 		keepAlive = (itr->second == "keep-alive");
 	
-	ServerConfig server = matchingServer(request.getHeaderSt().host);
+// 	ServerConfig server = matchingServer(request.getHeaderSt().host);
 
-	std::string	location;
-	std::map<std::string, Directives>::iterator it;
-	for (it = server.Locations.begin(); it != server.Locations.end(); it++)
-	{
-		if (input.uri.find(it->first) != std::string::npos)
-		{
-			if (it->first.size() > location.size())
-				location = it->first;
-		}
-	}
-	if (location.empty())
-		input.config = server.ServerDirectives;
-	else
-		input.config = server.Locations.find(location)->second;
+// 	std::string	location;
+// 	std::map<std::string, Directives>::iterator it;
+// 	for (it = server.Locations.begin(); it != server.Locations.end(); it++)
+// 	{
+// 		if (input.uri.find(it->first) != std::string::npos)
+// 		{
+// 			if (it->first.size() > location.size())
+// 				location = it->first;
+// 		}
+// 	}
+// 	if (location.empty())
+// 		input.config = server.ServerDirectives;
+// 	else
+// 		input.config = server.Locations.find(location)->second;
 
 
-	std::string	URL;
-	// alias and root appending
-	if (!input.config.alias.empty())
-		URL = input.config.alias + input.uri.substr(location.length());
-	else
-	{
-		if (input.config.root[input.config.root.length() - 1] == '/') // do same for alias
-			input.config.root.erase(input.config.root.length() - 1);
-		URL = input.config.root + input.uri;
-	}
+// 	std::string	URL;
+// 	// alias and root appending
+// 	if (!input.config.alias.empty())
+// 		URL = input.config.alias + input.uri.substr(location.length());
+// 	else
+// 	{
+// 		if (input.config.root[input.config.root.length() - 1] == '/') // do same for alias
+// 			input.config.root.erase(input.config.root.length() - 1);
+// 		URL = input.config.root + input.uri;
+// 	}
 	
-	// input.config.cgi_ext.insert(std::make_pair(".py", "/usr/bin/python3"));
-	// input.config.cgi_ext.insert(std::make_pair(".php", "/usr/bin/php"));
-	// input.config.index.push_back("index.html");
-	decodeUri(input, URL);
-	response.setInput(input);
-}
+// 	// input.config.cgi_ext.insert(std::make_pair(".py", "/usr/bin/python3"));
+// 	// input.config.cgi_ext.insert(std::make_pair(".php", "/usr/bin/php"));
+// 	// input.config.index.push_back("index.html");
+// 	decodeUri(input, URL);
+// 	response.setInput(input);
+// }
 #include <sys/time.h>
 void 	ClientHandler::handleRequest()
 {
-	int reqState = request.receiveRequest(socket);
-	if (reqState == PARSING_FINISHED)
-	{
+	int rState = request.receiveRequest(socket);
+	if (rState == HEADERS_FINISHED) { // means request received all headers and filled _RequestData
 		// setup response process
-		gettimeofday(&start, NULL);
-		initResponse();
-		response.generateHeaders();
-		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+		fillRequestData(request.getRequestData().URI, request.getRequestData());
+
+		if (request.getRequestData().isCGI)
+        {
+            CGIHandler    *cgi = new CGIHandler(socket);
+            HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
+            // this->response = cgi;
+        }
+        else
+        {
+            // this->response = new Res(socket);
+            HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+        }
+        // response->setContext(&request.getContext());
 	}
-	else if (reqState == -1) // remove
+	else if (rState == -1) // remove
 	{
 		std::cout << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
 		this->remove();
 	}
 }
+
 #include <iomanip>
 void 	ClientHandler::handleResponse()
 {

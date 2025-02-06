@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/01 19:38:34 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/05 16:21:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ typedef struct												Directives {
 
 	// default values for every directives
 	Directives() {
-		error_pages.push_back(std::make_pair(404, "/home/nazouz/Desktop/Webserv/Errors/400.html"));
+		// error_pages.push_back(std::make_pair(404, "/home/nazouz/Desktop/Webserv/Errors/400.html"));
 		client_max_body_size = INT_MAX;
 		root = "/home/mmaila/Desktop/SERV/www/";
 		index.push_back("index.html");
