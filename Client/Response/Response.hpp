@@ -48,6 +48,7 @@ public:
 	void	readRange();
 	void	range();
 
+	void	generateHeaders( void );
 	bool	sendHeaders();
 	bool	sendBody();
 	int		respond();
@@ -69,7 +70,6 @@ private:
 	void	handleRange();
 	void	handlePOST( void );
 	void	handleGET( void );
-	void	generateHeaders( void );
 
 	std::ifstream	bodyFile;
 	DIR				*dirList;

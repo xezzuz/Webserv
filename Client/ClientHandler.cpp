@@ -282,6 +282,7 @@ void 	ClientHandler::handleRequest()
 		{
 			this->response = new Response(socket);
 			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+			response->generateHeaders();
 		}
 		response->setContext(request.getRequestData());
 	}

@@ -7,13 +7,13 @@ Response::~Response()
 		closedir(dirList);
 }
 
-Response::Response() : state(READ), nextState(READ)
+Response::Response() : state(WRITE), nextState(READ)
 {
 	reader = &Response::readBody;
 	sender = &Response::sendHeaders;
 }
 
-Response::Response(int &clientSocket) : socket(clientSocket), state(READ), nextState(READ)
+Response::Response(int &clientSocket) : socket(clientSocket), state(WRITE), nextState(READ)
 {
 	reader = &Response::readBody;
 	sender = &Response::sendHeaders;
