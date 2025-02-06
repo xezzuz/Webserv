@@ -275,8 +275,10 @@ void 	ClientHandler::handleRequest()
 		if(request.getRequestData()->isCGI)
 		{
 			CGIHandler	*cgi = new CGIHandler(socket);
+			cgifd = cgi->getFd();
 			HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN | EPOLLHUP);
 			response->setContext(request.getRequestData());
+			cgi->setup();
 			this->response = cgi;
 		}
 		else
@@ -307,6 +309,12 @@ void 	ClientHandler::handleResponse()
 		else
 			this->remove(); // this call is very unsafe it should remain at the end of an EventHandler object Call T-T // eventually use vector
 	}
+	if (cgifd != -1)
+	{
+		HTTPserver->updateHandler(cgifd, EPOLLIN | EPOLLHUP);
+		HTTPserver->updateHandler(socket, EPOLLHUP);
+	}
+
 }
 
 void	ClientHandler::handleEvent(uint32_t events)

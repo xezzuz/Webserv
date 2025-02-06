@@ -71,8 +71,8 @@ int	CGIHandler::setup()
 		perror("pipe");
 		return (-1);
 	}
-
-	int pid = fork();
+	std::cout << "FULL PATH CGI << " << reqCtx->fullPath << std::endl;
+	pid = fork();
 	if (pid == -1)
 	{
 		std::cerr << "[WEBSERV]\t";
@@ -111,7 +111,7 @@ int	CGIHandler::setup()
 			exit(errno);
 		}
 	}
-	pid = pid;
+	std::cout << "dwad" << std::endl;
 	outfd = pipe_fd[0];
 	return (outfd);
 }
@@ -191,6 +191,7 @@ void	CGIHandler::handleEvent(uint32_t events)
 	if (events & EPOLLIN)
 	{
 		readCgi();
+		CGIState = BRIDGE;
 		switch (CGIState)
 		{
 			case PARSE:

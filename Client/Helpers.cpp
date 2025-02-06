@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 18:57:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/06 19:17:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,10 @@ bool						extensionIsCGI(const std::string& extension, RequestData& _RequestData
 	
 	std::map<std::string, std::string>::iterator it = _RequestData._Config->cgi_ext.find(extension);
 	if (it != _RequestData._Config->cgi_ext.end())
+	{
+		_RequestData.cgiIntrepreter = it->second;
 		return true;
+	}
 	return false;
 }
 
@@ -197,4 +200,6 @@ void			fillRequestData(const std::string URI, RequestData& _RequestData) {
 		handleDirectoryResource(_RequestData);
 	if (!_RequestData.isDir)
 		handleFileResource(requestedResource, _RequestData);
+	std::cout << "FULL PATH AFTER ALL : " << _RequestData.fullPath << std::endl;
+	std::cout << "CGI : " << _RequestData.isCGI << std::endl;
 }

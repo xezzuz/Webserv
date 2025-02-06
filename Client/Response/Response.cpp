@@ -95,6 +95,7 @@ Response& Response::operator=(const Response& rhs)
 
 void	Response::setContext(struct RequestData	*ctx)
 {
+	std::cout << ctx << std::endl;
 	reqCtx = ctx;
 }
 
