@@ -26,6 +26,7 @@ public:
 	void	remove();
 	void 	handleRequest();
 	void 	handleResponse();
+	void	createResponse();
 	void	handleEvent(uint32_t events);
 	int		getFd() const
 	{

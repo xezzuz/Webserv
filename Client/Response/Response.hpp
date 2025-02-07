@@ -25,7 +25,7 @@ class Error;
 class Response
 {
 public:
-	~Response();
+	virtual ~Response();
 	Response();
 	Response(int &clientSocket, RequestData *data);
 	Response(const Response& rhs);
@@ -52,7 +52,9 @@ public:
 	void	generateHeaders( void );
 	bool	sendHeaders();
 	bool	sendBody();
-	int		respond();
+
+
+	virtual int	respond();
 	
 protected:
 	int				socket;
@@ -64,6 +66,7 @@ protected:
 	void			(Response::*reader)();
 	RequestData		*reqCtx;
 	std::ifstream	bodyFile;
+	std::map<int, std::string>			statusCodes;
 
 private:
 
@@ -76,7 +79,6 @@ private:
 	DIR				*dirList;
 
 	std::map<std::string, std::string>	mimeTypes;
-	std::map<int, std::string>			statusCodes;
 
 	std::string		contentType;
 	unsigned long	contentLength;

@@ -6,7 +6,7 @@ ClientHandler::~ClientHandler()
 {
 	if (cgifd != -1)
 		HTTPserver->removeHandler(cgifd);
-	if (response)
+	else if (response)
 		delete response;
 }
 
@@ -17,7 +17,7 @@ void	ClientHandler::reset()
 	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
 	if (cgifd != -1)
 		HTTPserver->removeHandler(cgifd);
-	if (response)
+	else if (response)
 		delete response;
 	response = NULL;
 	request = Request(vServers);
@@ -25,9 +25,12 @@ void	ClientHandler::reset()
 
 void	ClientHandler::remove()
 {
-	std::cout << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
+	std::cerr << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
 	if (cgifd != -1)
+	{
 		HTTPserver->removeHandler(cgifd);
+		cgifd = -1;
+	}
 	HTTPserver->removeHandler(socket);
 }
 
@@ -40,9 +43,6 @@ int	ClientHandler::getSocket() const
 {
 	return (socket);
 }
-
-
-
 
 // ServerConfig&	ClientHandler::matchingServer(std::string& host)
 // {
@@ -252,6 +252,25 @@ int	ClientHandler::getSocket() const
 // }
 #include <sys/time.h>
 
+void	ClientHandler::createResponse()
+{
+	if(request.getRequestData()->isCGI)
+	{
+		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+		cgifd = cgi->getFd();
+		cgi->setup();
+		std::cout << "CGI FD IS: " << cgifd << std::endl;
+		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP); ///////
+		HTTPserver->updateHandler(socket, EPOLLHUP); ////// CHECKKKKKK
+		this->response = cgi;
+	}
+	else
+	{
+		this->response = new Response(socket, request.getRequestData());
+		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+		response->generateHeaders();
+	}
+}
 
 void 	ClientHandler::handleRequest()
 {
@@ -270,25 +289,11 @@ void 	ClientHandler::handleRequest()
 	// }
 	if (reqState == PARSING_FINISHED)
 	{
-		// setup response process
-		if(request.getRequestData()->isCGI)
-		{
-			CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
-			cgifd = cgi->getFd();
-			cgi->setup();
-			HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
-			this->response = cgi;
-		}
-		else
-		{
-			this->response = new Response(socket, request.getRequestData());
-			HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-			response->generateHeaders();
-		}
+		createResponse();
 	}
 	else if (reqState == -1) // remove
 	{
-		std::cout << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
+		std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
 		this->remove();
 	}
 }
@@ -305,11 +310,6 @@ void 	ClientHandler::handleResponse()
 		}
 		else
 			this->remove(); // this call is very unsafe it should remain at the end of an EventHandler object Call T-T // eventually use vector
-	}
-	if (cgifd != -1)
-	{
-		HTTPserver->updateHandler(cgifd, EPOLLIN | EPOLLHUP);
-		HTTPserver->updateHandler(socket, EPOLLHUP);
 	}
 
 }
@@ -335,9 +335,9 @@ void	ClientHandler::handleEvent(uint32_t events)
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		response->generateErrorPage(status);
 	}
-	catch (FatalError& err)
+	catch (CGIRedirectException& redirect)
 	{
-		std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
-		this->remove();
+		fillRequestData(redirect.location, *request.getRequestData());
+		createResponse();
 	}
 }

@@ -8,6 +8,13 @@ const char *FatalError::what() const throw()
 	return (msg);
 }
 
+CGIRedirectException::~CGIRedirectException() throw() {}
+
+CGIRedirectException::CGIRedirectException(const std::string& location)
+{
+	this->location = location;
+}
+
 void	Response::generateErrorPage(int& status)
 {
 	headers.clear();

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 19:44:36 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/07 21:44:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,7 @@ std::string			stringtrim(const std::string& str, const std::string& set) {
 
 std::string		stringtolower(std::string str) {
 	for (size_t i = 0; i < str.size(); i++) {
-		if (str[i] >= 'A' && str[i] <= 'Z')
-			str[i] += 32;
+		str[i] = std::tolower(str[i]);
 	}
 	return str;
 }

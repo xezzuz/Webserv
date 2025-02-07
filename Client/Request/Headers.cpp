@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 18:11:13 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/07 15:30:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,13 +217,14 @@ bool			Request::storeHeadersInVector() {
 
 // this function should be revised against RFC
 bool			Request::validateRequestHeaders() {
+	return (true);
 	if (!headerExists("host") || _RequestData.host.empty())
 		return (setStatusCode(400), false);
 	
-	if (!headerExists("host") || _RequestData.connection.empty())
+	if (!headerExists("connection") || _RequestData.connection.empty())
 		return (setStatusCode(400), false);
 	else
-		_RequestData.Headers.insert(std::make_pair("host", "keep-alive"));
+		_RequestData.Headers.insert(std::make_pair("connection", "keep-alive"));
 	
 	if (_RequestData.Method == "POST") {
 		bool			ContentLength = headerExists("content-length");

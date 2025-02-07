@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 16:26:07 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/07 15:59:16 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ int	Request::receiveRequest(int socket) {
 		buffer += std::string(buf, bytesReceived);
 		bufferSize += bytesReceived;
 		parseControlCenter();
-		std::cout << pState << std::endl;
 		return (pState);
 		
 	} else if (bytesReceived == 0) { // this is for graceful shutdown (client closes the connection willingly)

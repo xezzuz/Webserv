@@ -171,36 +171,42 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (true)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
 
+		std::cout << "EVENT_COUNT: " << eventCount << std::endl;
+		for (int i = 0; i < eventCount; i++)
+			print_epoll_events(events[i].events);
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
-			// print_epoll_events(events[i].events);
-			if (events[i].events & EPOLLERR)
+			try
 			{
-				int fd = handler->getFd();
-				int error = 0;
-				socklen_t errlen = sizeof(error);
-				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) { // forbidden
-					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
-				}
-				std::cerr << "[WEBSERV][ERROR]\t Fatal Error On Socket " << fd << std::endl;
-				removeHandler(fd);
+				// print_epoll_events(events[i].events);
+				// if (events[i].events & EPOLLERR)
+				// {
+				// 	int fd = handler->getFd();
+				// 	int error = 0;
+				// 	socklen_t errlen = sizeof(error);
+				// 	if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) // forbidden
+				// 	{
+				// 		std::cerr << "[WEBSERV][ERROR]\t Fatal Error On Socket " << fd << ": " << strerror(error) << std::endl;
+				// 	}
+				// 	removeHandler(fd);
+				// }
+				// else if (events[i].events & EPOLLHUP)
+				// {
+				// 	int fd = handler->getFd();
+				// 	std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;
+				// 	removeHandler(fd);
+				// }
+				// else
+					handler->handleEvent(events[i].events);
 			}
-			else if (events[i].events & EPOLLHUP)
+			catch (FatalError& err)
 			{
-				int fd = handler->getFd();
-				int error = 0;
-				socklen_t errlen = sizeof(error);
-				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) { // forbidden
-					fprintf(stderr, "Error on socket %d: %s\n", fd, strerror(error));
-				}
-				std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;
-				removeHandler(fd);
+				std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
+				removeHandler(handler->getFd()); // not complete clean up on client and CGI
 			}
-			else
-				handler->handleEvent(events[i].events);
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;
 		// for (it = Timer.begin(); it != Timer.end(); it++)

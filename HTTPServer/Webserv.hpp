@@ -10,6 +10,7 @@
 #include <vector>
 #include <ctime>
 #include <signal.h>
+#include <sys/wait.h>
 #include <cstring>
 
 # define MAX_EVENTS 100

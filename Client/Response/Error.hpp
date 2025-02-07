@@ -17,4 +17,13 @@ private:
 	const char	*msg;
 };
 
+class CGIRedirectException : public std::exception
+{
+public:
+	virtual ~CGIRedirectException() throw();
+	CGIRedirectException(const std::string& location);
+
+	std::string location;
+};
+
 #endif

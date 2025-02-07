@@ -6,10 +6,11 @@
 
 # define CGI_BUFFER_SIZE 4096
 
+
 enum CGIState
 {
-	PARSE,
-	BRIDGE
+	CHUNKED,
+	LENGTH
 };
 
 class FatalError;
@@ -17,7 +18,7 @@ class FatalError;
 class CGIHandler : public EventHandler, public Response
 {
 public:
-	~CGIHandler();
+	virtual ~CGIHandler();
 	CGIHandler(int& clientSocket, RequestData *data);
 
 	int		setup();
@@ -40,15 +41,18 @@ public:
 	bool	parseCGIHeaders();
 	void	generateCGIHeaders();
 
-	void	readCgi();
+	void	readChunked();
+	void	readLength();
 	int		feedCgi(const char *buf);
 
+	int		respond();
 
 private:
 	// created here
 	int				outfd; // file descriptor where cgi writes its output into
 	int				infd; // file descriptor where cgi reads input from
 	pid_t			pid;
+	bool			parseBool;
 	enum CGIState	CGIState;
 	std::vector<std::string> envvars;
 };

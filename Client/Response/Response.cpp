@@ -97,11 +97,6 @@ Response& Response::operator=(const Response& rhs)
 
 void	Response::setContext(struct RequestData	*ctx)
 {
-	if (!ctx)
-	{
-		std::cout << "ADWAD" << std::endl;
-		exit(0);
-	}
 	reqCtx = ctx;
 }
 
@@ -160,8 +155,9 @@ bool	Response::sendHeaders()
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	std::cout << "test" << std::endl;
+	std::cout << "__________HEADERS SENT_____________" << std::endl;
 	std::cout << headers;
+	std::cout << "___________________________________" << std::endl;
 	headers.erase(0, bytesSent);
 	if (headers.empty())
 		sender = &Response::sendBody;
@@ -175,7 +171,9 @@ bool	Response::sendBody()
 	{
 		throw(FatalError(strerror(errno)));
 	}
+	std::cout << "__________BODY SENT__" << bytesSent << "___________" << std::endl;
 	std::cout << buffer;
+	std::cout << "________________________________" << std::endl;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }
