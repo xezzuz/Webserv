@@ -186,10 +186,9 @@ bool	CGIHandler::parseCGIHeaders()
 
 	if (headersMap.find("content-type") != headersMap.end())
 	{
-		std::cout << "test" << std::endl;
 		headers.append("\r\nContent-Type: " + headersMap["content-type"]);
 	}
-	else if (buffer.empty()) // RFC 3875 section 6.3.1
+	else if (!buffer.empty()) // RFC 3875 section 6.3.1
 	{
 		std::cerr << "[WEBSERV][ERROR]\tContet-Type Header Was Not Found In CGI" << std::endl;
 		throw(500);

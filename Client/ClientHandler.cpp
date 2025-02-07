@@ -324,7 +324,19 @@ void	ClientHandler::handleEvent(uint32_t events)
 		}
 		else if (events & EPOLLOUT)
 		{
-			handleResponse();
+			try
+			{
+				handleResponse();
+			}
+			catch (CGIRedirectException& redirect)
+			{
+				if (response)
+					delete response;
+				std::cout << "Location: "<<  redirect.location << std::endl;
+				this->response = new Response(socket, request.getRequestData());
+				fillRequestData(redirect.location, *request.getRequestData());
+				createResponse();
+			}
 		}
 	}
 	catch (int& status)
@@ -334,10 +346,5 @@ void	ClientHandler::handleEvent(uint32_t events)
 		this->response = new Response(socket, request.getRequestData());
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		response->generateErrorPage(status);
-	}
-	catch (CGIRedirectException& redirect)
-	{
-		fillRequestData(redirect.location, *request.getRequestData());
-		createResponse();
 	}
 }
