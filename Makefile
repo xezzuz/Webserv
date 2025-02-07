@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
+#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/06 18:34:13 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/07 13:35:19 by nazouz           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			= 		webserv
 
-CPP				= 		c++
+CPP				= 		g++
 
 CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -g -std=c++98
 
