@@ -182,25 +182,20 @@ void	Webserv::run()
 			try
 			{
 				// print_epoll_events(events[i].events);
-				// if (events[i].events & EPOLLERR)
-				// {
-				// 	int fd = handler->getFd();
-				// 	int error = 0;
-				// 	socklen_t errlen = sizeof(error);
-				// 	if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errlen) == 0) // forbidden
-				// 	{
-				// 		std::cerr << "[WEBSERV][ERROR]\t Fatal Error On Socket " << fd << ": " << strerror(error) << std::endl;
-				// 	}
-				// 	removeHandler(fd);
-				// }
+				if (events[i].events & EPOLLERR)
+				{
+					int fd = handler->getFd();
+					std::cerr << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << std::endl;
+					removeHandler(fd);
+				}
+				else
+					handler->handleEvent(events[i].events);
 				// else if (events[i].events & EPOLLHUP)
 				// {
 				// 	int fd = handler->getFd();
 				// 	std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;
 				// 	removeHandler(fd);
 				// }
-				// else
-					handler->handleEvent(events[i].events);
 			}
 			catch (FatalError& err)
 			{

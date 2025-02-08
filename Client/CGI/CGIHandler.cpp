@@ -283,7 +283,7 @@ void		CGIHandler::readLength()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
-	std::cout << "BYTEST_READ_CGI" << bytesRead << std::endl;
+	std::cout << "BYTEST_READ_CGI: " << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
