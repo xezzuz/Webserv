@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 17:30:40 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 18:04:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,28 +23,6 @@ void			Request::setRequestState() {
 		pState = REQUEST_HEADERS;
 	else if (REQUEST_HEADERS == pState)
 		pState = REQUEST_FINISHED;
-	
-	{
-		// // if (statusCode)
-		// // if we haven't received completed headers
-		// if (pState == PARSING_INIT && bufferContainHeaders())
-		// {
-		// 	pState = HEADERS_RECEIVED;
-		// }
-		// else if (pState == HEADERS_FINISHED && bufferSize != 0)
-		// {
-		//     // std::cout << buffer << std::endl;
-		// 	pState = BODY_RECEIVED;
-		// }
-		// else if (pState == BODY_FINISHED)
-		// 	pState = PARSING_FINISHED;
-		
-		// // if (pState == HEADERS_FINISHED && requestLine.method == "GET")
-		// // 	pState = PARSING_FINISHED;
-		// if (pState == HEADERS_FINISHED && _RequestData.Method == "GET")
-		// 	pState = PARSING_FINISHED;
-		
-	}
 }
 
 // PARSING CONTROL CENTER
@@ -54,11 +32,6 @@ bool			Request::parseControlCenter() {
 		case REQUEST_HEADERS:
 			parseRequestLineAndHeaders();
 			break;
-		// case BODY_RECEIVED:
-		// 	parseRequestBody();
-		// 	break;
-		// case PARSING_FINISHED:
-		// 	break;
 		default:
 			break;
 	}
@@ -67,7 +40,7 @@ bool			Request::parseControlCenter() {
 }
 
 // FEED REQUEST
-int	Request::recvRequest(int clientSocket) {
+int				Request::feedRequest(int clientSocket) {
 	char	buf[REQUEST_BUFFER_SIZE] = {0};
 
 	int	bytesReceived = recv(clientSocket, buf, REQUEST_BUFFER_SIZE, 0);

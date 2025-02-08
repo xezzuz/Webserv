@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 17:00:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 18:05:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ class Request {
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 
-		int							recvRequest(int clientSocket);
+		int							feedRequest(int clientSocket);
 		bool						printParsedRequest();
 
 		bool						bufferContainHeaders();
@@ -165,10 +165,6 @@ class Request {
 		RequestData					*getRequestData() { return &_RequestData; };
 
 		int&						getStatusCode();
-		std::vector<std::string>&	getRawRequest();
-		// t_body&						getBodySt();
-		// t_header&					getHeaderSt();
-		// t_requestline&				getRequestLineSt();
 		e_parsingState				getParsingState() { return pState; } ;
 
 		void						setStatusCode(int code);
@@ -177,15 +173,6 @@ class Request {
 		bool						isValidMethod(const std::string& method);
 		bool						isValidURI(const std::string& uri);
 		bool						isValidHTTPVersion(const std::string& httpversion);
-		
-		// void						processRequestData();
-		// void						decodeURL(std::string URL);
-		// void						resolveRootAlias(std::string& requestedResource);
-		// void						setQueryString(std::string& requestedResource);
-		// void						setRequestedResourceType(std::string& requestedResource);
-		// void						handleDirectoryResource();
-		// void						handleFileResource(const std::string& path_info);
-		// bool						extensionIsCGI(const std::string& extension);
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();

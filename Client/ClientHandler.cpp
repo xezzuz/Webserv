@@ -63,11 +63,10 @@ void	ClientHandler::createResponse()
 
 void 	ClientHandler::handleRequest()
 {
-	// int reqState = request.recvRequest(socket);
 	if (bridgeState == HEADERS)
 	{
 		std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
-		int		rState = request.recvRequest(socket);
+		int		rState = request.feedRequest(socket);
 		std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
 		if (rState == REQUEST_FINISHED)
 		{
@@ -82,6 +81,7 @@ void 	ClientHandler::handleRequest()
 	}
 	else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
 	{
+		// int		rState = response.feedResponse(socket);
 		std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
 		// char buf[16000];
 		// int bytesRead = read(socket, buf, 16000);
@@ -92,31 +92,6 @@ void 	ClientHandler::handleRequest()
 		// std::cout << "BYTES_READ ON BODY => " << bytesRead << std::endl; 
 		// buf[bytesRead] = '\0';
 		// std::cout << "DATA_READ ON BODY => " << buf;
-	}
-
-	// OLD
-	{
-		// switch (st)
-		// {
-		// 	HEader:
-		// 		rState = req.reciev();
-		// 		if (finished)
-		// 		{
-
-		// 			st = BODY;
-		// 		}
-		// 	BODY:
-		// 		res.receiv();
-		// }
-		// if (reqState == REQUEST_FINISHED)
-		// {
-		// 	createResponse();
-		// }
-		// else if (reqState == -1) // remove
-		// {
-		// 	std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
-		// 	this->remove();
-		// }
 	}
 }
 
