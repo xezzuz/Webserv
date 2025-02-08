@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/07 21:44:39 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 15:36:49 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,18 @@ std::string		toHex(size_t num)
 
 	ss << std::uppercase << std::hex << num;
 	return (ss.str());
+}
+
+void	capitalize(std::string& word)
+{
+	size_t pos = 0;
+	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
+
+	while ((pos = word.find_first_of(alpha, pos)) != std::string::npos)
+	{
+		word[pos++] -= 32;
+		pos = word.find_first_not_of(alpha, pos);
+	}
 }
 
 // #include <arpa/inet.h>

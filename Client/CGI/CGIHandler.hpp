@@ -38,8 +38,8 @@ public:
 	std::vector<std::string>	headersToEnv();
 	void						buildEnv();
 
-	bool	parseCGIHeaders();
-	void	generateCGIHeaders();
+	void	processCGIHeaders(std::map<std::string, std::string>& headersMap);
+	void	parseCGIHeaders();
 
 	void	readChunked();
 	void	readLength();

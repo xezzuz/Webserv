@@ -4,9 +4,10 @@ import html
 
 # Print HTTP headers
 # print("Content-Length: 40\r\n", end="")
-print("Status: 302 Found\r\n", end="")
+# print("Status: 302 Found\r\n", end="")
 print("Content-Type: text/html\r\n", end="")
-print("Location: http://localhost:8080/index.html\r\n\r\n", end="")
+print("HElLO-WslorRd: GoodBye\r\n\r\n", end="")
+# print("Location: http://localhost:8080/index.html\r\n\r\n", end="")
 
 # # Get query parameters
 # form = cgi.FieldStorage()

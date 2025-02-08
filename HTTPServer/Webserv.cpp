@@ -10,18 +10,14 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 
 void print_epoll_events(uint32_t events)
 {
-	printf("Events: ");
-
-	if (events & EPOLLIN)  std::cerr << "EPOLLIN ";
-	if (events & EPOLLOUT) std::cerr << "EPOLLOUT ";
-	if (events & EPOLLRDHUP) std::cerr << "EPOLLRDHUP ";
-	if (events & EPOLLPRI) std::cerr << "EPOLLPRI ";
-	if (events & EPOLLERR) std::cerr << "EPOLLERR ";
-	if (events & EPOLLHUP) std::cerr << "EPOLLHUP ";
-	if (events & EPOLLET) std::cerr << "EPOLLET ";
-	if (events & EPOLLONESHOT) std::cerr << "EPOLLONESHOT ";
-
-	std::cerr << std::endl;
+	if (events & EPOLLIN)  std::cout << "EPOLLIN ";
+	if (events & EPOLLOUT) std::cout << "EPOLLOUT ";
+	if (events & EPOLLRDHUP) std::cout << "EPOLLRDHUP ";
+	if (events & EPOLLPRI) std::cout << "EPOLLPRI ";
+	if (events & EPOLLERR) std::cout << "EPOLLERR ";
+	if (events & EPOLLHUP) std::cout << "EPOLLHUP ";
+	if (events & EPOLLET) std::cout << "EPOLLET ";
+	if (events & EPOLLONESHOT) std::cout << "EPOLLONESHOT ";
 }
 
 void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
@@ -173,9 +169,12 @@ void	Webserv::run()
 	{
 		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
 
-		std::cout << "EVENT_COUNT: " << eventCount << std::endl;
+		std::cout << "EVENT_COUNT (" << eventCount << ") :";
 		for (int i = 0; i < eventCount; i++)
+		{
 			print_epoll_events(events[i].events);
+		}
+		std::cout << std::endl;
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);

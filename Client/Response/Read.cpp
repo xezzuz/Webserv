@@ -65,6 +65,7 @@ void	Response::readRange()
 	else if (bytesRead > 0)
 	{
 		buffer.append(std::string(buf, bytesRead));
+		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		reqCtx->rangeData.current->rangeLength -= bytesRead;
 		state = WRITE;
 		if (reqCtx->rangeData.current->rangeLength == 0)
@@ -87,6 +88,7 @@ void	Response::readBody()
 	{
 		if (bodyFile.peek() == EOF)
 			nextState = DONE;
+		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		buffer.append(std::string(buf, bytesRead));
 		state = WRITE;
 	}

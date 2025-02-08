@@ -155,9 +155,10 @@ bool	Response::sendHeaders()
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	std::cout << "__________HEADERS SENT_____________" << std::endl;
-	std::cout << headers;
-	std::cout << "___________________________________" << std::endl;
+	std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
+	// std::cout << "__________HEADERS SENT_____________" << std::endl;
+	// std::cout << headers;
+	// std::cout << "___________________________________" << std::endl;
 	headers.erase(0, bytesSent);
 	if (headers.empty())
 		sender = &Response::sendBody;
@@ -171,9 +172,10 @@ bool	Response::sendBody()
 	{
 		throw(FatalError(strerror(errno)));
 	}
-	std::cout << "__________BODY SENT__" << bytesSent << "___________" << std::endl;
-	std::cout << buffer;
-	std::cout << "________________________________" << std::endl;
+	std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
+	// std::cout << "__________BODY SENT__" << bytesSent << "___________" << std::endl;
+	// std::cout << buffer;
+	// std::cout << "________________________________" << std::endl;
 	buffer.erase(0, bytesSent);
 	return (buffer.empty());
 }

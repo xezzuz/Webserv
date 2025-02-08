@@ -48,8 +48,8 @@ void	ClientHandler::createResponse()
 		cgifd = cgi->getFd();
 		cgi->setup();
 		std::cout << "CGI FD IS: " << cgifd << std::endl;
-		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP); ///////
-		HTTPserver->updateHandler(socket, EPOLLHUP); ////// CHECKKKKKK
+		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
+		HTTPserver->updateHandler(socket, EPOLLHUP);
 		this->response = cgi;
 	}
 	else

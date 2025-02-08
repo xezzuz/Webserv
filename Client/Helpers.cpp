@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 12:04:41 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 16:14:27 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ void						setRequestedResourceType(std::string& requestedResource, RequestData& 
 	size_t			pos;
 	struct stat		pathStats;
 
-	std::cout << "REQUESTED R   ESOURCES"<<  requestedResource << std::endl;
 	while (!requestedResource.empty()) {
 		pos = requestedResource.find('/', 1);
 		_RequestData.fullPath += requestedResource.substr(0, pos);

@@ -8,55 +8,27 @@
 #include <string>
 
 #include <iostream>
-
-class Response {
-public:
-    // Define a function pointer type for Response class
-    void (Response::*reader)();
-
-    // Constructor
-    Response() : reader(nullptr) {}
-
-	void resRead(){
-		std::cout << "res Read" << std::endl;
-	}
-    // Set function pointer
-    void setFunction(void (Response::*func)()) {
-        reader = func;
-    }
-
-    // Call function through the pointer
-    void callFunction() {
-        if (reader) {
-            (this->*reader)();
-        } else {
-            std::cout << "No function assigned.\n";
-        }
-    }
-};
-
-class CGIHandler : public Response
+void	capitalize(std::string& word)
 {
-public:
-	CGIHandler()
+	size_t pos = 0;
+	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
+
+	while ((pos = word.find_first_of(alpha, pos)) != std::string::npos)
 	{
-		reader = reinterpret_cast<void (Response::*)()>(&CGIHandler::readCgi);
+		word[pos++] -= 32;
+		pos = word.find_first_not_of(alpha, pos);
 	}
-    void readCgi() {
-        std::cout << "CGIHandler readCgi function\n";
-    }
-};
+}
 
 int main()
 {
-    Response response;
-    CGIHandler cgiHandler;
+    std::string key = "hello-wslorrd-a";
 
-    // Cast the function pointer from CGIHandler to Response
-    // response.setFunction(reinterpret_cast<void (Response::*)()>(&CGIHandler::readCgi));
-
-    // Now call the function (this would ideally work if set up properly)
-    cgiHandler.callFunction();
+	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
+	std::cout << key.find_first_not_of(alpha, 0) << std::endl;
+	std::cout << key << std::endl;
+	capitalize(key);
+	std::cout << key << std::endl;
 
     return 0;
 }

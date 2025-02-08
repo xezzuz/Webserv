@@ -41,6 +41,7 @@ std::string		_toString(unsigned long num);
 bool			rootJail(const std::string& uri);
 std::string		generateRandomString( void );
 bool			allDigit(std::string str);
+void			capitalize(std::string& word);
 std::string		toHex(size_t num);
 
 #endif

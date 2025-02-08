@@ -10,7 +10,7 @@ CGIHandler::~CGIHandler()
 		kill(pid, SIGTERM);
 }
 
-CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : Response(clientSocket, data), outfd(-1), infd(-1), pid(0), CGIState(LENGTH)
+CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : Response(clientSocket, data), outfd(-1), infd(-1), pid(0), parseBool(true), CGIState(LENGTH)
 {
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
@@ -112,28 +112,81 @@ int	CGIHandler::setup()
 		}
 	}
 	close(infd);
-	// char buf[1024];
-	// read(outfd, buf, 1024);
-	// std::cout << "--------" << buf << "-------" << std::endl;
 	return (outfd);
 }
 
-// void	processHeaders()
-// {
-// 	std::stringstream header(buffer);
-// 	std::string field;
+void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMap)
+{
+	if (headersMap.find("content-type") != headersMap.end())
+	{
+		headers.append("\r\nContent-Type: " + headersMap["content-type"]);
+		headersMap.erase("content-type");
+	}
+	else if (!buffer.empty()) // RFC 3875 section 6.3.1
+	{
+		std::cerr << "[WEBSERV][ERROR]\tContet-Type Header Was Not Found In CGI" << std::endl;
+		throw(500);
+	}
 
-// 	std::map<std::string, std::string>					singleValue;
-// 	std::map<std::string, std::vector<std::string> >	multiValue;
+	if (headersMap.find("content-length") != headersMap.end())
+	{
+		headers.append("\r\nContent-Length: " + headersMap["content-length"]);
+		headersMap.erase("content-length");
+	}
+	else
+	{
+		headers.append("\r\nTransfer-Encoding: chunked");
+		CGIState = CHUNKED;
+	}
 
+	std::string location;
+	if (headersMap.find("location") != headersMap.end())
+	{
+		location = headersMap["location"];
+		if (location.at(0) == '/')
+			throw(CGIRedirectException(location));
+		headersMap.erase("location");
+	}
+	if (headersMap.find("status") != headersMap.end())
+	{
+		std::string statusStr = headersMap["status"];
+		headersMap.erase("status");
 
-// 	while (getline(header, field, '\r'))
-// 	{
-		
-// 	}
-// }
+		size_t numStart = statusStr.find_first_not_of(" \t\f\v");
+		size_t numEnd = statusStr.find_first_of(" \t\f\v", numStart);
+		char *end;
+		std::string numStr = statusStr.substr(numStart, numEnd - numStart);
+		int statusCode = strtoul(numStr.c_str(), &end, 10);
+		if (errno == ERANGE || *end)
+		{
+			std::cerr << "[WEBSERV][ERROR]\tMalformed Status Header In CGI" << std::endl;
+			throw(500);
+		}
+		statusStr.erase(0, numEnd);
+		statusStr = stringtrim(statusStr, " \t\f\v");
+		if (statusCode == 302 && (location.empty() || buffer.empty())) // RFC 3875 section 6.3.3
+		{
+			std::cerr << "[WEBSERV][ERROR]\t302 Status Code With No Location Header" << std::endl;
+			throw(500);
+		}
+		else
+			headers.append("\r\nLocation: " + location);
+		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + statusStr);
+	}
+	else
+		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]);
+	
+	for (std::map<std::string, std::string>::iterator itr = headersMap.begin(); itr != headersMap.end(); itr++)
+	{
+		std::string key = itr->first;
+		capitalize(key);
+		headers.append("\r\n" + key + ": " + itr->second);
+	}
 
-bool	CGIHandler::parseCGIHeaders()
+	headers.append("\r\n\r\n");
+}
+
+void	CGIHandler::parseCGIHeaders()
 {
 	size_t pos = buffer.find("\r\n\r\n");
 	if (pos == std::string::npos)
@@ -183,81 +236,17 @@ bool	CGIHandler::parseCGIHeaders()
 		headersMap[key] = value;
 	}
 
-	if (headersMap.find("content-type") != headersMap.end())
-	{
-		headers.append("\r\nContent-Type: " + headersMap["content-type"]);
-	}
-	else if (!buffer.empty()) // RFC 3875 section 6.3.1
-	{
-		std::cerr << "[WEBSERV][ERROR]\tContet-Type Header Was Not Found In CGI" << std::endl;
-		throw(500);
-	}
-	
-	if (headersMap.find("content-length") != headersMap.end())
-	{
-		headers.append("\r\nContent-Length: " + headersMap["content-length"]);
-	}
-	else
-	{
-		headers.append("\r\nTransfer-Encoding: chunked");
-		CGIState = CHUNKED;
-	}
-	
-	std::string location;
-	if (headersMap.find("location") != headersMap.end())
-	{
-		location = headersMap["location"];
-		if (location.at(0) == '/')
-		{
-			throw(CGIRedirectException(location));
-		}
-	}
-	if (headersMap.find("status") != headersMap.end())
-	{
-		std::string statusStr = headersMap["status"];
-
-		size_t numStart = statusStr.find_first_not_of(" \t\f\v");
-		size_t numEnd = statusStr.find_first_of(" \t\f\v", numStart);
-		char *end;
-		std::string numStr = statusStr.substr(numStart, numEnd - numStart);
-		int statusCode = strtoul(numStr.c_str(), &end, 10);
-		if (errno == ERANGE || *end)
-		{
-			std::cerr << "[WEBSERV][ERROR]\tMalformed Status Header In CGI" << std::endl;
-			throw(500);
-		}
-		statusStr.erase(0, numEnd);
-		statusStr = stringtrim(statusStr, " \t\f\v");
-		if (statusCode == 302 && location.empty()) // RFC 3875 section 6.3.3
-		{
-			std::cerr << "[WEBSERV][ERROR]\t302 Status Code With No Location Header" << std::endl;
-			throw(500);
-		}
-		else
-			headers.append("\r\nLocation: " + location);
-		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + statusStr);
-	}
-	else
-		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]);
-
-	// for (std::map<std::string, std::string>::iterator itr = headersMap.begin(); itr != headersMap.end(); itr++)
-	// {
-
-	// }
-	headers.append("\r\n\r\n");
+	processCGIHeaders(headersMap);
+	parseBool = false;
 	std::cout << "_______" << std::endl;
 	std::cout << headers ;
 	std::cout << "_______" << std::endl;
-	// state = WRITE;
-	parseBool = false;
-	return (true);
 }
 
 void		CGIHandler::readChunked()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
-	std::cout << "BYTEST_READ_CGI" << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -266,14 +255,12 @@ void		CGIHandler::readChunked()
 	{
 		// buffer = std::string(buf, bytesRead);
 		buffer = buildChunk(buf, bytesRead);
+		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		state = WRITE;
 	}
 	else
 	{
 		buffer = buildChunk(NULL, 0);
-		std::cout << "----------------" << std::endl;
-		std::cout << buffer << std::endl;
-		std::cout << "----------------" << std::endl;
 		state = WRITE;
 		nextState = DONE;
 	}
@@ -283,7 +270,6 @@ void		CGIHandler::readLength()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
-	std::cout << "BYTEST_READ_CGI: " << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -291,6 +277,7 @@ void		CGIHandler::readLength()
 	if (bytesRead > 0)
 	{
 		buffer = std::string(buf, bytesRead);
+		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		state = WRITE;
 	}
 	else
@@ -313,8 +300,6 @@ void	CGIHandler::handleEvent(uint32_t events)
 {
 	if ((events & EPOLLIN || events & EPOLLHUP) && state != DONE)
 	{
-		std::cout << "STATE IN HANDLE EVENT: " << state << std::endl;
-		std::cout << "NEXT_STATE IN HANDLE EVENT: " << nextState << std::endl;
 		switch (CGIState)
 		{
 			case CHUNKED:
@@ -335,8 +320,6 @@ void	CGIHandler::handleEvent(uint32_t events)
 
 int		CGIHandler::respond()
 {
-	std::cout << "STATE IN CGIRespond: " << state << std::endl;
-	std::cout << "NEXT_STATE IN CGIRespond: " << nextState << std::endl;
 	switch (state)
 	{
 		case READ:
@@ -346,7 +329,6 @@ int		CGIHandler::respond()
 		case WRITE:
 			if (parseBool)
 				parseCGIHeaders();
-				
 			if ((this->*sender)() == true)
 			{
 				if (buffer.empty())
