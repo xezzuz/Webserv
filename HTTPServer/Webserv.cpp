@@ -47,9 +47,7 @@ void	Webserv::removeHandler(int fd)
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 	{
-		EventHandler	*handler = it->second;
 		handlerMap.erase(it);
-		delete handler;
 	}
 	if (handlerMap.size() == 0)
 	{
@@ -186,6 +184,7 @@ void	Webserv::run()
 					int fd = handler->getFd();
 					std::cerr << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << std::endl;
 					removeHandler(fd);
+					delete handler;
 				}
 				else
 					handler->handleEvent(events[i].events);
@@ -200,6 +199,7 @@ void	Webserv::run()
 			{
 				std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
 				removeHandler(handler->getFd()); // not complete clean up on client and CGI
+				delete handler;
 			}
 		}
 		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;

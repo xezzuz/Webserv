@@ -12,9 +12,8 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : sock
 void	ClientHandler::reset()
 {
 	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
-	deleteResponse();
 	bridgeState = HEADERS;
-	response = NULL;
+	deleteResponse();
 	request = Request(vServers);
 }
 
@@ -23,6 +22,7 @@ void	ClientHandler::remove()
 	std::cerr << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
 	deleteResponse();
 	HTTPserver->removeHandler(socket);
+	delete this;
 }
 
 int	ClientHandler::getSocket() const
@@ -37,8 +37,11 @@ void	ClientHandler::deleteResponse()
 		HTTPserver->removeHandler(cgifd);
 		cgifd = -1;
 	}
-	else if (response)
+	if (response)
+	{
 		delete response;
+		response = NULL;
+	}
 }
 
 void	ClientHandler::createResponse()
@@ -127,8 +130,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 			}
 			catch (CGIRedirectException& redirect)
 			{
-				HTTPserver->removeHandler(cgifd);
-				
+				deleteResponse();
 				decodeAbsPath(redirect.location, *request.getRequestData());
 				createResponse();
 			}
