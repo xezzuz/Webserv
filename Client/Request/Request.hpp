@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 18:05:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 18:07:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,28 +34,28 @@ enum e_parsingState {
 	REQUEST_FINISHED
 };
 
-enum RangeState
+enum e_RangeState
 {
 	NEXT,
 	GET
 };
 
-struct Range
+typedef	struct								Range
 {
-	std::pair<int, int> range;
-	std::string			header;
-	size_t				rangeLength;
-	bool				headerSent;
+	std::pair<int, int>						range;
+	std::string								header;
+	size_t									rangeLength;
+	bool									headerSent;
 	Range() : headerSent(false) {}
-};
+}											Range;
 
-struct RangeData
+typedef struct								RangeData
 {
-	std::vector<Range>				ranges;
-	std::vector<Range>::iterator	current;
-	std::string						boundary;
-	enum RangeState					rangeState;
-};
+	std::vector<Range>						ranges;
+	std::vector<Range>::iterator			current;
+	std::string								boundary;
+	e_RangeState							rangeState;
+}											RangeData;
 
 typedef struct								RequestData {
 	/*					  BOOLEANS  				*/
