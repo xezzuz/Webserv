@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/07 23:14:58 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 12:04:41 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,20 @@ void						handleFileResource(const std::string& path_info, RequestData& _Request
 	}
 	else if (!path_info.empty())
 		throw(404);
+}
+
+
+void			decodeAbsPath(const std::string absPath, RequestData& _RequestData) {
+	_RequestData.fullPath.clear();
+	
+	std::string	requestedResource = absPath;
+
+	setQueryString(requestedResource, _RequestData);
+	setRequestedResourceType(requestedResource, _RequestData);
+	if (_RequestData.isDir)
+		handleDirectoryResource(_RequestData);
+	if (!_RequestData.isDir)
+		handleFileResource(requestedResource, _RequestData);
 }
 
 void			fillRequestData(const std::string URI, RequestData& _RequestData) {

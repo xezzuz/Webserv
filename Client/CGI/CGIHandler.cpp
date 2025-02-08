@@ -173,7 +173,6 @@ bool	CGIHandler::parseCGIHeaders()
 		}
 		std::string key = stringtolower(field.substr(0, pos));
 		std::string value = stringtrim(field.substr(pos + 1), " \t\v\f");
-		std::cout << key << std::endl;
 		if (value.empty())
 			continue ; // RFC 3875 section 6.3
 		if (key.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-") != std::string::npos)
@@ -220,7 +219,8 @@ bool	CGIHandler::parseCGIHeaders()
 		size_t numStart = statusStr.find_first_not_of(" \t\f\v");
 		size_t numEnd = statusStr.find_first_of(" \t\f\v", numStart);
 		char *end;
-		int statusCode = strtoul(statusStr.substr(numStart, numEnd).c_str(), &end, 10);
+		std::string numStr = statusStr.substr(numStart, numEnd - numStart);
+		int statusCode = strtoul(numStr.c_str(), &end, 10);
 		if (errno == ERANGE || *end)
 		{
 			std::cerr << "[WEBSERV][ERROR]\tMalformed Status Header In CGI" << std::endl;
@@ -257,7 +257,7 @@ void		CGIHandler::readChunked()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
-	std::cout << bytesRead << std::endl;
+	std::cout << "BYTEST_READ_CGI" << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -283,7 +283,7 @@ void		CGIHandler::readLength()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
-	std::cout << bytesRead << std::endl;
+	std::cout << "BYTEST_READ_CGI" << bytesRead << std::endl;
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -311,11 +311,10 @@ int		CGIHandler::feedCgi(const char *buf)
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	if (events & EPOLLIN || events & EPOLLHUP)
+	if ((events & EPOLLIN || events & EPOLLHUP) && state != DONE)
 	{
 		std::cout << "STATE IN HANDLE EVENT: " << state << std::endl;
-		std::cout << "EVENTS EPOLLIN : " << (events & EPOLLIN) << std::endl;
-		std::cout << "EVENTS EPOLLHUP : " << (events & EPOLLHUP) << std::endl;
+		std::cout << "NEXT_STATE IN HANDLE EVENT: " << nextState << std::endl;
 		switch (CGIState)
 		{
 			case CHUNKED:
@@ -337,6 +336,7 @@ void	CGIHandler::handleEvent(uint32_t events)
 int		CGIHandler::respond()
 {
 	std::cout << "STATE IN CGIRespond: " << state << std::endl;
+	std::cout << "NEXT_STATE IN CGIRespond: " << nextState << std::endl;
 	switch (state)
 	{
 		case READ:

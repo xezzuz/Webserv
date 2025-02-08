@@ -27,6 +27,7 @@ public:
 	void 	handleRequest();
 	void 	handleResponse();
 	void	createResponse();
+	void	deleteResponse();
 	void	handleEvent(uint32_t events);
 	int		getFd() const
 	{
@@ -48,5 +49,6 @@ private:
 };
 
 void			fillRequestData(const std::string URI, RequestData& _RequestData);
+void			decodeAbsPath(const std::string ABSPATH, RequestData& _RequestData);
 
 #endif
