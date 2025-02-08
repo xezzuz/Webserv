@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 18:35:10 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 16:45:59 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,9 @@
 # define REQUEST_BUFFER_SIZE 16000
 
 enum e_parsingState {
-	PARSING_INIT,		// 0
-	HEADERS_RECEIVED,	// 1
-	HEADERS_FINISHED,	// 2
-	BODY_RECEIVED,		// 3
-	BODY_FINISHED,		// 4
-	PARSING_FINISHED	// 5
+	REQUEST_INIT,
+	REQUEST_HEADERS,
+	REQUEST_FINISHED
 };
 
 enum RangeState
@@ -96,51 +93,6 @@ typedef struct								RequestData {
 	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {}
 }											RequestData;
 
-// typedef	struct								RequestData {
-//     // int                                    status;
-//     // std::string                            method;
-//     // std::string                            uri;
-//     // std::string                            path;
-//     // std::string                            queryString;
-//     // std::string                            pathInfo;
-//     // std::string                            scriptName;
-//     // bool                                	isCGI;
-//     // bool                                	isDir;
-//     // bool                                	isRange;
-//     // bool                                	keepAlive;
-//     // RangeData                    			rangeData;
-//     // std::string                            content_type;
-//     // size_t                                content_length;
-//     // std::map<std::string, std::string>    requestHeaders;
-//     // Directives                            config;
-// };
-
-// typedef struct								s_requestline {
-// 	std::string								rawRequestLine;
-// 	std::string								method;
-// 	std::string								uri;
-// 	std::string								httpversion;
-// 	// std::string								query;
-// }											t_requestline;
-
-// typedef struct								s_header {
-// 	std::vector<std::string>				rawHeaders;
-// 	std::map<std::string, std::string>		headersMap;
-// 	std::string								host;
-// 	std::string								contentType;
-// 	std::string								connection;
-// 	std::string								transferEncoding;
-// 	// std::string								contentLength;
-// }											t_header;
-
-// typedef struct								s_body {
-// 	std::string								rawBody;
-// 	std::string								boundaryBegin;
-// 	std::string								boundaryEnd;
-// 	int										bodySize;
-// 	int										contentLength;
-// }											t_body;
-
 typedef	struct								RequestRaws {
 	std::string								rawRequestLine;
 	std::vector<std::string>				rawHeaders;
@@ -181,7 +133,7 @@ class Request {
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 
-		int							receiveRequest(int socket);
+		int							recvRequest(int clientSocket);
 		bool						printParsedRequest();
 
 		bool						bufferContainHeaders();
@@ -226,14 +178,14 @@ class Request {
 		bool						isValidURI(const std::string& uri);
 		bool						isValidHTTPVersion(const std::string& httpversion);
 		
-		void						processRequestData();
-		void						decodeURL(std::string URL);
-		void						resolveRootAlias(std::string& requestedResource);
-		void						setQueryString(std::string& requestedResource);
-		void						setRequestedResourceType(std::string& requestedResource);
-		void						handleDirectoryResource();
-		void						handleFileResource(const std::string& path_info);
-		bool						extensionIsCGI(const std::string& extension);
+		// void						processRequestData();
+		// void						decodeURL(std::string URL);
+		// void						resolveRootAlias(std::string& requestedResource);
+		// void						setQueryString(std::string& requestedResource);
+		// void						setRequestedResourceType(std::string& requestedResource);
+		// void						handleDirectoryResource();
+		// void						handleFileResource(const std::string& path_info);
+		// bool						extensionIsCGI(const std::string& extension);
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();

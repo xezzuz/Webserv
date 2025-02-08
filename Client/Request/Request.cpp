@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 18:04:29 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 16:47:01 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
 	isMultipart = false;
-	pState = PARSING_INIT;
+	pState = REQUEST_INIT;
 	
 	_RequestRaws.bodySize = 0;
 	_RequestRaws.contentLength = -1;
@@ -61,15 +61,3 @@ Request&	Request::operator=(const Request& rhs)
 int&						Request::getStatusCode() {
 	return this->statusCode;
 }
-
-// t_body&						Request::getBodySt() {
-// 	return this->body;
-// }
-
-// t_header&					Request::getHeaderSt() {
-// 	return this->header;
-// }
-
-// t_requestline&				Request::getRequestLineSt() {
-// 	return this->requestLine;
-// }

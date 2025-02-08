@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 16:14:05 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/08 16:47:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,9 +264,9 @@ bool			Request::parseRequestLineAndHeaders() {
 	setMatchingConfig();
 	fillRequestData(_RequestData.URI, _RequestData);
 	std::cout << "status code : " << statusCode << std::endl;
-	if (statusCode == 200)
-		pState = HEADERS_FINISHED;
-	else
-		pState = PARSING_FINISHED;
+	// if (statusCode == 200)
+	// 	pState = HEADERS_FINISHED;
+	// else
+	// 	pState = PARSING_FINISHED;
 	return true;
 }

@@ -62,7 +62,7 @@ void	ClientHandler::createResponse()
 
 void 	ClientHandler::handleRequest()
 {
-	int reqState = request.receiveRequest(socket);
+	int reqState = request.recvRequest(socket);
 	// switch (st)
 	// {
 	// 	HEader:
@@ -75,7 +75,7 @@ void 	ClientHandler::handleRequest()
 	// 	BODY:
 	// 		res.receiv();
 	// }
-	if (reqState == PARSING_FINISHED)
+	if (reqState == REQUEST_FINISHED)
 	{
 		createResponse();
 	}
