@@ -7,7 +7,7 @@ ClientHandler::~ClientHandler()
 	deleteResponse();
 }
 
-ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false) {}
+ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false), bridgeState(HEADERS) {}
 
 void	ClientHandler::reset()
 {
@@ -62,27 +62,52 @@ void	ClientHandler::createResponse()
 
 void 	ClientHandler::handleRequest()
 {
-	int reqState = request.recvRequest(socket);
-	// switch (st)
-	// {
-	// 	HEader:
-	// 		rState = req.reciev();
-	// 		if (finished)
-	// 		{
-
-	// 			st = BODY;
-	// 		}
-	// 	BODY:
-	// 		res.receiv();
-	// }
-	if (reqState == REQUEST_FINISHED)
+	// int reqState = request.recvRequest(socket);
+	if (bridgeState == HEADERS)
 	{
-		createResponse();
+		std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
+		int		rState = request.recvRequest(socket);
+		std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
+		if (rState == REQUEST_FINISHED)
+		{
+			createResponse();
+			bridgeState = BODY;
+		}
+		else if (rState == -1)
+		{
+			std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
+			this->remove();
+		}
 	}
-	else if (reqState == -1) // remove
+	if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
 	{
-		std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
-		this->remove();
+		std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
+
+	}
+
+	// OLD
+	{
+		// switch (st)
+		// {
+		// 	HEader:
+		// 		rState = req.reciev();
+		// 		if (finished)
+		// 		{
+
+		// 			st = BODY;
+		// 		}
+		// 	BODY:
+		// 		res.receiv();
+		// }
+		// if (reqState == REQUEST_FINISHED)
+		// {
+		// 	createResponse();
+		// }
+		// else if (reqState == -1) // remove
+		// {
+		// 	std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
+		// 	this->remove();
+		// }
 	}
 }
 

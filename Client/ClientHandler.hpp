@@ -7,6 +7,11 @@
 # include "Request/Request.hpp"
 # include <iostream>
 
+enum e_bridgeState {
+	HEADERS = 1,
+	BODY = 2
+};
+
 class ClientHandler : public EventHandler
 {
 public:
@@ -45,6 +50,7 @@ private:
 	
 	int							cgifd;
 	bool						keepAlive;
+	e_bridgeState				bridgeState;
 	
 };
 
