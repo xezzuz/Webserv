@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 16:45:59 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 17:00:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ class Request {
 
 		/*				STATE FLAGS				*/
 		e_parsingState					pState;
-		int								statusCode;
+		// int								statusCode;
 	
 	public:
 		Request(std::vector<ServerConfig>& vServers);

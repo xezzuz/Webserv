@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 16:47:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 17:02:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,12 @@ bool			Request::isValidMethod(const std::string& method) {
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
 		std::cout << "METHOD >>>> " << method << std::endl;
-		return (setStatusCode(405), false);
+		setStatusCode(405), throw (405);
+		// return (setStatusCode(405), false);
 	}
 	if (method == "DELETE")
-		statusCode = 204;
+		_RequestData.StatusCode = 204;
+		// statusCode = 204;
 	return true;
 }
 
@@ -83,22 +85,26 @@ bool			Request::isValidURI(const std::string& uri)
 	if (uri.size() > 2048)
 		return (setStatusCode(414), false);
 
-	if (uri[0] != '/')
-	{
-		statusCode = 400;
-		return (false);
+	if (uri[0] != '/') {
+		setStatusCode(400), throw(400);
 	}
+	// {
+	// 	statusCode = 400;
+	// 	return (false);
+	// }
 	std::string	allowedURIChars 
 		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	for (size_t i = 0; i < uri.size(); i++)
 		if (allowedURIChars.find(uri[i]) == std::string::npos)
-			return (setStatusCode(400), false);
+			setStatusCode(400), throw(400);
+			// return (setStatusCode(400), false);
 	return true;
 }
 
 bool			Request::isValidHTTPVersion(const std::string& httpversion) {
 	if (httpversion != "HTTP/1.1")
-		return (setStatusCode(505), false);
+		setStatusCode(505), throw(505);
+		// return (setStatusCode(505), false);
 	return true;
 }
 
@@ -108,17 +114,20 @@ bool			Request::isValidFieldLine(const std::string& fieldline) {
 
 	colonPos = line.find(':');
 	if (colonPos == std::string::npos)
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw(400);
+		// return (setStatusCode(400), false);
 	
 	std::string			fieldName = line.substr(0, colonPos);
 	if (fieldName.empty() || headerExists(fieldName))
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw(400);
+		// return (setStatusCode(400), false);
 	
 	std::string allowedChars 
 		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
 	for (size_t i = 0; i < fieldName.size(); i++)
 		if (allowedChars.find(fieldName[i]) == std::string::npos)
-			return (setStatusCode(400), false);
+			setStatusCode(400), throw(400);
+			// return (setStatusCode(400), false);
 	return true;
 }
 
@@ -175,13 +184,15 @@ bool			Request::parseRequestLine() {
 		if (_RequestRaws.rawRequestLine[i] == ' ')
 			spaceCount++;
 	if (spaceCount != 2)
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw (400);
+		// return (setStatusCode(400), false);
 	while (ss >> token && tokenCount < 3) { // bug here! this allows tabs which goes against HTTP/1.1 RFC
 		tokens[tokenCount++] = token;
 		token = "";
 	}
 	if (!token.empty())
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw (400);
+		// return (setStatusCode(400), false);
 	
 
 	_RequestData.Method = tokens[0];
@@ -201,11 +212,13 @@ bool			Request::storeHeadersInVector() {
 	
 	toParse = extractHeadersFromBuffer();
 	if (toParse.empty())
-		return (setStatusCode(500), false);
+		setStatusCode(500), throw (500);
+		// return (setStatusCode(500), false);
 	while (toParse[opos]) {
 		rpos = toParse.find("\r\n", opos);
 		if (rpos == std::string::npos)
-			return (setStatusCode(400), false);
+			setStatusCode(400), throw (400);
+			// return (setStatusCode(400), false);
 		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
@@ -217,12 +230,14 @@ bool			Request::storeHeadersInVector() {
 
 // this function should be revised against RFC
 bool			Request::validateRequestHeaders() {
-	return (true);
+	return (true); // ??
 	if (!headerExists("host") || _RequestData.host.empty())
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw(400);
+		// return (setStatusCode(400), false);
 	
 	if (!headerExists("connection") || _RequestData.connection.empty())
-		return (setStatusCode(400), false);
+		setStatusCode(400), throw(400);
+		// return (setStatusCode(400), false);
 	else
 		_RequestData.Headers.insert(std::make_pair("connection", "keep-alive"));
 	
@@ -231,20 +246,24 @@ bool			Request::validateRequestHeaders() {
 		bool			TransferEncoding = headerExists("transfer-encoding");
 
 		if (ContentLength == TransferEncoding)
-			return (setStatusCode(400), false);
+			setStatusCode(400), throw(400);
+			// return (setStatusCode(400), false);
 		
 		if (TransferEncoding && _RequestData.transferEncoding == "chunked")
 			isEncoded = true;
 		else if (TransferEncoding && _RequestData.transferEncoding != "chunked")
-			return (setStatusCode(501), false);
+			setStatusCode(501), throw(501);
+			// return (setStatusCode(501), false);
 
 		if (ContentLength && _RequestRaws.contentLength == -1) // && body.contentLength == -1 ???
-			return (setStatusCode(400), false);
+			setStatusCode(400), throw(400);
+			// return (setStatusCode(400), false);
 		
 
 		int pos = _RequestData.contentType.find("multipart/form-data; boundary=") + 30;
 		if (headerExists("content-type") && pos != 30)
-			return (setStatusCode(501), false);
+			setStatusCode(501), throw(501);
+			// return (setStatusCode(501), false);
 		else if (headerExists("content-type") && pos == 30 && _RequestData.contentType[pos])
 			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(pos), _RequestRaws.boundaryEnd = _RequestRaws.boundaryBegin + "--", isMultipart = true;
 	}
@@ -263,7 +282,7 @@ bool			Request::parseRequestLineAndHeaders() {
 		std::cerr << "[ERROR]\tvalidateRequestHeaders();" << std::endl;
 	setMatchingConfig();
 	fillRequestData(_RequestData.URI, _RequestData);
-	std::cout << "status code : " << statusCode << std::endl;
+	std::cout << "Request success => Status Code : " << _RequestData.StatusCode << std::endl;
 	// if (statusCode == 200)
 	// 	pState = HEADERS_FINISHED;
 	// else

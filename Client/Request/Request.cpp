@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 16:47:01 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 17:01:01 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Request::~Request() {}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	statusCode = 200;
+	_RequestData.StatusCode = 200;
 	bufferSize = 0;
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
@@ -53,11 +53,11 @@ Request&	Request::operator=(const Request& rhs)
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
 		pState = rhs.pState;
-		statusCode = rhs.statusCode;
+		// statusCode = rhs.statusCode;
 	}
 	return (*this);
 }
 
-int&						Request::getStatusCode() {
-	return this->statusCode;
-}
+// int&						Request::getStatusCode() {
+// 	return this->statusCode;
+// }

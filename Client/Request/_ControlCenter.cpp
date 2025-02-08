@@ -6,16 +6,16 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 16:49:33 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 17:03:00 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
 void			Request::setStatusCode(int code) {
-	statusCode = code;
-	if (code != 200)
-		pState = REQUEST_FINISHED;
+	_RequestData.StatusCode = code;
+	// if (code != 200)
+	// 	pState = REQUEST_FINISHED;
 }
 
 void			Request::setRequestState() {
