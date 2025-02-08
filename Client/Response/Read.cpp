@@ -54,10 +54,10 @@ void	Response::readRange()
 	size_t readLength = std::min
 	(
 		static_cast<size_t>(SEND_BUFFER_SIZE),
-		reqCtx->rangeData.current->rangeLength
+		rangeData.current->rangeLength
 	);
 	std::cout << "READ LENGTH OF RANGE :" << readLength << std::endl;
-	int bytesRead = bodyFile.read(buf, readLength).gcount();
+	ssize_t bytesRead = bodyFile.read(buf, readLength).gcount();
 	if (bytesRead == -1)
 	{
 		throw(FatalError(strerror(errno)));
@@ -65,13 +65,13 @@ void	Response::readRange()
 	else if (bytesRead > 0)
 	{
 		buffer.append(std::string(buf, bytesRead));
-		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		reqCtx->rangeData.current->rangeLength -= bytesRead;
+		std::cout << YELLOW << "======[(RANGE) READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
+		rangeData.current->rangeLength -= bytesRead;
 		state = WRITE;
-		if (reqCtx->rangeData.current->rangeLength == 0)
+		if (rangeData.current->rangeLength == 0)
 		{
-			reqCtx->rangeData.rangeState = NEXT;
-			reqCtx->rangeData.current++;
+			rangeData.rangeState = NEXT;
+			rangeData.current++;
 		}
 	}
 }
@@ -79,7 +79,7 @@ void	Response::readRange()
 void	Response::readBody()
 {
 	char buf[SEND_BUFFER_SIZE] = {0};
-	int bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
+	ssize_t bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead == -1)
 	{
 		throw (FatalError(strerror(errno)));

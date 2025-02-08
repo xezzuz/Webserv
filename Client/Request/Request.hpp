@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 18:07:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 21:45:54 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,29 +33,6 @@ enum e_parsingState {
 	REQUEST_HEADERS,
 	REQUEST_FINISHED
 };
-
-enum e_RangeState
-{
-	NEXT,
-	GET
-};
-
-typedef	struct								Range
-{
-	std::pair<int, int>						range;
-	std::string								header;
-	size_t									rangeLength;
-	bool									headerSent;
-	Range() : headerSent(false) {}
-}											Range;
-
-typedef struct								RangeData
-{
-	std::vector<Range>						ranges;
-	std::vector<Range>::iterator			current;
-	std::string								boundary;
-	e_RangeState							rangeState;
-}											RangeData;
 
 typedef struct								RequestData {
 	/*					  BOOLEANS  				*/
@@ -87,7 +64,6 @@ typedef struct								RequestData {
 	std::string								matchingLocation;
 
 	std::map<std::string, std::string>		Headers;
-	struct RangeData						rangeData;
 	Directives								*_Config; // ptr
 	
 	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {}

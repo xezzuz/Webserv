@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+         #
+#    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/08 18:36:29 by nazouz           ###   ########.fr        #
+#    Updated: 2025/02/08 21:48:36 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,6 +39,7 @@ SRCS			= 		\
 						./Client/Request/Headers.cpp \
 						./Client/Request/Body.cpp \
 						./Client/Response/Response.cpp \
+						./Client/Response/Range.cpp \
 						./Client/Response/Error.cpp \
 						./Client/Response/Read.cpp \
 						./Client/Response/Headers.cpp \

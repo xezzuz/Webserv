@@ -13,6 +13,30 @@
 
 # define SEND_BUFFER_SIZE 4096
 
+enum e_RangeState
+{
+	NEXT,
+	GET
+};
+
+typedef	struct								Range
+{
+	std::pair<int, int>						range;
+	std::string								header;
+	size_t									rangeLength;
+	bool									headerSent;
+	Range() : headerSent(false) {}
+}											Range;
+
+typedef struct								RangeData
+{
+	std::vector<Range>						ranges;
+	std::vector<Range>::iterator			current;
+	std::string								boundary;
+	e_RangeState							rangeState;
+	RangeData() : rangeState(NEXT) {}
+}											RangeData;
+
 enum State
 {
 	READ,
@@ -71,12 +95,14 @@ protected:
 private:
 
 	void	directoryListing();
+	void	parseRangeHeader();
 	int		rangeContentLength( void );
 	void	handleRange();
 	void	handlePOST( void );
 	void	handleGET( void );
 
-	DIR				*dirList;
+	struct RangeData	rangeData;
+	DIR					*dirList;
 
 	std::map<std::string, std::string>	mimeTypes;
 

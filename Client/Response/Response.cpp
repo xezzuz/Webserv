@@ -88,6 +88,7 @@ Response& Response::operator=(const Response& rhs)
 		buffer = rhs.buffer;
 		sender = rhs.sender;
 		reqCtx = rhs.reqCtx;
+		rangeData = rhs.rangeData;
 		dirList = rhs.dirList;
 		contentType = rhs.contentType;
 		contentLength = rhs.contentLength;
@@ -110,44 +111,6 @@ std::string	Response::buildChunk(const char *data, size_t size) // error
 	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
 }
 
-void	Response::nextRange()
-{
-	if (reqCtx->rangeData.current == reqCtx->rangeData.ranges.end())
-	{
-		if (reqCtx->rangeData.ranges.size() > 1)
-		{
-			buffer = "\r\n--" + reqCtx->rangeData.boundary + "--\r\n";
-			state = WRITE;
-			nextState = DONE;
-		}
-		if (reqCtx->rangeData.ranges.size() == 1)//////// FIIIIX
-		{
-			state = DONE;
-		}
-	}
-	else
-	{
-		// std::cout << "RANGE LENGTH OF INDEX " << reqCtx->rangeData.index << ": " << reqCtx->rangeData.ranges[reqCtx->rangeData.index].rangeLength << std::endl;
-		if (reqCtx->rangeData.ranges.size() > 1)
-			buffer.append(reqCtx->rangeData.current->header);
-		bodyFile.seekg(reqCtx->rangeData.current->range.first, std::ios::beg);
-		reqCtx->rangeData.rangeState = GET;
-	}
-}
-
-void		Response::range()
-{
-	switch (reqCtx->rangeData.rangeState)
-	{
-		case NEXT:
-			nextRange();
-			break;
-		case GET:
-			readRange();
-			break;
-	}
-}
-
 bool	Response::sendHeaders()
 {
 	ssize_t bytesSent = send(socket, headers.c_str(), headers.length(), 0);
@@ -156,9 +119,9 @@ bool	Response::sendHeaders()
 		throw(FatalError(strerror(errno)));
 	}
 	std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
-	// std::cout << "__________HEADERS SENT_____________" << std::endl;
-	// std::cout << headers;
-	// std::cout << "___________________________________" << std::endl;
+	std::cout << "__________HEADERS SENT_____________" << std::endl;
+	std::cout << headers;
+	std::cout << "___________________________________" << std::endl;
 	headers.erase(0, bytesSent);
 	if (headers.empty())
 		sender = &Response::sendBody;
