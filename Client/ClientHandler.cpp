@@ -13,6 +13,7 @@ void	ClientHandler::reset()
 {
 	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
 	deleteResponse();
+	bridgeState = HEADERS;
 	response = NULL;
 	request = Request(vServers);
 }
@@ -79,10 +80,18 @@ void 	ClientHandler::handleRequest()
 			this->remove();
 		}
 	}
-	if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
+	else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
 	{
 		std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
-
+		// char buf[16000];
+		// int bytesRead = read(socket, buf, 16000);
+		// if (bytesRead == -1)
+		// {
+		// 	std::cerr << " ERROROARORORO ::: " << strerror(errno) << std::endl;
+		// }
+		// std::cout << "BYTES_READ ON BODY => " << bytesRead << std::endl; 
+		// buf[bytesRead] = '\0';
+		// std::cout << "DATA_READ ON BODY => " << buf;
 	}
 
 	// OLD
@@ -144,7 +153,6 @@ void	ClientHandler::handleEvent(uint32_t events)
 			catch (CGIRedirectException& redirect)
 			{
 				HTTPserver->removeHandler(cgifd);
-				this->response = new Response(socket, request.getRequestData());
 				
 				decodeAbsPath(redirect.location, *request.getRequestData());
 				createResponse();

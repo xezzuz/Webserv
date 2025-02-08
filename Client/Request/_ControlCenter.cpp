@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 17:03:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/08 17:30:40 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void			Request::setStatusCode(int code) {
 void			Request::setRequestState() {
 	if (REQUEST_INIT == pState && bufferContainHeaders())
 		pState = REQUEST_HEADERS;
-	else if (REQUEST_HEADERS)
+	else if (REQUEST_HEADERS == pState)
 		pState = REQUEST_FINISHED;
 	
 	{
