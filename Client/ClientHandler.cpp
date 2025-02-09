@@ -51,7 +51,7 @@ void	ClientHandler::createResponse()
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgifd = cgi->getFd();
 		cgi->setup();
-		std::cout << "CGI FD IS: " << cgifd << std::endl;
+		// std::cout << "CGI FD IS: " << cgifd << std::endl;
 		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
 		HTTPserver->updateHandler(socket, EPOLLHUP);
 		this->response = cgi;
@@ -68,24 +68,19 @@ void 	ClientHandler::handleRequest()
 {
 	if (bridgeState == HEADERS)
 	{
-		std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
+		// std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
 		int		rState = request.feedRequest(socket);
-		std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
+		// std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
 		if (rState == REQUEST_FINISHED)
 		{
 			createResponse();
 			bridgeState = BODY;
 		}
-		else if (rState == -1)
-		{
-			std::cerr << "ERROR>>>>>>>>>>>>>>>>>>>>>>>." << std::endl;
-			this->remove();
-		}
 	}
 	else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
 	{
 		// int		rState = response.feedResponse(socket);
-		std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
+		// std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
 		// char buf[16000];
 		// int bytesRead = read(socket, buf, 16000);
 		// if (bytesRead == -1)
@@ -102,7 +97,7 @@ void 	ClientHandler::handleResponse()
 {
 	if (response->respond() == 1)
 	{
-		std::cout << "[WEBSERV]\tCLIENT SERVED" << std::endl;
+		std::cout << GREEN << "[WEBSERV][CLIENT-" + _toString(socket) + "]\tCLIENT SERVED" << RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
 			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
@@ -142,5 +137,9 @@ void	ClientHandler::handleEvent(uint32_t events)
 		this->response = new Response(socket, request.getRequestData());
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		response->generateErrorPage(status);
+	}
+	if (events & EPOLLHUP)
+	{
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
 	}
 }

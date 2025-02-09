@@ -1,11 +1,11 @@
 #include "Error.hpp"
 #include "Response.hpp"
 
-FatalError::FatalError(const char *msg) : msg(msg) {}
+Disconnect::Disconnect(std::string msg) : msg(msg) {}
 
-const char *FatalError::what() const throw()
+const char *Disconnect::what() const throw()
 {
-	return (msg);
+	return (msg.c_str());
 }
 
 CGIRedirectException::~CGIRedirectException() throw() {}
@@ -42,7 +42,6 @@ void	Response::generateErrorPage(int& status)
 		headers.append("\r\nContent-Type: " + getContentType(reqCtx->fullPath, mimeTypes));
 		headers.append("\r\nContent-Length: " + _toString(fileLength(reqCtx->fullPath)));
 		headers.append("\r\n\r\n");
-		nextState = READ; // remove it is obselete
 	}
 	catch (int& newStatus)
 	{
@@ -62,6 +61,5 @@ void	Response::generateErrorPage(int& status)
 		nextState = DONE;
 	}
 
-	headers.insert(0, "HTTP/1.1 " + _toString(status) + " " + statusCodes[status]) ; // status line
-	// std::cout << headers << std::endl;
+	headers.insert(0, "HTTP/1.1 " + _toString(status) + " " + statusCodes[status]);
 }

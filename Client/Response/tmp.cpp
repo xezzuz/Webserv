@@ -152,7 +152,7 @@
 // 	int bytesRead = bodyFile.read(buf, readLength).gcount();
 // 	if (bytesRead == -1)
 // 	{
-// 		throw(FatalError(strerror(errno)));
+		// throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 // 	}
 // 	else if (bytesRead > 0)
 // 	{

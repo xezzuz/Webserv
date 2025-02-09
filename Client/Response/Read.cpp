@@ -60,7 +60,7 @@ void	Response::readRange()
 	ssize_t bytesRead = bodyFile.read(buf, readLength).gcount();
 	if (bytesRead == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{
@@ -82,7 +82,7 @@ void	Response::readBody()
 	ssize_t bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead == -1)
 	{
-		throw (FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{

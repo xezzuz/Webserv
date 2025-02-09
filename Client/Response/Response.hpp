@@ -55,25 +55,15 @@ public:
 	Response(const Response& rhs);
 	Response& operator=(const Response& rhs);
 
-	// this is for stack Response
-	// void	setPath(const std::string& path);
-	// void	setFunc(const enum Operation& op);
-	// void	setRange(const RangeData& data);
-	void	setSocket(int& clientSocket);
-	void	setContext(struct RequestData *ctx);
-
+	void	generateErrorPage(int& status);
+	void	generateHeaders( void );
+	void	receiveBody( void );
 
 
 	std::string	buildChunk(const char *data, size_t size);
-	void		initDirList();
 
-	void	readBody();
-	void	nextRange();
-	void	readRange();
-	void	range();
 
-	void	generateErrorPage(int& status);
-	void	generateHeaders( void );
+	void	handlePOST( void );
 	bool	sendHeaders();
 	bool	sendBody();
 
@@ -94,11 +84,17 @@ protected:
 
 private:
 
-	void	directoryListing();
-	void	parseRangeHeader();
 	int		rangeContentLength( void );
+	void	parseRangeHeader();
+	void	nextRange();
+	void	readRange();
+	void	range();
+	void	readBody();
+
+	void	directoryListing();
+	void	initDirList();
+	
 	void	handleRange();
-	void	handlePOST( void );
 	void	handleGET( void );
 
 	struct RangeData	rangeData;

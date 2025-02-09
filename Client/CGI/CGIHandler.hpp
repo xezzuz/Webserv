@@ -13,7 +13,7 @@ enum CGIState
 	LENGTH
 };
 
-class FatalError;
+class Disconnect;
 
 class CGIHandler : public EventHandler, public Response
 {

@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 18:08:59 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/09 15:28:11 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "../Response/Error.hpp"
 
 void			Request::setStatusCode(int code) {
 	_RequestData.StatusCode = code;
@@ -63,21 +64,14 @@ int				Request::feedRequest(int clientSocket) {
 		buffer += std::string(buf, bytesReceived);
 		bufferSize += bytesReceived;
 		parseControlCenter();
-		return (pState);
-		
 	}
 	else if (bytesReceived == 0) { // this is for graceful shutdown (client closes the connection willingly)
-		std::cout << "[SERVER]\tClient " << clientSocket
-				<< " disconnected..." << std::endl;
-		
-		return (-1);
+		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] CLOSED CONNECTION"));
 	}
 	else {
-		std::cerr << "[ERROR]\tReceiving failed..." << std::endl;
-		std::cerr << "[ERROR]\t";
-		perror("recv");
-		return (-1);
+		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] recv: " + strerror(errno)));
 	}
+	return (pState);
 }
 
 // PARSING CONTROL CENTER

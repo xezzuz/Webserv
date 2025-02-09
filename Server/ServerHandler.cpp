@@ -37,5 +37,8 @@ void	ServerHandler::handleEvent(uint32_t events)
 
 		std::cout << "[SERVER]\tClient Connected To Socket " << clientSocket << "..." << std::endl;
 	}
-	// should we check on other event such as errors?
+	else if (events & EPOLLHUP)
+	{
+		throw(Disconnect("[SERVER-" + _toString(socket) + "] SHUTDOWN"));
+	}
 }

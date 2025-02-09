@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 17:02:29 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/09 14:54:41 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,19 +64,14 @@ bool			Request::decodeURI() {
 }
 
 bool			Request::isValidMethod(const std::string& method) {
-	// if (method != "GET" && method != "POST" && method != "DELETE" &&
-	// 	method != "HEAD" && method != "PUT" && method != "CONNECT" &&
-	// 	method != "OPTIONS" && method != "TRACE" && method != "PATCH")
-	// 	return false;
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
 		std::cout << "METHOD >>>> " << method << std::endl;
-		setStatusCode(405), throw (405);
+		setStatusCode(501), throw (501);
 		// return (setStatusCode(405), false);
 	}
-	if (method == "DELETE")
-		_RequestData.StatusCode = 204;
-		// statusCode = 204;
+	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), method) == _RequestData._Config->methods.end())
+		throw(405);
 	return true;
 }
 

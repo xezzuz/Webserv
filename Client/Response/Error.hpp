@@ -6,15 +6,16 @@
 #include "../../Utils/Helpers.hpp"
 #include "Response.hpp"
 
-class FatalError : public std::exception
+class Disconnect : public std::exception
 {
 public:
-	FatalError(const char *msg);
+	virtual ~Disconnect() throw() {}
+	Disconnect(std::string msg);
 
 	virtual const char *what() const throw();
 
 private:
-	const char	*msg;
+	std::string	msg;
 };
 
 class CGIRedirectException : public std::exception

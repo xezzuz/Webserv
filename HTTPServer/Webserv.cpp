@@ -188,16 +188,10 @@ void	Webserv::run()
 				}
 				else
 					handler->handleEvent(events[i].events);
-				// else if (events[i].events & EPOLLHUP)
-				// {
-				// 	int fd = handler->getFd();
-				// 	std::cerr << "[WEBSERV]\t Client Disconnected..." << fd << std::endl;
-				// 	removeHandler(fd);
-				// }
 			}
-			catch (FatalError& err)
+			catch (Disconnect& e)
 			{
-				std::cerr << "[WEBSERV][ERROR]\t" << err.what() << std::endl;
+				std::cerr << "[WEBSERV][DISCONNECT]" << e.what() << std::endl;
 				removeHandler(handler->getFd()); // not complete clean up on client and CGI
 				delete handler;
 			}

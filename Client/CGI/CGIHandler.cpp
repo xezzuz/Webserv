@@ -14,7 +14,7 @@ CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : Response(clientSo
 {
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] pipe: " + strerror(errno)));
 	outfd = pipe_fd[0];
 	infd = pipe_fd[1];
 	// state = PARSE;
@@ -66,7 +66,7 @@ int	CGIHandler::setup()
 	{
 		close(outfd);
 		close(infd);
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] fork: " + strerror(errno)));
 
 	}
 	else if (pid == 0)
@@ -249,7 +249,7 @@ void		CGIHandler::readChunked()
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 	}
 	if (bytesRead > 0)
 	{
@@ -272,7 +272,7 @@ void		CGIHandler::readLength()
 	int		bytesRead = read(outfd, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 	}
 	if (bytesRead > 0)
 	{
@@ -291,7 +291,7 @@ int		CGIHandler::feedCgi(const char *buf)
 	int		bytesWritten = write(infd, buf, SEND_BUFFER_SIZE);
 	if (bytesWritten == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] write: " + strerror(errno)));
 	}
 	return (bytesWritten);
 }

@@ -96,16 +96,6 @@ Response& Response::operator=(const Response& rhs)
 	return (*this);
 }
 
-void	Response::setContext(struct RequestData	*ctx)
-{
-	reqCtx = ctx;
-}
-
-void	Response::setSocket(int& clientSocket)
-{
-	socket = clientSocket;
-}
-
 std::string	Response::buildChunk(const char *data, size_t size) // error
 {
 	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
@@ -116,12 +106,12 @@ bool	Response::sendHeaders()
 	ssize_t bytesSent = send(socket, headers.c_str(), headers.length(), 0);
 	if (bytesSent == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 	}
-	std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
-	std::cout << "__________HEADERS SENT_____________" << std::endl;
-	std::cout << headers;
-	std::cout << "___________________________________" << std::endl;
+	// std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
+	// std::cout << "__________HEADERS SENT_____________" << std::endl;
+	// std::cout << headers;
+	// std::cout << "___________________________________" << std::endl;
 	headers.erase(0, bytesSent);
 	if (headers.empty())
 		sender = &Response::sendBody;
@@ -133,9 +123,9 @@ bool	Response::sendBody()
 	ssize_t bytesSent = send(socket, buffer.c_str(), buffer.length(), 0);
 	if (bytesSent == -1)
 	{
-		throw(FatalError(strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 	}
-	std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
+	// std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
 	// std::cout << "__________BODY SENT__" << bytesSent << "___________" << std::endl;
 	// std::cout << buffer;
 	// std::cout << "________________________________" << std::endl;
