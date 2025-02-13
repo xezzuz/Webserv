@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 15:28:11 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/09 16:27:51 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,9 @@ void						Request::setMatchingConfig() {
 
 // FEED REQUEST
 int				Request::feedRequest(int clientSocket) {
-	char	buf[REQUEST_BUFFER_SIZE] = {0};
+	char	buf[RECV_BUFFER_SIZE] = {0};
 
-	int	bytesReceived = recv(clientSocket, buf, REQUEST_BUFFER_SIZE, 0);
+	int	bytesReceived = recv(clientSocket, buf, RECV_BUFFER_SIZE, 0);
 	if (bytesReceived > 0) {
 		std::cout << "----------REQUEST_OF_CLIENT " << clientSocket << "----------" << std::endl;
 		std::cout << buf;

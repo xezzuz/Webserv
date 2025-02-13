@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/08 21:45:54 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/09 16:30:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include "../../Utils/Helpers.hpp"
 # include "../../_Config/Config.hpp"
 
-# define REQUEST_BUFFER_SIZE 16000
+# define RECV_BUFFER_SIZE 16384
 
 enum e_parsingState {
 	REQUEST_INIT,

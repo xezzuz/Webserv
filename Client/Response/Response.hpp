@@ -55,9 +55,10 @@ public:
 	Response(const Response& rhs);
 	Response& operator=(const Response& rhs);
 
-	void	generateErrorPage(int& status);
-	void	generateHeaders( void );
-	void	receiveBody( void );
+	void			generateErrorPage(int& status);
+	void			generateHeaders( void );
+	virtual void	storeBody( void );
+
 
 
 	std::string	buildChunk(const char *data, size_t size);
@@ -68,6 +69,7 @@ public:
 	bool	sendBody();
 
 
+	virtual int	receive();
 	virtual int	respond();
 	
 protected:
@@ -80,6 +82,7 @@ protected:
 	void			(Response::*reader)();
 	RequestData		*reqCtx;
 	std::ifstream	bodyFile;
+	std::ofstream	uploadFile;
 	std::map<int, std::string>			statusCodes;
 
 private:

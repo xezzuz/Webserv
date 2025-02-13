@@ -14,7 +14,7 @@
 
 // void			Request::putRequestBodyInFile() {
 // 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
-	
+// 	std::tmpnam()
 // 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
 
 // 	std::cout << "******************** BODY ********************\n";

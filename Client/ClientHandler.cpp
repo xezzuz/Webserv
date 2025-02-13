@@ -51,7 +51,6 @@ void	ClientHandler::createResponse()
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgifd = cgi->getFd();
 		cgi->setup();
-		// std::cout << "CGI FD IS: " << cgifd << std::endl;
 		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
 		HTTPserver->updateHandler(socket, EPOLLHUP);
 		this->response = cgi;
@@ -66,31 +65,50 @@ void	ClientHandler::createResponse()
 
 void 	ClientHandler::handleRequest()
 {
-	if (bridgeState == HEADERS)
+	switch (bridgeState)
 	{
-		// std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
-		int		rState = request.feedRequest(socket);
-		// std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
-		if (rState == REQUEST_FINISHED)
-		{
-			createResponse();
-			bridgeState = BODY;
-		}
+		case HEADERS:
+			if (request.feedRequest(socket) == REQUEST_FINISHED)
+			{
+				createResponse();
+				bridgeState = BODY;
+			}
+			break;
+		case BODY:
+			{
+
+			}
+			break;
+		case RESPOND:
+			
+			break;
 	}
-	else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
-	{
-		// int		rState = response.feedResponse(socket);
-		// std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
-		// char buf[16000];
-		// int bytesRead = read(socket, buf, 16000);
-		// if (bytesRead == -1)
-		// {
-		// 	std::cerr << " ERROROARORORO ::: " << strerror(errno) << std::endl;
-		// }
-		// std::cout << "BYTES_READ ON BODY => " << bytesRead << std::endl; 
-		// buf[bytesRead] = '\0';
-		// std::cout << "DATA_READ ON BODY => " << buf;
-	}
+	// if (bridgeState == HEADERS)
+	// {
+	// 	// std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
+	// 	int		rState = request.feedRequest(socket);
+	// 	// std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
+	// 	if (rState == REQUEST_FINISHED)
+	// 	{
+	// 		createResponse();
+	// 		bridgeState = BODY;
+	// 	}
+	// }
+	// else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
+	// {
+	// 	response->receiveBody();
+	// 	// int		rState = response.feedResponse(socket);
+	// 	// std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
+	// 	// char buf[16000];
+	// 	// int bytesRead = read(socket, buf, 16000);
+	// 	// if (bytesRead == -1)
+	// 	// {
+	// 	// 	std::cerr << " ERROROARORORO ::: " << strerror(errno) << std::endl;
+	// 	// }
+	// 	// std::cout << "BYTES_READ ON BODY => " << bytesRead << std::endl; 
+	// 	// buf[bytesRead] = '\0';
+	// 	// std::cout << "DATA_READ ON BODY => " << buf;
+	// }
 }
 
 void 	ClientHandler::handleResponse()

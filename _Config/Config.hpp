@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/07 13:02:20 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/09 16:33:53 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 #define BLUE       "\033[34m"
 #define MAGENTA    "\033[35m"
 #define CYAN       "\033[36m"
+#define ORANGE     "\033[93m"
 #define WHITE      "\033[37m"
 #define BG_BLACK   "\033[40m"
 #define BG_RED     "\033[41m"
