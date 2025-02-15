@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 14:41:10 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/15 16:25:33 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void						setRequestedResourceType(std::string& requestedResource, RequestData& 
 
 	_RequestData.isDir = S_ISDIR(pathStats.st_mode) ? true : false;
 	
-	// std::cout << BLUE << "FULL_PATH AFTER ISFILE ISDIR: " << _RequestData.fullPath << RESET << std::endl;
+	std::cout << BLUE << "FULL_PATH AFTER ISFILE ISDIR: " << _RequestData.fullPath << RESET << std::endl;
 }
 
 void						handleDirectoryResource(RequestData& _RequestData) {

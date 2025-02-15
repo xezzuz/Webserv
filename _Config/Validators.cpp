@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/06 14:50:25 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/15 16:01:13 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,14 +135,14 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 		else if (unit == 'G')
 			value = value * 1024 * 1024 * 1024;
 
+		toFill.client_max_body_size = value;
 		// std::stringstream	ss;
 		// ss << value;
 		// client_max_body_size = ss.str();
-	} else if (!isUnit) {
+	} else {
 		if (!stringIsDigit(client_max_body_size))
 			return false;
 	}
-	toFill.client_max_body_size = value;
 	return true;
 }
 

@@ -68,9 +68,7 @@ void		CGIHandler::readCGIChunked()
 	buffer = buildChunk(buf, bytesRead);
 	state = WRITE;
 	if (bytesRead == 0)
-	{
 		nextState = DONE;
-	}
 }
 
 void		CGIHandler::readCGILength()
@@ -112,8 +110,6 @@ int	CGIHandler::receive( void )
 
 int		CGIHandler::respond()
 {
-	std::cout << "State::IN-CGI::" << state << std::endl;
-	std::cout << "nextState::IN-CGI::" << nextState << std::endl;
 	switch (state)
 	{
 		case READ:
@@ -127,15 +123,9 @@ int		CGIHandler::respond()
 			{
 				if (buffer.empty())
 					state = nextState;
-				else if (chunked)
-				{
-					std::cout << "CHUNKING" << std::endl;
-					buffer = buildChunk(buffer.c_str(), buffer.size());
-				}
 			}
 			break;
 		case DONE:
-			std::cout << "DONE" << std::endl;
 			return (1);
 	}
 	return (0);
@@ -143,7 +133,7 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	if (events & EPOLLIN || (events & EPOLLHUP && state != DONE)) // care EPOLLHUP
+	if ((events & EPOLLIN) || ((events & EPOLLHUP) && state != DONE)) // care EPOLLHUP
 	{
 		(this->*CGIreader)();
 		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);

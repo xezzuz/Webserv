@@ -13,7 +13,7 @@
 
 # define SEND_BUFFER_SIZE 4096
 
-enum e_RangeState
+enum RangeState
 {
 	NEXT,
 	GET
@@ -33,7 +33,7 @@ typedef struct								RangeData
 	std::vector<Range>						ranges;
 	std::vector<Range>::iterator			current;
 	std::string								boundary;
-	e_RangeState							rangeState;
+	RangeState								rangeState;
 	RangeData() : rangeState(NEXT) {}
 }											RangeData;
 

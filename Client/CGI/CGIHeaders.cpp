@@ -13,6 +13,8 @@ void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMa
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
 		CGIreader = &CGIHandler::readCGIChunked;
+		if (!buffer.empty())
+			buffer = buildChunk(buffer.c_str(), buffer.size());
 	}
 
 	std::string location;

@@ -75,7 +75,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 
 	// create socket and assign (bind) that socket an address returned in res
 	struct addrinfo		*it;
-	int					serverSocket;
+	int					serverSocket = -1;
 
 	for (it = res; it; it = it->ai_next)
 	{

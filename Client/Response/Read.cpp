@@ -30,7 +30,6 @@ void	Response::directoryListing()
 		buffer.append("<a href=\"" + name + "\">" + name + "</a>\n");
 		i++;
 	}
-	buffer = buildChunk(buffer.c_str(), buffer.size());
 	if (entry == NULL)
 	{
 		buffer.append("</pre><hr>\n"
@@ -39,8 +38,11 @@ void	Response::directoryListing()
 		closedir(dirList);
 		dirList = NULL;
 		nextState = DONE;
+		buffer = buildChunk(buffer.c_str(), buffer.size());
 		buffer.append("0\r\n\r\n");
 	}
+	else
+		buffer = buildChunk(buffer.c_str(), buffer.size());
 	state = WRITE;
 }
 

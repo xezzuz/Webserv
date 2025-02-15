@@ -60,6 +60,5 @@ void	Response::generateErrorPage(int& status)
 		headers.append(buffer);
 		nextState = DONE;
 	}
-
 	headers.insert(0, "HTTP/1.1 " + _toString(status) + " " + statusCodes[status]);
 }
