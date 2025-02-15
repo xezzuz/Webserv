@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/08 21:48:36 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/15 15:14:47 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME			= 		webserv
 
 CPP				= 		g++
 
-CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -g -std=c++98
+CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -O3 -std=c++98
 
 INCLUDE			=		\
 						./_Config/Config.hpp \
@@ -39,11 +39,14 @@ SRCS			= 		\
 						./Client/Request/Headers.cpp \
 						./Client/Request/Body.cpp \
 						./Client/Response/Response.cpp \
+						./Client/Response/Body.cpp \
 						./Client/Response/Range.cpp \
 						./Client/Response/Error.cpp \
 						./Client/Response/Read.cpp \
 						./Client/Response/Headers.cpp \
 						./Client/CGI/CGIHandler.cpp \
+						./Client/CGI/CGIHeaders.cpp \
+						./Client/CGI/CGIInit.cpp \
 						./Client/ClientHandler.cpp \
 						./Client/Helpers.cpp \
 						./Server/ServerHandler.cpp \

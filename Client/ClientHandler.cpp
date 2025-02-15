@@ -49,11 +49,20 @@ void	ClientHandler::createResponse()
 	if(request.getRequestData()->isCGI)
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
-		cgifd = cgi->getFd();
 		cgi->setup();
+		this->response = cgi;
+
+		// if no body
+		// cgifd = cgi->getOutfd();
+		cgifd = cgi->getFd();
+		std::cout << "CGIFD: " <<cgifd << std::endl;
 		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
 		HTTPserver->updateHandler(socket, EPOLLHUP);
-		this->response = cgi;
+
+		// if body()
+		// cgifd = cgi->getInfd();
+		// HTTPserver->registerHandler(cgifd, cgi, 0);
+		// HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
 	}
 	else
 	{
@@ -83,32 +92,6 @@ void 	ClientHandler::handleRequest()
 			
 			break;
 	}
-	// if (bridgeState == HEADERS)
-	// {
-	// 	// std::cout << BLUE << "ClientHandler::handleRequest Bridge : HEADERS" << RESET << std::endl;
-	// 	int		rState = request.feedRequest(socket);
-	// 	// std::cout << BLUE << "ClientHandler::handleRequest rState : " << rState << RESET << std::endl;
-	// 	if (rState == REQUEST_FINISHED)
-	// 	{
-	// 		createResponse();
-	// 		bridgeState = BODY;
-	// 	}
-	// }
-	// else if (bridgeState == BODY) // FORWARD RECV TO RESPONSE
-	// {
-	// 	response->receiveBody();
-	// 	// int		rState = response.feedResponse(socket);
-	// 	// std::cout << BLUE << "ClientHandler::handleRequest Bridge : BODY" << RESET << std::endl;
-	// 	// char buf[16000];
-	// 	// int bytesRead = read(socket, buf, 16000);
-	// 	// if (bytesRead == -1)
-	// 	// {
-	// 	// 	std::cerr << " ERROROARORORO ::: " << strerror(errno) << std::endl;
-	// 	// }
-	// 	// std::cout << "BYTES_READ ON BODY => " << bytesRead << std::endl; 
-	// 	// buf[bytesRead] = '\0';
-	// 	// std::cout << "DATA_READ ON BODY => " << buf;
-	// }
 }
 
 void 	ClientHandler::handleResponse()
@@ -122,9 +105,8 @@ void 	ClientHandler::handleResponse()
 			this->reset();
 		}
 		else
-			this->remove(); // this call is very unsafe it should remain at the end of an EventHandler object Call T-T // eventually use vector
+			throw(Disconnect("[CLIENT-"+ _toString(socket) + "] CONNECTION CLOSE"));
 	}
-
 }
 
 void	ClientHandler::handleEvent(uint32_t events)

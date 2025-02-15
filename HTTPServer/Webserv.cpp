@@ -182,7 +182,7 @@ void	Webserv::run()
 				if (events[i].events & EPOLLERR)
 				{
 					int fd = handler->getFd();
-					std::cerr << BG_RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << RESET << std::endl;
+					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << RESET << std::endl;
 					removeHandler(fd);
 					delete handler;
 				}
@@ -191,7 +191,7 @@ void	Webserv::run()
 			}
 			catch (Disconnect& e)
 			{
-				std::cerr << ORANGE << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
+				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
 				removeHandler(handler->getFd()); // not complete clean up on client and CGI
 				delete handler;
 			}

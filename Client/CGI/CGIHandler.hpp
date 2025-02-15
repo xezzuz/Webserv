@@ -25,7 +25,7 @@ public:
 	pid_t	getPid() const;
 	int		getFd() const
 	{
-		return (outfd);
+		return (infd);
 	}
 
 	std::vector<std::string>	headersToEnv();
@@ -36,7 +36,8 @@ public:
 
 
 	void	receiveCGIInput();
-	void	readCGIOutput();
+	void	readCGILength();
+	void	readCGIChunked();
 
 	void	storeBody();
 
@@ -50,6 +51,7 @@ private:
 	pid_t			pid;
 	bool			parseBool;
 	bool			chunked;
+	void			(CGIHandler::*CGIreader)();
 	std::vector<std::string> envvars;
 };
 

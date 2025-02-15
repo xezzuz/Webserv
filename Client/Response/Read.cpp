@@ -9,13 +9,10 @@ void	Response::initDirList()
 		throw(500);
 	}
 	buffer = "<html>\n"
-			"<head>\n"
-			"<title>Index of " + reqCtx->URI + "</title>\n"
-			"</head>\n"
+			"<head><title>Index of " + reqCtx->URI + "</title></head>\n"
 			"<body>\n"
 			"<h1>Index of " + reqCtx->URI + "</h1>\n"
-			"<hr>\n"
-			"<pre>\n";
+			"<hr><pre>\n";
 }
 
 void	Response::directoryListing()
@@ -33,17 +30,17 @@ void	Response::directoryListing()
 		buffer.append("<a href=\"" + name + "\">" + name + "</a>\n");
 		i++;
 	}
+	buffer = buildChunk(buffer.c_str(), buffer.size());
 	if (entry == NULL)
 	{
-		buffer.append("</pre>\n"
-					"<hr>\n"
+		buffer.append("</pre><hr>\n"
 					"</body>\n"
 					"</html>");
 		closedir(dirList);
-			dirList = NULL;
+		dirList = NULL;
 		nextState = DONE;
+		buffer.append("0\r\n\r\n");
 	}
-	buffer = buildChunk(buffer.c_str(), buffer.size());
 	state = WRITE;
 }
 

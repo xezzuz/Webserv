@@ -56,7 +56,7 @@ void	CGIHandler::setup()
 		}
 		close(outfd);
 	
-		if (dup2(infd, 1) == -1)
+		if (dup2(infd, 0) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
@@ -94,4 +94,5 @@ void	CGIHandler::setup()
 			exit(errno);
 		}
 	}
+	close(outfd);
 }

@@ -3,26 +3,16 @@
 
 void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMap)
 {
-	if (headersMap.find("content-type") != headersMap.end())
-	{
-		headers.append("\r\nContent-Type: " + headersMap["content-type"]);
-		headersMap.erase("content-type");
-	}
-	else if (!buffer.empty()) // RFC 3875 section 6.3.1
+	if (headersMap.find("content-type") == headersMap.end() && !buffer.empty())
 	{
 		std::cerr << "[WEBSERV][ERROR]\tContet-Type Header Was Not Found In CGI" << std::endl;
 		throw(500);
 	}
 
-	if (headersMap.find("content-length") != headersMap.end())
-	{
-		headers.append("\r\nContent-Length: " + headersMap["content-length"]);
-		headersMap.erase("content-length");
-	}
-	else
+	if (headersMap.find("content-length") == headersMap.end())
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
-		chunked = true;
+		CGIreader = &CGIHandler::readCGIChunked;
 	}
 
 	std::string location;
@@ -31,8 +21,8 @@ void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMa
 		location = headersMap["location"];
 		if (location.at(0) == '/')
 			throw(CGIRedirectException(location));
-		headersMap.erase("location");
 	}
+
 	if (headersMap.find("status") != headersMap.end())
 	{
 		std::string statusStr = headersMap["status"];
@@ -55,8 +45,6 @@ void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMa
 			std::cerr << "[WEBSERV][ERROR]\t302 Status Code With No Location Header" << std::endl;
 			throw(500);
 		}
-		else
-			headers.append("\r\nLocation: " + location);
 		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + statusStr);
 	}
 	else
