@@ -4,10 +4,13 @@
 
 CGIHandler::~CGIHandler()
 {
+	HTTPserver->removeHandler(infd);
 	close(infd);
 	close(outfd);
+
 	if (waitpid(pid, NULL, WNOHANG) == 0)
 		kill(pid, SIGTERM);
+	
 }
 
 CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : Response(clientSocket, data), infd(-1), outfd(-1), pid(0), parseBool(true), chunked(false)
@@ -34,28 +37,15 @@ void	CGIHandler::storeBody()
 	buffer.erase(bytesWritten);
 }
 
-void	CGIHandler::receiveCGIInput()
+void	CGIHandler::handlePOST(char *buf, ssize_t size)
 {
-	char	body[RECV_BUFFER_SIZE];
-	ssize_t	bytesRead = recv(socket, body, RECV_BUFFER_SIZE, 0);
-	if (bytesRead == -1)
-	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
-	}
-	else if (bytesRead > 0)
-	{
-		buffer.append(std::string(body, bytesRead));
-		// process body
-		// if body finished next state = done
-		state = WRITE;
-	}
-	else
-	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
-	}
+	buffer.assign(buf, size);
+	//process body
+	HTTPserver->updateHandler(socket, EPOLLHUP);
+	HTTPserver->updateHandler(outfd, EPOLLOUT | EPOLLHUP);
 }
 
-void		CGIHandler::readCGIChunked()
+void	CGIHandler::readCGIChunked()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(infd, buf, SEND_BUFFER_SIZE);
@@ -89,23 +79,6 @@ void		CGIHandler::readCGILength()
 	{
 		state = DONE;
 	}
-}
-
-int	CGIHandler::receive( void )
-{
-	switch (state)
-	{
-		case READ:
-			receiveCGIInput();
-			break;
-		case WRITE:
-			HTTPserver->updateHandler(socket, EPOLLHUP);
-			HTTPserver->updateHandler(outfd, EPOLLOUT | EPOLLHUP);
-			break;
-		case DONE:
-			return (1);
-	}
-	return (0);
 }
 
 int		CGIHandler::respond()

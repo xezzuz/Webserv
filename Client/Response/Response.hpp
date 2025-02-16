@@ -55,22 +55,16 @@ public:
 	Response(const Response& rhs);
 	Response& operator=(const Response& rhs);
 
+	std::string		buildChunk(const char *data, size_t size);
 	void			generateErrorPage(int& status);
-	void			generateHeaders( void );
+
+	virtual void	handlePOST(char *buf, ssize_t size);
 	virtual void	storeBody( void );
 
-
-
-	std::string	buildChunk(const char *data, size_t size);
-
-
-	void	handlePOST( void );
-	bool	sendHeaders();
-	bool	sendBody();
-
-
-	virtual int	receive();
-	virtual int	respond();
+	void			generateHeaders( void );
+	bool			sendHeaders();
+	virtual bool	sendBody();
+	virtual int		respond();
 	
 protected:
 	int				socket;

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 16:30:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/16 14:00:58 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ class Request {
 		int								bufferSize;
 
 		std::vector<int>				files;
+		std::ofstream					uploader;
 
 		/*			PARSING STRUCTURES			*/
 		RequestData						_RequestData;
@@ -118,7 +119,8 @@ class Request {
 		bool						headerExists(const std::string& key);
 		void						feedRequest(char *recvBuffer, int bufferSize);
 
-		bool						parseControlCenter();
+		int							parseControlCenter(char *recvBuffer, int bufferSize);
+		// bool						parseControlCenter();
 		void						setRequestState();
 		bool						parseRequestLineAndHeaders();
 		bool						storeHeadersInVector();
@@ -134,7 +136,8 @@ class Request {
 		bool						parseLengthBody();
 		bool						validateRequestHeaders();
 
-		void						putRequestBodyInFile();
+		void						storeBody( void );
+		// void						putRequestBodyInFile();
 
 		std::string&				getBuffer() { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };

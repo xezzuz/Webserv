@@ -4,10 +4,11 @@
 
 ClientHandler::~ClientHandler()
 {
+	HTTPserver->removeHandler(socket);
 	deleteResponse();
 }
 
-ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgifd(-1), keepAlive(false), bridgeState(HEADERS) {}
+ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgiActive(false), keepAlive(false), bridgeState(HEADERS) {}
 
 void	ClientHandler::reset()
 {
@@ -32,11 +33,6 @@ int	ClientHandler::getSocket() const
 
 void	ClientHandler::deleteResponse()
 {
-	if (cgifd != -1)
-	{
-		HTTPserver->removeHandler(cgifd);
-		cgifd = -1;
-	}
 	if (response)
 	{
 		delete response;
@@ -50,51 +46,48 @@ void	ClientHandler::createResponse()
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgi->setup();
+		cgiActive = true;
 		this->response = cgi;
-
-		// if no body
-		// cgifd = cgi->getOutfd();
-		cgifd = cgi->getFd();
-		std::cout << "CGIFD: " <<cgifd << std::endl;
-		HTTPserver->registerHandler(cgifd, cgi, EPOLLIN | EPOLLHUP);
 		HTTPserver->updateHandler(socket, EPOLLHUP);
-
-		// if body()
-		// cgifd = cgi->getInfd();
-		// HTTPserver->registerHandler(cgifd, cgi, 0);
-		// HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
 	}
 	else
 	{
 		this->response = new Response(socket, request.getRequestData());
-		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
 		response->generateHeaders();
 	}
 }
 
-void 	ClientHandler::handleRequest()
+void 	ClientHandler::handleRead()
 {
-	switch (bridgeState)
-	{
-		case HEADERS:
-			if (request.feedRequest(socket) == REQUEST_FINISHED)
-			{
-				createResponse();
-				bridgeState = BODY;
-			}
-			break;
-		case BODY:
-			{
+	char	buf[RECV_BUFFER_SIZE] = {0};
 
-			}
-			break;
-		case RESPOND:
-			
-			break;
+	ssize_t	bytesReceived = recv(socket, buf, RECV_BUFFER_SIZE, 0);
+	if (bytesReceived > 0)
+	{
+		switch (bridgeState)
+		{
+			case HEADERS:
+				if (request.parseControlCenter(buf, bytesReceived) == REQUEST_FINISHED)
+				{
+					createResponse();
+					bridgeState = BODY;
+				}
+				break;
+			case BODY:
+				response->handlePOST(buf, bytesReceived);
+				break;
+			case RESPOND:
+				HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+				break;
+		}
 	}
+	else if (bytesReceived == 0)
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+	else
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
 }
 
-void 	ClientHandler::handleResponse()
+void 	ClientHandler::handleWrite()
 {
 	if (response->respond() == 1)
 	{
@@ -115,19 +108,19 @@ void	ClientHandler::handleEvent(uint32_t events)
 	{
 		if (events & EPOLLIN)
 		{
-			handleRequest();
+			handleRead();
 		}
 		else if (events & EPOLLOUT)
 		{
 			try
 			{
-				handleResponse();
+				handleWrite();
 			}
 			catch (CGIRedirectException& redirect)
 			{
 				deleteResponse();
-				decodeAbsPath(redirect.location, *request.getRequestData());
-				createResponse();
+				decodeAbsPath(redirect.location, *request.getRequestData()); ///////       ////
+				createResponse(); ///// REWORK REWORK
 			}
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 16:27:51 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/16 14:11:45 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,40 +52,22 @@ void						Request::setMatchingConfig() {
 	&matchingServer.ServerDirectives : &matchingServer.Locations.find(_RequestData.matchingLocation)->second;
 }
 
-// FEED REQUEST
-int				Request::feedRequest(int clientSocket) {
-	char	buf[RECV_BUFFER_SIZE] = {0};
-
-	int	bytesReceived = recv(clientSocket, buf, RECV_BUFFER_SIZE, 0);
-	if (bytesReceived > 0) {
-		std::cout << "----------REQUEST_OF_CLIENT " << clientSocket << "----------" << std::endl;
-		std::cout << buf;
-		std::cout << "---------------------------------------------------------" << std::endl;
-		buffer += std::string(buf, bytesReceived);
-		bufferSize += bytesReceived;
-		parseControlCenter();
-	}
-	else if (bytesReceived == 0) { // this is for graceful shutdown (client closes the connection willingly)
-		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] CLOSED CONNECTION"));
-	}
-	else {
-		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] recv: " + strerror(errno)));
-	}
-	return (pState);
-}
-
 // PARSING CONTROL CENTER
-bool			Request::parseControlCenter() {
+int			Request::parseControlCenter(char *recvBuffer, int recvBufferSize) {
+	buffer.append(recvBuffer, recvBufferSize);
+	bufferSize += recvBufferSize;
+
 	setRequestState();
 	switch (pState) {
 		case REQUEST_HEADERS:
 			parseRequestLineAndHeaders();
 			break;
-		default:
-			break;
+		// case REQUEST_BODY:
+		// 	parseRequestBody();
+		// 	break;
 	}
 	setRequestState();
-	return true;
+	return pState;
 }
 // void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
 // 	std::string		recvBuff(recvBuffer, recvBufferSize);

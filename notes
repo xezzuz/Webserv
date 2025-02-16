@@ -23,3 +23,5 @@ error page directive is not absolute path
 comments in config file
 
 benchmark siwtch vs fn ptr
+
+verify content-length of cgi against actual length

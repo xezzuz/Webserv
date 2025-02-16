@@ -35,13 +35,13 @@ public:
 	void	parseCGIHeaders();
 
 
-	void	receiveCGIInput();
 	void	readCGILength();
 	void	readCGIChunked();
 
 	void	storeBody();
+	void	handlePOST(char *buf, ssize_t size);
 
-	int		receive();
+
 	int		respond();
 
 private:

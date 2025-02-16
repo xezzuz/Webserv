@@ -15,7 +15,7 @@
 
 # define MAX_EVENTS 100
 # define BACKLOG 128
-# define TIMEOUT 60
+# define TIMEOUT 15
 
 class Webserv
 {

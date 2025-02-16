@@ -1,4 +1,5 @@
 #include "CGIHandler.hpp"
+#include "../../HTTPServer/Webserv.hpp"
 #include "../Response/Error.hpp"
 
 std::string	headerToEnv(const std::string& header)
@@ -94,5 +95,8 @@ void	CGIHandler::setup()
 			exit(errno);
 		}
 	}
-	close(outfd);
+	if (reqCtx->Method == "POST")
+		HTTPserver->registerHandler(outfd, this, EPOLLIN | EPOLLHUP);
+	else
+		close(outfd);
 }

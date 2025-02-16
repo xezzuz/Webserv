@@ -1,27 +1,39 @@
-// /* ************************************************************************** */
-// /*                                                                            */
-// /*                                                        :::      ::::::::   */
-// /*   Body.cpp                                           :+:      :+:    :+:   */
-// /*                                                    +:+ +:+         +:+     */
-// /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
-// /*                                                +#+#+#+#+#+   +#+           */
-// /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-// /*   Updated: 2025/02/06 13:25:06 by mmaila           ###   ########.fr       */
-// /*                                                                            */
-// /* ************************************************************************** */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Body.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
+/*   Updated: 2025/02/16 11:53:33 by mmaila           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 // #include "Request.hpp"
 
-// void			Request::putRequestBodyInFile() {
-// 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
-// 	std::tmpnam()
-// 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
+// void	Request::storeBody( void )
+// {
+// 	uploader.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc);
+// 	if (!uploader.is_open())
+// 		throw(500);
 
-// 	std::cout << "******************** BODY ********************\n";
-// 	for (int i = 0; i <= (int)_RequestRaws.bodySize; i++)
-// 		std::cout << _RequestRaws.rawBody[i];
-// 	std::cout << "\n**********************************************\n";
+// 	uploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
+// 	if (!uploader)
+// 		throw(500);
+// 	_RequestRaws.rawBody.clear(); //
 // }
+
+// // void			Request::putRequestBodyInFile() {
+// // 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC);
+// // 	// std::tmpnam();
+// // 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
+
+// // 	std::cout << "******************** BODY ********************\n";
+// // 	for (int i = 0; i <= (int)_RequestRaws.bodySize; i++)
+// // 		std::cout << _RequestRaws.rawBody[i];
+// // 	std::cout << "\n**********************************************\n";
+// // }
 
 // bool			Request::bufferContainChunk() {
 // 	size_t			cpos = 0;

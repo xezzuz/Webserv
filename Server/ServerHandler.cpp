@@ -1,6 +1,9 @@
 #include "ServerHandler.hpp"
 
-ServerHandler::~ServerHandler() {}
+ServerHandler::~ServerHandler()
+{
+	HTTPserver->removeHandler(socket);
+}
 
 ServerHandler::ServerHandler() {}
 

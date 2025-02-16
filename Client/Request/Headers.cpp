@@ -6,12 +6,12 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 14:54:41 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/16 14:56:25 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-//		return (setStatusCode(400), false);
+//		return (false);
 
 bool			Request::headerExists(const std::string& key) {
 	std::map<std::string, std::string>::iterator it;
@@ -67,8 +67,8 @@ bool			Request::isValidMethod(const std::string& method) {
 	if (method != "GET" && method != "POST" && method != "DELETE")
 	{
 		std::cout << "METHOD >>>> " << method << std::endl;
-		setStatusCode(501), throw (501);
-		// return (setStatusCode(405), false);
+		throw (501);
+		// return (false);
 	}
 	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), method) == _RequestData._Config->methods.end())
 		throw(405);
@@ -78,10 +78,10 @@ bool			Request::isValidMethod(const std::string& method) {
 bool			Request::isValidURI(const std::string& uri) 
 {
 	if (uri.size() > 2048)
-		return (setStatusCode(414), false);
+		return (false);
 
 	if (uri[0] != '/') {
-		setStatusCode(400), throw(400);
+		throw(400);
 	}
 	// {
 	// 	statusCode = 400;
@@ -91,15 +91,15 @@ bool			Request::isValidURI(const std::string& uri)
 		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	for (size_t i = 0; i < uri.size(); i++)
 		if (allowedURIChars.find(uri[i]) == std::string::npos)
-			setStatusCode(400), throw(400);
-			// return (setStatusCode(400), false);
+			throw(400);
+			// return (false);
 	return true;
 }
 
 bool			Request::isValidHTTPVersion(const std::string& httpversion) {
 	if (httpversion != "HTTP/1.1")
-		setStatusCode(505), throw(505);
-		// return (setStatusCode(505), false);
+		throw(505);
+		// return (false);
 	return true;
 }
 
@@ -109,20 +109,20 @@ bool			Request::isValidFieldLine(const std::string& fieldline) {
 
 	colonPos = line.find(':');
 	if (colonPos == std::string::npos)
-		setStatusCode(400), throw(400);
-		// return (setStatusCode(400), false);
+		throw(400);
+		// return (false);
 	
 	std::string			fieldName = line.substr(0, colonPos);
 	if (fieldName.empty() || headerExists(fieldName))
-		setStatusCode(400), throw(400);
-		// return (setStatusCode(400), false);
+		throw(400);
+		// return (false);
 	
 	std::string allowedChars 
 		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
 	for (size_t i = 0; i < fieldName.size(); i++)
 		if (allowedChars.find(fieldName[i]) == std::string::npos)
-			setStatusCode(400), throw(400);
-			// return (setStatusCode(400), false);
+			throw(400);
+			// return (false);
 	return true;
 }
 
@@ -179,15 +179,15 @@ bool			Request::parseRequestLine() {
 		if (_RequestRaws.rawRequestLine[i] == ' ')
 			spaceCount++;
 	if (spaceCount != 2)
-		setStatusCode(400), throw (400);
-		// return (setStatusCode(400), false);
+		throw (400);
+		// return (false);
 	while (ss >> token && tokenCount < 3) { // bug here! this allows tabs which goes against HTTP/1.1 RFC
 		tokens[tokenCount++] = token;
 		token = "";
 	}
 	if (!token.empty())
-		setStatusCode(400), throw (400);
-		// return (setStatusCode(400), false);
+		throw (400);
+		// return (false);
 	
 
 	_RequestData.Method = tokens[0];
@@ -207,13 +207,13 @@ bool			Request::storeHeadersInVector() {
 	
 	toParse = extractHeadersFromBuffer();
 	if (toParse.empty())
-		setStatusCode(500), throw (500);
-		// return (setStatusCode(500), false);
+		throw (500);
+		// return (false);
 	while (toParse[opos]) {
 		rpos = toParse.find("\r\n", opos);
 		if (rpos == std::string::npos)
-			setStatusCode(400), throw (400);
-			// return (setStatusCode(400), false);
+			throw (400);
+			// return (false);
 		line = toParse.substr(opos, rpos - opos);
 		if (line.empty())
 			break ;
@@ -227,12 +227,12 @@ bool			Request::storeHeadersInVector() {
 bool			Request::validateRequestHeaders() {
 	return (true); // ??
 	if (!headerExists("host") || _RequestData.host.empty())
-		setStatusCode(400), throw(400);
-		// return (setStatusCode(400), false);
+		throw(400);
+		// return (false);
 	
 	if (!headerExists("connection") || _RequestData.connection.empty())
-		setStatusCode(400), throw(400);
-		// return (setStatusCode(400), false);
+		throw(400);
+		// return (false);
 	else
 		_RequestData.Headers.insert(std::make_pair("connection", "keep-alive"));
 	
@@ -241,24 +241,24 @@ bool			Request::validateRequestHeaders() {
 		bool			TransferEncoding = headerExists("transfer-encoding");
 
 		if (ContentLength == TransferEncoding)
-			setStatusCode(400), throw(400);
-			// return (setStatusCode(400), false);
+			throw(400);
+			// return (false);
 		
 		if (TransferEncoding && _RequestData.transferEncoding == "chunked")
 			isEncoded = true;
 		else if (TransferEncoding && _RequestData.transferEncoding != "chunked")
-			setStatusCode(501), throw(501);
-			// return (setStatusCode(501), false);
+			throw(501);
+			// return (false);
 
 		if (ContentLength && _RequestRaws.contentLength == -1) // && body.contentLength == -1 ???
-			setStatusCode(400), throw(400);
-			// return (setStatusCode(400), false);
+			throw(400);
+			// return (false);
 		
 
 		int pos = _RequestData.contentType.find("multipart/form-data; boundary=") + 30;
 		if (headerExists("content-type") && pos != 30)
-			setStatusCode(501), throw(501);
-			// return (setStatusCode(501), false);
+			throw(501);
+			// return (false);
 		else if (headerExists("content-type") && pos == 30 && _RequestData.contentType[pos])
 			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(pos), _RequestRaws.boundaryEnd = _RequestRaws.boundaryBegin + "--", isMultipart = true;
 	}

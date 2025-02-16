@@ -28,13 +28,17 @@ public:
 	// void			setResponseBuffer(std::string buffer);
 
 
+	void	receive();
+
 	void	reset();
 	void	remove();
-	void 	handleRequest();
-	void 	handleResponse();
+	void 	handleRead();
+	void 	handleWrite();
+	void	handleEvent(uint32_t events);
+
 	void	createResponse();
 	void	deleteResponse();
-	void	handleEvent(uint32_t events);
+	
 	int		getFd() const
 	{
 		return (socket);
@@ -49,7 +53,7 @@ private:
 	std::vector<ServerConfig>&	vServers;
 	Directives					config;
 	
-	int							cgifd;
+	bool						cgiActive;
 	bool						keepAlive;
 	e_bridgeState				bridgeState;
 	
