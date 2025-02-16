@@ -119,11 +119,8 @@ int		CGIHandler::respond()
 		case WRITE:
 			if (parseBool)
 				parseCGIHeaders();
-			if ((this->*sender)() == true)
-			{
-				if (buffer.empty())
+			if ((this->*sender)() == true && buffer.empty())
 					state = nextState;
-			}
 			break;
 		case DONE:
 			return (1);
