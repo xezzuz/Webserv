@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/16 14:00:58 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/21 18:30:42 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,13 +119,11 @@ class Request {
 		bool						headerExists(const std::string& key);
 		void						feedRequest(char *recvBuffer, int bufferSize);
 
-		int							parseControlCenter(char *recvBuffer, int bufferSize);
+		bool						parseControlCenter(char *recvBuffer, int bufferSize);
 		// bool						parseControlCenter();
-		void						setRequestState();
-		bool						parseRequestLineAndHeaders();
 		bool						storeHeadersInVector();
-		bool						parseRequestLine();
-		bool						parseHeaders();
+		void						parseRequestLine();
+		void						parseHeaders();
 		bool						parseRequestBody();
 		bool						decodeChunkedBody();
 		bool						processRequestRawBody();
@@ -134,12 +132,12 @@ class Request {
 		bool						processMultipartData();
 		bool						processBinaryBody();
 		bool						parseLengthBody();
-		bool						validateRequestHeaders();
+		void						validateRequestHeaders();
 
 		void						storeBody( void );
 		// void						putRequestBodyInFile();
 
-		std::string&				getBuffer() { return buffer; };
+		std::string					getBuffer() const { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 		RequestData					*getRequestData() { return &_RequestData; };
 
@@ -148,10 +146,9 @@ class Request {
 
 		void						setStatusCode(int code);
 		bool						decodeURI();
-		bool						isValidFieldLine(const std::string& fieldline);
-		bool						isValidMethod(const std::string& method);
-		bool						isValidURI(const std::string& uri);
-		bool						isValidHTTPVersion(const std::string& httpversion);
+		void						isValidMethod(const std::string& method);
+		void						isValidURI(const std::string& uri);
+		void						isValidHTTPVersion(const std::string& httpversion);
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();

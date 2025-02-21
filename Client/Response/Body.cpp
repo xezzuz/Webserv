@@ -52,9 +52,9 @@
 // 	_RequestRaws.bodySize += bufferSize;
 // 	buffer.clear();
 // 	bufferSize = 0;
-// 	if (_RequestRaws.bodySize == _RequestRaws.contentLength)
+// 	if (_RequestRaws.bodySize == _RequestData.contentLength)
 // 		return (pState = BODY_FINISHED, true);
-// 	if (_RequestRaws.bodySize > _RequestRaws.contentLength)
+// 	if (_RequestRaws.bodySize > _RequestData.contentLength)
 // 		return (setStatusCode(400), false);
 // 	return true;
 // }
@@ -185,7 +185,7 @@
 // bool			Request::processBinaryBody() {
 // 	if (_RequestRaws.rawBody.empty())
 // 		return true;
-// 	// if (_RequestRaws.bodySize > _RequestRaws.contentLength)
+// 	// if (_RequestRaws.bodySize > _RequestData.contentLength)
 // 	// 	return (setStatusCode(400), false);
 // 	if (!files.size()) {
 // 		std::time_t				time = std::time(NULL);
@@ -206,7 +206,7 @@
 // }
 
 // bool			Request::processRequestRawBody() {
-// 	// if (_RequestRaws.bodySize > _RequestRaws.contentLength)
+// 	// if (_RequestRaws.bodySize > _RequestData.contentLength)
 // 	// 	return (setStatusCode(400), false);
 // 	std::cout << "processRequestRawBody(1);" << std::endl;
 // 	if (!_RequestRaws.bodySize)

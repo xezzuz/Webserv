@@ -38,10 +38,12 @@ void	ClientHandler::deleteResponse()
 		delete response;
 		response = NULL;
 	}
+	cgiActive = false;
 }
 
 void	ClientHandler::createResponse()
 {
+
 	if(request.getRequestData()->isCGI)
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
@@ -53,8 +55,9 @@ void	ClientHandler::createResponse()
 	else
 	{
 		this->response = new Response(socket, request.getRequestData());
-		response->generateHeaders();
 	}
+	if (!request.getBuffer().empty())
+		this->response->setBuffer(request.getBuffer());
 }
 
 void 	ClientHandler::handleRead()
@@ -67,7 +70,7 @@ void 	ClientHandler::handleRead()
 		switch (bridgeState)
 		{
 			case HEADERS:
-				if (request.parseControlCenter(buf, bytesReceived) == REQUEST_FINISHED)
+				if (request.parseControlCenter(buf, bytesReceived) == 1)
 				{
 					createResponse();
 					bridgeState = BODY;
@@ -77,7 +80,11 @@ void 	ClientHandler::handleRead()
 				response->handlePOST(buf, bytesReceived);
 				break;
 			case RESPOND:
-				HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+				if (cgiActive)
+					HTTPserver->updateHandler(socket, EPOLLHUP);
+				else
+					HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+				response->generateHeaders();
 				break;
 		}
 	}

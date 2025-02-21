@@ -5,8 +5,7 @@
 CGIHandler::~CGIHandler()
 {
 	HTTPserver->removeHandler(infd);
-	close(infd);
-	close(outfd);
+	HTTPserver->removeHandler(outfd);
 
 	if (waitpid(pid, NULL, WNOHANG) == 0)
 		kill(pid, SIGTERM);
@@ -50,9 +49,7 @@ void	CGIHandler::readCGIChunked()
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(infd, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
-	{
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
-	}
 	
 	std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 	buffer = buildChunk(buf, bytesRead);

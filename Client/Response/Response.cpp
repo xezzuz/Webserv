@@ -35,6 +35,7 @@ Response::Response(int &clientSocket, RequestData *data) : socket(clientSocket),
     statusCodes.insert(std::make_pair(404, "Not Found"));
     statusCodes.insert(std::make_pair(405, "Method Not Allowed"));
     statusCodes.insert(std::make_pair(413, "Payload Too Large"));
+    statusCodes.insert(std::make_pair(414, "URI Too Long"));
     statusCodes.insert(std::make_pair(415, "Unsupported Media Type"));
     statusCodes.insert(std::make_pair(416, "Range Not Satisfiable"));
     statusCodes.insert(std::make_pair(431, "Request Header Fields Too Large"));
@@ -96,9 +97,9 @@ Response& Response::operator=(const Response& rhs)
 	return (*this);
 }
 
-std::string	Response::buildChunk(const char *data, size_t size) // error
+void	Response::setBuffer(const std::string& other)
 {
-	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
+	this->buffer = other;
 }
 
 bool	Response::sendHeaders()

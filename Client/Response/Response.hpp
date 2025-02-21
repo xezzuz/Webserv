@@ -55,12 +55,18 @@ public:
 	Response(const Response& rhs);
 	Response& operator=(const Response& rhs);
 
-	std::string		buildChunk(const char *data, size_t size);
-	void			generateErrorPage(int& status);
+	void setBuffer(const std::string& other);
+
+	inline std::string	buildChunk(const char *data, size_t size) // error
+	{
+		return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
+	}
+
 
 	virtual void	handlePOST(char *buf, ssize_t size);
 	virtual void	storeBody( void );
 
+	void			generateErrorPage(int& status);
 	void			generateHeaders( void );
 	bool			sendHeaders();
 	virtual bool	sendBody();

@@ -46,13 +46,17 @@ public:
 
 private:
 	// created here
+	std::vector<std::string>	envVars;
+	std::vector<char *>			envPtr;
+	char						*args[3];
+
+
 	int				infd; // file descriptor where cgi reads input from
 	int				outfd; // file descriptor where cgi writes its output into
 	pid_t			pid;
 	bool			parseBool;
 	bool			chunked;
 	void			(CGIHandler::*CGIreader)();
-	std::vector<std::string> envvars;
 };
 
 #endif
