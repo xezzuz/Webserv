@@ -36,7 +36,7 @@ void	CGIHandler::storeBody()
 	buffer.erase(bytesWritten);
 }
 
-void	CGIHandler::handlePOST(char *buf, ssize_t size)
+void	CGIHandler::POSTbody(char *buf, ssize_t size)
 {
 	buffer.assign(buf, size);
 	//process body

@@ -10,7 +10,6 @@
 enum e_bridgeState {
 	HEADERS = 1,
 	BODY = 2,
-	RESPOND = 3
 };
 
 class ClientHandler : public EventHandler

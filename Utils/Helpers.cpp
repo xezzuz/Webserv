@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 15:41:49 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/21 20:55:20 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,6 +233,17 @@ void	capitalize(std::string& word)
 	}
 }
 
+
+
+/////////////////////////////////////////////////////
+void printMap(std::map<std::string, std::string>& map)
+{
+	std::cout << "************************************" << std::endl;
+	std::map<std::string, std::string>::iterator it;
+	for (it = map.begin(); it != map.end(); it++)
+		std::cout << it->first << "::" << it->second << std::endl;
+	std::cout << "************************************" << std::endl;
+}
 // #include <arpa/inet.h>
 // int main() {
 // 	unsigned int my = parseIPv4("192.168.1.1");

@@ -1,7 +1,7 @@
 #include "Response.hpp"
 #include "Error.hpp"
 
-void	Response::handlePOST( void )
+void	Response::handlePOST()
 {
 	buffer = "<!DOCTYPE html>\n"
 			"<html lang=\"en\">\n"

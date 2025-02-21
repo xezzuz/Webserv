@@ -39,7 +39,7 @@ public:
 	void	readCGIChunked();
 
 	void	storeBody();
-	void	handlePOST(char *buf, ssize_t size);
+	void	POSTbody(char *buf, ssize_t size);
 
 
 	int		respond();

@@ -227,23 +227,23 @@
 // }
 
 // BODY CONTROL CENTER
-bool			Request::parseRequestBody() {		// store request body in rawBody
-	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
-	if (isEncoded) {
-		if (!decodeChunkedBody())
-			return false;
-	}
-	else if (!isEncoded) {
-		if (!parseLengthBody())
-			return false;
-	}
-	// processRequestRawBody();
-	return processRequestRawBody();					// process rawBody
-}
+// bool			Request::parseRequestBody() {		// store request body in rawBody
+// 	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
+// 	if (isEncoded) {
+// 		if (!decodeChunkedBody())
+// 			return false;
+// 	}
+// 	else if (!isEncoded) {
+// 		if (!parseLengthBody())
+// 			return false;
+// 	}
+// 	// processRequestRawBody();
+// 	return processRequestRawBody();					// process rawBody
+// }
 
-void	Response::handlePOST(char *buf, ssize_t size)
+void	Response::POSTbody(char *buf, ssize_t size)
 {
-	buffer.assign(buf, size);
+	buffer += std::string(buf, size);
 	// processs body
 	storeBody();
 }

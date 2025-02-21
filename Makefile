@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/15 16:03:38 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/21 20:20:32 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME			= 		webserv
 
 CPP				= 		g++
 
-CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -O3 -std=c++98
+CPPFLAGS		= 		-Wall -Werror -Wextra -fsanitize=address -g3 -std=c++98
 
 INCLUDE			=		\
 						./_Config/Config.hpp \

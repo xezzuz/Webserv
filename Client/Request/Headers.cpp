@@ -6,42 +6,11 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 18:30:35 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/21 21:18:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-//		return (false);
-
-bool			Request::headerExists(const std::string& key) {
-	std::map<std::string, std::string>::iterator it;
-	it = _RequestData.Headers.find(key);
-	if (it == _RequestData.Headers.end())
-		return false;
-	return true;
-}
-
-bool			Request::bufferContainHeaders() {
-	size_t			pos;
-	
-	pos = buffer.find("\r\n\r\n");
-	if (pos == std::string::npos)
-		return false;
-	return true;
-}
-
-std::string		Request::extractHeadersFromBuffer() {
-	size_t			CRLF;
-	std::string		header;
-	
-	CRLF = buffer.find("\r\n\r\n");
-	if (CRLF == std::string::npos)
-		return "";
-	header = buffer.substr(0, CRLF) + "\r\n\r\n";
-	buffer = buffer.erase(0, CRLF + 4);
-	bufferSize -= (CRLF + 4);
-	return header;
-}
 
 bool			Request::decodeURI() {
 	std::string			encodedURI = _RequestData.URI;
@@ -77,87 +46,19 @@ void	Request::isValidURI(const std::string& uri)
 	if (uri[0] != '/') {
 		throw(400);
 	}
+	
 	static char allowedURIChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	
-	if (uri.find_first_not_of(allowedURIChars) == std::string::npos)
+	if (uri.find_first_not_of(allowedURIChars) != std::string::npos)
 		throw(400);
 }
-
-
 
 void	Request::isValidHTTPVersion(const std::string& httpversion)
 {
 	if (httpversion.length() != 8 || httpversion.substr(0, 5) != "HTTP/")
 		throw(400);
-	if (httpversion.substr(6) != "1.1")
+	if (httpversion.substr(5) != "1.1")
 		throw(505);
-}
-
-void	Request::parseHeaders() {
-	std::string	fieldName;
-	std::string	fieldValue;
-
-	static char allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
-	
-	size_t	colonPos;
-	for (size_t i = 1; i < _RequestRaws.rawHeaders.size(); i++) {
-		if (_RequestRaws.rawHeaders[i].empty())
-			continue;
-
-		colonPos = _RequestRaws.rawHeaders[i].find(':');
-		if (colonPos == std::string::npos)
-			throw(400);
-		
-		fieldName = _RequestRaws.rawHeaders[i].substr(0, colonPos);
-		if (fieldName.empty() || headerExists(fieldName))
-			throw(400);
-
-		if (fieldName.find_first_not_of(allowedChars) == std::string::npos)
-			throw(400);
-		_RequestData.Headers[fieldName] = fieldValue;
-	}
-}
-
-void	Request::parseRequestLine() {
-	
-	_RequestRaws.rawRequestLine = _RequestRaws.rawHeaders[0];
-	if (std::count(_RequestRaws.rawRequestLine.begin(), _RequestRaws.rawRequestLine.end(), ' ') != 2)
-		throw (400);
-
-	std::istringstream	ssLine(_RequestRaws.rawRequestLine);
-	
-	std::getline(ssLine, _RequestData.Method, ' ');
-	isValidMethod(_RequestData.Method);
-	
-	std::getline(ssLine, _RequestData.URI, ' ');
-    isValidURI(_RequestData.URI);
-	
-	std::getline(ssLine, _RequestData.HTTPversion, '\r');
-    isValidHTTPVersion(_RequestData.HTTPversion);
-
-	decodeURI();
-}
-
-bool	Request::storeHeadersInVector() {
-	size_t						rpos;
-	std::string					line;
-	std::string					toParse;
-	size_t						opos = 0;
-	
-	toParse = extractHeadersFromBuffer();
-	if (toParse.empty())
-		return (false);
-	while (toParse[opos]) {
-		rpos = toParse.find("\r\n", opos);
-		if (rpos == std::string::npos)
-			throw (400);
-		line = toParse.substr(opos, rpos - opos);
-		if (line.empty())
-			break ;
-		_RequestRaws.rawHeaders.push_back(line);
-		opos = rpos + 2;
-	}
-	return (true);
 }
 
 // this function should be revised against RFC
@@ -226,4 +127,57 @@ void	Request::validateRequestHeaders()
 		else
 			_RequestData.contentType = "application/octet-stream";
 	}
+}
+
+void	Request::parseHeaders() {
+	size_t				CRLF = buffer.find("\r\n\r\n");
+	std::istringstream	ssHeaders(buffer.substr(0, CRLF + 4));
+	buffer.erase(0, CRLF + 4);
+	bufferSize -= (CRLF + 4);
+
+	static char 		allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
+	std::string			line;
+
+	while (std::getline(ssHeaders, line))
+	{
+		if (line == "\r")
+			break;
+
+		size_t col = line.find(":");
+		if (col == std::string::npos)
+			throw(400);
+
+		std::string key = stringtolower(line.substr(0, col));
+		if (key.find_first_not_of(allowedChars) != std::string::npos)
+			throw(400);
+		if (_RequestData.Headers.find(key) != _RequestData.Headers.end())
+			throw(400);
+
+		std::string value = stringtrim(line.substr(col + 1), " \r\n\t\v");
+
+		_RequestData.Headers.insert(std::make_pair(key, value));
+	}
+}
+
+void	Request::parseRequestLine() {
+	size_t CRLF = buffer.find("\r\n");
+	_RequestRaws.rawRequestLine = buffer.substr(0, CRLF);
+	buffer.erase(0, CRLF + 2);
+	bufferSize -= (CRLF + 2);
+	
+	if (std::count(_RequestRaws.rawRequestLine.begin(), _RequestRaws.rawRequestLine.end(), ' ') != 2)
+		throw (400);
+
+	std::istringstream	ssLine(_RequestRaws.rawRequestLine);
+	
+	std::getline(ssLine, _RequestData.Method, ' ');
+	isValidMethod(_RequestData.Method);
+	
+	std::getline(ssLine, _RequestData.URI, ' ');
+    isValidURI(_RequestData.URI);
+	
+	std::getline(ssLine, _RequestData.HTTPversion, '\r');
+    isValidHTTPVersion(_RequestData.HTTPversion);
+
+	decodeURI();
 }

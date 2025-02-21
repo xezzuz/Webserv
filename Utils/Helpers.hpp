@@ -43,5 +43,6 @@ std::string		generateRandomString( void );
 bool			allDigit(std::string str);
 void			capitalize(std::string& word);
 std::string		toHex(size_t num);
+void printMap(std::map<std::string, std::string>& map);
 
 #endif

@@ -63,7 +63,7 @@ public:
 	}
 
 
-	virtual void	handlePOST(char *buf, ssize_t size);
+	virtual void	POSTbody(char *buf, ssize_t size);
 	virtual void	storeBody( void );
 
 	void			generateErrorPage(int& status);
@@ -86,6 +86,7 @@ protected:
 	std::map<int, std::string>			statusCodes;
 
 private:
+	void	handlePOST();
 
 	int		rangeContentLength( void );
 	void	parseRangeHeader();

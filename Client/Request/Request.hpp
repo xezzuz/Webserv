@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 18:30:42 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/21 20:19:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@
 
 # define RECV_BUFFER_SIZE 16384
 
-enum e_parsingState {
-	REQUEST_INIT,
-	REQUEST_HEADERS,
-	REQUEST_FINISHED
-};
+// enum e_parsingState {
+// 	REQUEST_INIT,
+// 	REQUEST_HEADERS,
+// 	REQUEST_FINISHED
+// };
 
 typedef struct								RequestData {
 	/*					  BOOLEANS  				*/
@@ -101,7 +101,7 @@ class Request {
 		bool							isMultipart;
 
 		/*				STATE FLAGS				*/
-		e_parsingState					pState;
+		// e_parsingState					pState;
 		// int								statusCode;
 	
 	public:
@@ -110,14 +110,12 @@ class Request {
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 
-		int							feedRequest(int clientSocket);
-		bool						printParsedRequest();
+		// int							feedRequest(int clientSocket);
+		// bool						printParsedRequest();
 
-		bool						bufferContainHeaders();
 		bool						bufferContainChunk();
 		std::string					extractHeadersFromBuffer();
-		bool						headerExists(const std::string& key);
-		void						feedRequest(char *recvBuffer, int bufferSize);
+		// void						feedRequest(char *recvBuffer, int bufferSize);
 
 		bool						parseControlCenter(char *recvBuffer, int bufferSize);
 		// bool						parseControlCenter();
@@ -134,17 +132,13 @@ class Request {
 		bool						parseLengthBody();
 		void						validateRequestHeaders();
 
-		void						storeBody( void );
+		// void						storeBody( void );
 		// void						putRequestBodyInFile();
 
 		std::string					getBuffer() const { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 		RequestData					*getRequestData() { return &_RequestData; };
 
-		int&						getStatusCode();
-		e_parsingState				getParsingState() { return pState; } ;
-
-		void						setStatusCode(int code);
 		bool						decodeURI();
 		void						isValidMethod(const std::string& method);
 		void						isValidURI(const std::string& uri);

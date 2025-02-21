@@ -73,18 +73,17 @@ void 	ClientHandler::handleRead()
 				if (request.parseControlCenter(buf, bytesReceived) == 1)
 				{
 					createResponse();
-					bridgeState = BODY;
+					if (request.getRequestData()->Method == "POST")
+						bridgeState = BODY;
+					else
+					{
+						HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
+						response->generateHeaders();
+					}
 				}
 				break;
 			case BODY:
-				response->handlePOST(buf, bytesReceived);
-				break;
-			case RESPOND:
-				if (cgiActive)
-					HTTPserver->updateHandler(socket, EPOLLHUP);
-				else
-					HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-				response->generateHeaders();
+				response->POSTbody(buf, bytesReceived);
 				break;
 		}
 	}
