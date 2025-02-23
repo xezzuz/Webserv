@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/21 20:20:32 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/23 17:52:12 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ INCLUDE			=		\
 						./_Config/Config.hpp \
 						./IEventHandler.hpp \
 						./Client/Request/Request.hpp \
+						./Client/Response/AResponse.hpp \
 						./Client/Response/Response.hpp \
 						./Client/Response/Error.hpp \
 						./Server/ServerHandler.hpp \

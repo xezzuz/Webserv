@@ -3,28 +3,21 @@
 
 #include <iostream>
 #include <vector>
-#include "../../Utils/Helpers.hpp"
-#include "Response.hpp"
+#include "AResponse.hpp"
 
-class Disconnect : public std::exception
+class ErrorPage : public AResponse
 {
 public:
-	virtual ~Disconnect() throw() {}
-	Disconnect(std::string msg);
+	virtual ~ErrorPage();
+	ErrorPage(int& status, int& socket, RequestData	*data);
 
-	virtual const char *what() const throw();
-
+	void	readBody( void );
+	void	generateHeaders( void );
+	int		respond( void );
+	
 private:
-	std::string	msg;
-};
-
-class CGIRedirectException : public std::exception
-{
-public:
-	virtual ~CGIRedirectException() throw();
-	CGIRedirectException(const std::string& location);
-
-	std::string location;
+	std::ifstream	bodyFile;
+	int				status;
 };
 
 #endif

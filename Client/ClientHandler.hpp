@@ -3,14 +3,8 @@
 
 # include "../IEventHandler.hpp"
 # include "Response/Response.hpp"
-# include "Response/Error.hpp"
 # include "Request/Request.hpp"
 # include <iostream>
-
-enum e_bridgeState {
-	HEADERS = 1,
-	BODY = 2,
-};
 
 class ClientHandler : public EventHandler
 {
@@ -25,9 +19,6 @@ public:
 	void			setupResponse();
 	int				getSocket( void ) const;
 	// void			setResponseBuffer(std::string buffer);
-
-
-	void	receive();
 
 	void	reset();
 	void	remove();
@@ -47,14 +38,14 @@ private:
 	int							socket;
 	Request						request;
 
-	Response					*response;
+	AResponse					*response;
 
 	std::vector<ServerConfig>&	vServers;
 	Directives					config;
 	
 	bool						cgiActive;
 	bool						keepAlive;
-	e_bridgeState				bridgeState;
+	e_reqState					reqState;
 	
 };
 

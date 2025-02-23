@@ -1,5 +1,4 @@
 #include "Response.hpp"
-#include "Error.hpp"
 
 void	Response::initDirList()
 {
@@ -43,7 +42,10 @@ void	Response::directoryListing()
 	}
 	else
 		buffer = buildChunk(buffer.c_str(), buffer.size());
-	state = WRITE;
+	if ((this->*sender)() == true)
+		state = nextState;
+	else
+		state = WRITE;
 }
 
 void	Response::readRange()
@@ -66,7 +68,10 @@ void	Response::readRange()
 		buffer.append(std::string(buf, bytesRead));
 		std::cout << YELLOW << "======[(RANGE) READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		rangeData.current->rangeLength -= bytesRead;
-		state = WRITE;
+		if ((this->*sender)() == true)
+			state = nextState;
+		else
+			state = WRITE;
 		if (rangeData.current->rangeLength == 0)
 		{
 			rangeData.rangeState = NEXT;
@@ -89,6 +94,9 @@ void	Response::readBody()
 			nextState = DONE;
 		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		buffer.append(std::string(buf, bytesRead));
-		state = WRITE;
+		if ((this->*sender)() == true)
+			state = nextState;
+		else
+			state = WRITE;
 	}
 }

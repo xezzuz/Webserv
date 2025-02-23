@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 20:55:20 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/23 22:16:59 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,27 +213,62 @@ std::string		generateRandomString( void )
 	return (random);
 }
 
-std::string		toHex(size_t num)
+std::string capitalize(const std::string& input)
 {
-	std::stringstream ss;
+	std::string output = input;
 
-	ss << std::uppercase << std::hex << num;
-	return (ss.str());
-}
-
-void	capitalize(std::string& word)
-{
+	static char alpha[27] = "abcdefghijklmnopqrstuvwxyz";
 	size_t pos = 0;
-	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
 
-	while ((pos = word.find_first_of(alpha, pos)) != std::string::npos)
+	while ((pos = output.find_first_of(alpha, pos)) != std::string::npos)
 	{
-		word[pos++] -= 32;
-		pos = word.find_first_not_of(alpha, pos);
+		output[pos++] -= 32;
+		pos = output.find_first_not_of(alpha, pos);
 	}
+	
+	return (output);
 }
 
+inline std::string toHex(size_t size)
+{
+    if (size == 0)
+		return "0";
+    
+    std::string	result;
+	static char base16[] = "0123456789ABCDEF";
+	
 
+    while (size > 0)
+	{
+        result = base16[size % 16] + result;
+        size /= 16;
+    }
+    
+    return (result);
+}
+
+std::string buildChunk(const char* data, size_t size)
+{
+    if (!data || size == 0)
+        return "0\r\n\r\n";
+    
+    std::string hex = toHex(size);
+    std::string result;
+
+    result.reserve(hex.length() + 2 + size + 2);
+    
+    result.append(hex);
+    result.append("\r\n", 2);
+    result.append(data, size);
+    result.append("\r\n", 2);
+    
+    return (result);
+}
+
+// std::string	buildChunk(const char *data, size_t size) // error
+// {
+// 	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
+// }
 
 /////////////////////////////////////////////////////
 void printMap(std::map<std::string, std::string>& map)

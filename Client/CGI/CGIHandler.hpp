@@ -2,42 +2,38 @@
 # define CGIHANDLER_HPP
 
 # include "../../IEventHandler.hpp"
-# include "../Response/Response.hpp"
+# include "../Response/AResponse.hpp"
 
-# define CGI_BUFFER_SIZE 4096
-
-class Disconnect;
-
-class CGIHandler : public EventHandler, public Response
+class CGIHandler : public EventHandler, public AResponse
 {
 public:
 	virtual ~CGIHandler();
 	CGIHandler(int& clientSocket, RequestData *data);
-
-	void	setup();
-	// void	readCgi();
-	void	handleEvent(uint32_t events);
+	CGIHandler(const CGIHandler& rhs);
+	CGIHandler& operator=(const CGIHandler& rhs);
 	
-
-
-
-	// int		getFd() const;
+	int		getInfd() const;
+	int		getOutfd() const;
 	pid_t	getPid() const;
 	int		getFd() const
 	{
-		return (infd);
+		return (pipe_in);
 	}
-
 	std::vector<std::string>	headersToEnv();
 	void						buildEnv();
 
-	void	processCGIHeaders(std::map<std::string, std::string>& headersMap);
-	void	parseCGIHeaders();
 
+	void	execCGI();
+	void	handleEvent(uint32_t events);
 
+	void	validateHeaders();
+	void	parseHeaders();
+	void	addHeaders();
+	void	generateHeaders();
+
+	
 	void	readCGILength();
 	void	readCGIChunked();
-
 	void	storeBody();
 	void	POSTbody(char *buf, ssize_t size);
 
@@ -46,16 +42,17 @@ public:
 
 private:
 	// created here
-	std::vector<std::string>	envVars;
-	std::vector<char *>			envPtr;
-	char						*args[3];
+	std::vector<std::string>			envVars;
+	std::vector<char *>					envPtr;
+	char								*args[3];
+	std::map<std::string, std::string>	headersMap;
 
 
-	int				infd; // file descriptor where cgi reads input from
-	int				outfd; // file descriptor where cgi writes its output into
+	size_t			inputProcessed;
+	int				pipe_in; // file descriptor where cgi reads input from
+	int				pipe_out; // file descriptor where cgi writes its output into
 	pid_t			pid;
-	bool			parseBool;
-	bool			chunked;
+	bool			headersParsed;
 	void			(CGIHandler::*CGIreader)();
 };
 

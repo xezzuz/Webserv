@@ -1,6 +1,5 @@
 #include "CGIHandler.hpp"
 #include "../../HTTPServer/Webserv.hpp"
-#include "../Response/Error.hpp"
 
 std::string	headerToEnv(const std::string& headerKey, const std::string& headerValue)
 {
@@ -46,36 +45,36 @@ void	CGIHandler::buildEnv()
 	envPtr.push_back(NULL);
 }
 
-void	CGIHandler::setup()
+void	CGIHandler::execCGI()
 {
 	pid = fork();
 	if (pid == -1)
 	{
-		close(infd);
-		close(outfd);
+		close(pipe_in);
+		close(pipe_out);
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] fork: " + strerror(errno)));
 
 	}
 	else if (pid == 0)
 	{
-		if (dup2(outfd, 1) == -1)
+		if (dup2(pipe_out, 1) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
-			close(infd);
-			close(outfd);
+			close(pipe_in);
+			close(pipe_out);
 			exit(errno);
 		}
-		close(outfd);
+		close(pipe_out);
 	
-		if (dup2(infd, 0) == -1)
+		if (dup2(pipe_in, 0) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
-			close(infd);
+			close(pipe_in);
 			exit(errno);
 		}
-		close(infd);
+		close(pipe_in);
 
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find(reqCtx->scriptName));
 		if (chdir(dir.c_str()) == -1)
@@ -97,13 +96,5 @@ void	CGIHandler::setup()
 			exit(errno);
 		}
 	}
-	if (reqCtx->Method == "POST")
-	{
-		HTTPserver->registerHandler(outfd, this, EPOLLIN | EPOLLHUP);
-	}
-	else
-	{
-		HTTPserver->registerHandler(infd, this, EPOLLOUT | EPOLLHUP);
-		close(outfd);
-	}
+	close(pipe_out);
 }

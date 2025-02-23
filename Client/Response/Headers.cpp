@@ -1,5 +1,4 @@
 #include "Response.hpp"
-#include "Error.hpp"
 
 void	Response::handlePOST()
 {
@@ -51,6 +50,7 @@ void	Response::handleGET( void )
 		bodyFile.open(reqCtx->fullPath.c_str());
 		if (!bodyFile.is_open())
 			throw(500);
+		std::cout << "FULLPATH> " << reqCtx->fullPath << std::endl;
 		contentType = getContentType(reqCtx->fullPath, mimeTypes);
 		contentLength = fileLength(reqCtx->fullPath);
 	
@@ -84,5 +84,8 @@ void	Response::generateHeaders( void )
 
 	headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]); // status line
 	headers.append("\r\n\r\n");
-	sender = &Response::sendHeaders;
+	if ((this->*sender)() == true)
+		state = nextState;
+	else
+		state = WRITE;
 }

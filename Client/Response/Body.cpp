@@ -1,5 +1,4 @@
 #include "Response.hpp"
-#include "Error.hpp"
 
 // #include "Request.hpp"
 
@@ -241,21 +240,21 @@
 // 	return processRequestRawBody();					// process rawBody
 // }
 
-void	Response::POSTbody(char *buf, ssize_t size)
-{
-	buffer += std::string(buf, size);
-	// processs body
-	storeBody();
-}
+// void	Response::POSTbody(char *buf, ssize_t size)
+// {
+// 	buffer += std::string(buf, size);
+// 	// processs body
+// 	storeBody();
+// }
 
-void	Response::storeBody( void )
-{
-	uploadFile.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc);
-	if (!uploadFile.is_open())
-		throw(500);
+// void	Response::storeBody( void )
+// {
+// 	uploadFile.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc);
+// 	if (!uploadFile.is_open())
+// 		throw(500);
 
-	uploadFile.write(buffer.c_str(), buffer.size());
-	if (!uploadFile)
-		throw(500);
-	buffer.clear(); //
-}
+// 	uploadFile.write(buffer.c_str(), buffer.size());
+// 	if (!uploadFile)
+// 		throw(500);
+// 	buffer.clear(); //
+// }

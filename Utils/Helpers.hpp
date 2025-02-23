@@ -10,20 +10,26 @@
 #include <sys/stat.h>
 #include <map>
 
+class Disconnect : public std::exception
+{
+public:
+	virtual ~Disconnect() throw() {}
+	Disconnect(std::string msg) : msg(msg) {}
 
-// struct Directives
-// {
-// 	std::string 								root;
-// 	std::string 								alias;
-// 	bool 										autoindex;
-// 	std::string 								upload_store;
-// 	std::string 								cgi_pass;
-// 	std::vector<std::string>					index;
-// 	std::vector<std::string>					methods;
-// 	std::vector<std::string>					cgi_ext;
-// 	std::pair<int, std::string> 				redirect;
-// 	std::vector<std::pair<int, std::string> >	error_page;
-// };
+	virtual const char *what() const throw() { return (msg.c_str()); }
+
+private:
+	std::string	msg;
+};
+
+class CGIRedirectException : public std::exception
+{
+public:
+	virtual ~CGIRedirectException() throw() {}
+	CGIRedirectException(const std::string& location) : location(location) {}
+
+	std::string location;
+};
 
 std::string		stringtrim(const std::string& str, const std::string& set);
 bool			isHexa(const std::string& num);
@@ -41,8 +47,9 @@ std::string		_toString(unsigned long num);
 bool			rootJail(const std::string& uri);
 std::string		generateRandomString( void );
 bool			allDigit(std::string str);
-void			capitalize(std::string& word);
+std::string		capitalize(const std::string& word);
 std::string		toHex(size_t num);
+std::string		buildChunk(const char *data, size_t size); // error
 void printMap(std::map<std::string, std::string>& map);
 
 #endif

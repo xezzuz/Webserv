@@ -1,15 +1,20 @@
 #include "CGIHandler.hpp"
-#include "../Response/Error.hpp"
 
-void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMap)
+void	CGIHandler::validateHeaders()
 {
-	if (headersMap.find("content-type") == headersMap.end() && !buffer.empty())
+	std::map<std::string, std::string>::iterator field;
+
+	// Content-Type
+	field = headersMap.find("content-type");
+	if (field == headersMap.end() && !buffer.empty())
 	{
 		std::cerr << "[WEBSERV][ERROR]\tContet-Type Header Was Not Found In CGI" << std::endl;
 		throw(500);
 	}
 
-	if (headersMap.find("content-length") == headersMap.end())
+	// ContentLength
+	field = headersMap.find("content-length");
+	if (field == headersMap.end())
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
 		CGIreader = &CGIHandler::readCGIChunked;
@@ -17,71 +22,56 @@ void	CGIHandler::processCGIHeaders(std::map<std::string, std::string>& headersMa
 			buffer = buildChunk(buffer.c_str(), buffer.size());
 	}
 
+	// Location
 	std::string location;
+	field = headersMap.find("location");
 	if (headersMap.find("location") != headersMap.end())
 	{
-		location = headersMap["location"];
+		location = field->second;
 		if (location.at(0) == '/')
 			throw(CGIRedirectException(location));
 	}
 
+	// Status
+	field = headersMap.find("status");
 	if (headersMap.find("status") != headersMap.end())
 	{
-		std::string statusStr = headersMap["status"];
-		headersMap.erase("status");
+		std::string statusStr = field->second;
+		headersMap.erase(field);
 
 		size_t numStart = statusStr.find_first_not_of(" \t\f\v");
 		size_t numEnd = statusStr.find_first_of(" \t\f\v", numStart);
-		char *end;
 		std::string numStr = statusStr.substr(numStart, numEnd - numStart);
-		int statusCode = strtoul(numStr.c_str(), &end, 10);
-		if (errno == ERANGE || *end)
+
+		char *stop;
+		int statusCode = strtoul(numStr.c_str(), &stop, 10);
+		if (errno == ERANGE || *stop)
 		{
 			std::cerr << "[WEBSERV][ERROR]\tMalformed Status Header In CGI" << std::endl;
 			throw(500);
 		}
-		statusStr.erase(0, numEnd);
-		statusStr = stringtrim(statusStr, " \t\f\v");
 		if (statusCode == 302 && location.empty()) // RFC 3875 section 6.3.3
 		{
 			std::cerr << "[WEBSERV][ERROR]\t302 Status Code With No Location Header" << std::endl;
 			throw(500);
 		}
-		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + statusStr);
+		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + stringtrim(statusStr.substr(numEnd), " \t\f\v"));
 	}
 	else
 		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]);
-	
-	for (std::map<std::string, std::string>::iterator itr = headersMap.begin(); itr != headersMap.end(); itr++)
-	{
-		std::string key = itr->first;
-		capitalize(key);
-		headers.append("\r\n" + key + ": " + itr->second);
-	}
-
-	headers.append("\r\n\r\n");
 }
 
-void	CGIHandler::parseCGIHeaders()
+void	CGIHandler::parseHeaders()
 {
-	size_t pos = buffer.find("\r\n\r\n");
-	if (pos == std::string::npos)
+	size_t CRLF = buffer.find("\r\n\r\n");
+	if (CRLF == std::string::npos)
 	{
 		std::cerr << "[WEBSERV][ERROR]\tCGI Headers Not Found" << std::endl;
 		throw(500);
 	}
+	std::stringstream headerStream(buffer.substr(0, CRLF + 2));
+	buffer.erase(0, CRLF + 4);
 
-	headers.append("\r\nServer: webserv/1.0");
-	headers.append("\r\nDate: " + getDate());
-	if (reqCtx->keepAlive)
-		headers.append("\r\nConnection: keep-alive");
-	else
-		headers.append("\r\nConnection: close");
-	
-	std::stringstream headerStream(buffer.substr(0, pos + 2));
-	buffer.erase(0, pos + 4);
-
-	std::map<std::string, std::string>	headersMap;
 	std::string field;
 
 	while (getline(headerStream, field, '\n'))
@@ -90,8 +80,8 @@ void	CGIHandler::parseCGIHeaders()
 			break;
 		
 		if (field[field.size() - 1] == '\r')
-        	field.erase(field.size() - 1);
-    
+			field.erase(field.size() - 1);
+	
 	
 		std::cout << "Field :::::::" << field << "::::::: End_Field" << std::endl;
 		size_t pos = field.find(':');
@@ -111,9 +101,37 @@ void	CGIHandler::parseCGIHeaders()
 		}
 		headersMap[key] = value;
 	}
+}
 
-	processCGIHeaders(headersMap);
-	parseBool = false;
+void	CGIHandler::addHeaders()
+{
+	std::map<std::string, std::string>::iterator field;
+
+	for (field = headersMap.begin(); field != headersMap.end(); field++)
+		headers.append("\r\n" + capitalize(field->first) + ": " + field->second);
+}
+
+void	CGIHandler::generateHeaders()
+{
+	headers.append("\r\nServer: webserv/1.0");
+	headers.append("\r\nDate: " + getDate());
+
+	if (reqCtx->keepAlive)
+		headers.append("\r\nConnection: keep-alive");
+	else
+		headers.append("\r\nConnection: close");
+
+	parseHeaders();
+	validateHeaders();
+	addHeaders();
+	headers.append("\r\n\r\n");
+
+	std::cout << headers;
+	headersParsed = true;
+	if ((this->*sender)() == true && buffer.empty()) //
+		state = nextState;
+	else
+		state = WRITE;
 	// std::cout << "_______" << std::endl;
 	// std::cout << headers ;
 	// std::cout << "_______" << std::endl;

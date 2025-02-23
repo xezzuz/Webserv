@@ -1,5 +1,4 @@
 # include "Response.hpp"
-# include "Error.hpp"
 
 void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-1499
 {
@@ -131,10 +130,13 @@ void	Response::nextRange()
 		if (rangeData.ranges.size() > 1)
 		{
 			buffer = "\r\n--" + rangeData.boundary + "--\r\n";
-			state = WRITE;
 			nextState = DONE;
+			if ((this->*sender)() == true)
+				state = nextState;
+			else
+				state = WRITE;
 		}
-		if (rangeData.ranges.size() == 1)//////// FIIIIX
+		else if (rangeData.ranges.size() == 1)//////// FIIIIX
 		{
 			state = DONE;
 		}

@@ -1,26 +1,33 @@
 #include "CGIHandler.hpp"
 #include "../../HTTPServer/Webserv.hpp"
-#include "../Response/Error.hpp"
 
 CGIHandler::~CGIHandler()
 {
-	HTTPserver->removeHandler(infd);
-	HTTPserver->removeHandler(outfd);
+	HTTPserver->removeHandler(pipe_in);
+	HTTPserver->removeHandler(pipe_out);
 
 	if (waitpid(pid, NULL, WNOHANG) == 0)
 		kill(pid, SIGTERM);
-	
 }
 
-CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : Response(clientSocket, data), infd(-1), outfd(-1), pid(0), parseBool(true), chunked(false)
+CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), pid(-1), headersParsed(false)
 {
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
 		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] pipe: " + strerror(errno)));
-	infd = pipe_fd[0];
-	outfd = pipe_fd[1];
+	pipe_in = pipe_fd[0];
+	pipe_out = pipe_fd[1];
 	CGIreader = &CGIHandler::readCGILength;
-	// state = PARSE;
+}
+
+int CGIHandler::getOutfd() const
+{
+	return (pipe_out);
+}
+
+int CGIHandler::getInfd() const
+{
+	return (pipe_in);
 }
 
 pid_t CGIHandler::getPid() const
@@ -30,7 +37,7 @@ pid_t CGIHandler::getPid() const
 
 void	CGIHandler::storeBody()
 {
-	int		bytesWritten = write(outfd, buffer.c_str(), SEND_BUFFER_SIZE);
+	int		bytesWritten = write(pipe_out, buffer.c_str(), SEND_BUFFER_SIZE);
 	if (bytesWritten == -1)
 		throw(500);
 	buffer.erase(bytesWritten);
@@ -40,14 +47,14 @@ void	CGIHandler::POSTbody(char *buf, ssize_t size)
 {
 	buffer.assign(buf, size);
 	//process body
-	HTTPserver->updateHandler(socket, EPOLLHUP);
-	HTTPserver->updateHandler(outfd, EPOLLOUT | EPOLLHUP);
+	HTTPserver->updateHandler(socket, 0);
+	HTTPserver->updateHandler(pipe_out, EPOLLOUT);
 }
 
 void	CGIHandler::readCGIChunked()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
-	int		bytesRead = read(infd, buf, SEND_BUFFER_SIZE);
+	int		bytesRead = read(pipe_in, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 	
@@ -61,7 +68,7 @@ void	CGIHandler::readCGIChunked()
 void		CGIHandler::readCGILength()
 {
 	char	buf[SEND_BUFFER_SIZE] = {0};
-	int		bytesRead = read(infd, buf, SEND_BUFFER_SIZE);
+	int		bytesRead = read(pipe_in, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
 	{
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
@@ -70,27 +77,48 @@ void		CGIHandler::readCGILength()
 	{
 		buffer = std::string(buf, bytesRead);
 		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		state = WRITE;
+		if (headersParsed)
+			state = WRITE;
 	}
 	else
 	{
 		state = DONE;
 	}
 }
-
-int		CGIHandler::respond()
+void printState(State state, std::string name)
 {
 	switch (state)
 	{
+		case HEADERS:
+			std::cout << name << "===> HEADERS" << std::endl;
+			break;
 		case READ:
-			HTTPserver->updateHandler(socket, EPOLLHUP);
-			HTTPserver->updateHandler(infd, EPOLLIN | EPOLLHUP);
+			std::cout << name << "===> READ" << std::endl;
 			break;
 		case WRITE:
-			if (parseBool)
-				parseCGIHeaders();
-			if ((this->*sender)() == true && buffer.empty())
-					state = nextState;
+			std::cout << name << "===> WRITE" << std::endl;
+			break;
+		case DONE:
+			std::cout << name << "===> DONE" << std::endl;
+			break;
+	}
+}
+int		CGIHandler::respond()
+{
+	printState(state, "State");
+	printState(nextState, "nextState");
+	switch (state)
+	{
+		case HEADERS:
+			generateHeaders();
+			break;
+		case READ:
+			HTTPserver->updateHandler(socket, 0);
+			HTTPserver->updateHandler(pipe_in, EPOLLIN);
+			break;
+		case WRITE:
+			if ((this->*sender)() == true)
+				state = nextState;
 			break;
 		case DONE:
 			return (1);
@@ -100,16 +128,18 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	if ((events & EPOLLIN) || ((events & EPOLLHUP) && state != DONE)) // care EPOLLHUP
+	if ((events & EPOLLIN) || ((events & EPOLLHUP) && nextState != DONE)) // care EPOLLHUP
 	{
+		printState(state, "HState");
+		printState(nextState, "HnextState");
 		(this->*CGIreader)();
-		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-		HTTPserver->updateHandler(infd, 0);
+		HTTPserver->updateHandler(socket, EPOLLOUT);
+		HTTPserver->updateHandler(pipe_in, 0);
 	}
 	else if (events& EPOLLOUT)
 	{
 		storeBody();
-		HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
-		HTTPserver->updateHandler(outfd, 0);
+		HTTPserver->updateHandler(socket, EPOLLIN);
+		HTTPserver->updateHandler(pipe_out, 0);
 	}
 }

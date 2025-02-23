@@ -1,6 +1,7 @@
-#include "ClientHandler.hpp"
-#include "CGI/CGIHandler.hpp"
-#include "../HTTPServer/Webserv.hpp"
+# include "ClientHandler.hpp"
+# include "Response/Error.hpp"
+# include "CGI/CGIHandler.hpp"
+# include "../HTTPServer/Webserv.hpp"
 
 ClientHandler::~ClientHandler()
 {
@@ -8,23 +9,30 @@ ClientHandler::~ClientHandler()
 	deleteResponse();
 }
 
-ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : socket(fd), request(vServers), response(NULL), vServers(vServers), cgiActive(false), keepAlive(false), bridgeState(HEADERS) {}
+ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : request(vServers), vServers(vServers)
+{
+	socket = fd;
+	response = NULL;
+	cgiActive = false;
+	keepAlive = false;
+	reqState = REGULAR;
+}
 
 void	ClientHandler::reset()
 {
-	std::cout << "[WEBSERV]\tRESETING " << socket << ".." << std::endl;
-	bridgeState = HEADERS;
+	std::cout << "[WEBSERV][CLIENT-" << socket << "]\tRESETING.." << std::endl;
+	reqState = REGULAR;
 	deleteResponse();
 	request = Request(vServers);
 }
 
-void	ClientHandler::remove()
-{
-	std::cerr << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
-	deleteResponse();
-	HTTPserver->removeHandler(socket);
-	delete this;
-}
+// void	ClientHandler::remove()
+// {
+// 	std::cerr << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
+// 	deleteResponse();
+// 	HTTPserver->removeHandler(socket);
+// 	delete this;
+// }
 
 int	ClientHandler::getSocket() const
 {
@@ -43,21 +51,23 @@ void	ClientHandler::deleteResponse()
 
 void	ClientHandler::createResponse()
 {
-
-	if(request.getRequestData()->isCGI)
+	if (request.getRequestData()->isCGI)
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
-		cgi->setup();
+		std::cout << cgi->getOutfd() << std::endl;
+		// HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
+		cgi->execCGI();
+		HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
+		// close(cgi->getOutfd());
+		response = cgi;
 		cgiActive = true;
-		this->response = cgi;
-		HTTPserver->updateHandler(socket, EPOLLHUP);
+		HTTPserver->updateHandler(socket, 0);
 	}
 	else
 	{
 		this->response = new Response(socket, request.getRequestData());
+		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
-	if (!request.getBuffer().empty())
-		this->response->setBuffer(request.getBuffer());
 }
 
 void 	ClientHandler::handleRead()
@@ -65,46 +75,52 @@ void 	ClientHandler::handleRead()
 	char	buf[RECV_BUFFER_SIZE] = {0};
 
 	ssize_t	bytesReceived = recv(socket, buf, RECV_BUFFER_SIZE, 0);
-	if (bytesReceived > 0)
+	if (bytesReceived == 0)
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+	else if (bytesReceived < 0)
 	{
-		switch (bridgeState)
+		std::cerr << "[WEBSERV][ERROR]\t recv: " << strerror(errno) << std::endl;
+		throw(500);
+	}
+	else
+	{
+		int retVal;
+		switch (reqState)
 		{
-			case HEADERS:
-				if (request.parseControlCenter(buf, bytesReceived) == 1)
+			case REGULAR:
+				retVal = request.parseControlCenter(buf, bytesReceived);
+				if (retVal == 1) // receive CGI body
 				{
-					createResponse();
-					if (request.getRequestData()->Method == "POST")
-						bridgeState = BODY;
-					else
-					{
-						HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-						response->generateHeaders();
-					}
+					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+					HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
+					HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
+					cgi->execCGI();
+					response = cgi;
+					cgiActive = true;
+					reqState = CGI;
 				}
+				else if (retVal == 2) // receiving done - move to response
+					createResponse();
 				break;
-			case BODY:
-				response->POSTbody(buf, bytesReceived);
+			case CGI:
+				static_cast<CGIHandler *>(response)->POSTbody(buf, bytesReceived);
 				break;
 		}
 	}
-	else if (bytesReceived == 0)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
-	else
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
 }
 
 void 	ClientHandler::handleWrite()
 {
 	if (response->respond() == 1)
 	{
-		std::cout << GREEN << "[WEBSERV][CLIENT-" + _toString(socket) + "]\tCLIENT SERVED" << RESET << std::endl;
+		std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tCLIENT SERVED" << RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
-			HTTPserver->updateHandler(socket, EPOLLIN | EPOLLHUP);
+			HTTPserver->updateHandler(socket, EPOLLIN);
 			this->reset();
 		}
 		else
-			throw(Disconnect("[CLIENT-"+ _toString(socket) + "] CONNECTION CLOSE"));
+			throw(Disconnect("[CLIENT-" + _toString(socket) + "] CONNECTION CLOSE"));
 	}
 }
 
@@ -118,24 +134,23 @@ void	ClientHandler::handleEvent(uint32_t events)
 		}
 		else if (events & EPOLLOUT)
 		{
-			try
-			{
-				handleWrite();
-			}
-			catch (CGIRedirectException& redirect)
-			{
-				deleteResponse();
-				decodeAbsPath(redirect.location, *request.getRequestData()); ///////       ////
-				createResponse(); ///// REWORK REWORK
-			}
+			handleWrite();
+			// try
+			// {
+			// }
+			// catch (CGIRedirectException& redirect)
+			// {
+			// 	deleteResponse();
+			// 	decodeAbsPath(redirect.location, *request.getRequestData()); ///////       ////
+			// 	createResponse(); ///// REWORK REWORK
+			// }
 		}
 	}
 	catch (int& status)
 	{
 		deleteResponse();
-		this->response = new Response(socket, request.getRequestData());
-		HTTPserver->updateHandler(socket, EPOLLOUT | EPOLLHUP);
-		response->generateErrorPage(status);
+		this->response = new ErrorPage(status, socket, request.getRequestData());
+		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
 	if (events & EPOLLHUP)
 	{

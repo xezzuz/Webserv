@@ -6,12 +6,11 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 21:18:51 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/23 18:02:12 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include "../Response/Error.hpp"
 
 ServerConfig&				Request::getMatchingServer() {
 	for (size_t i = 0; i < vServers.size(); i++) {
@@ -40,28 +39,32 @@ void						Request::setMatchingConfig() {
 }
 
 // PARSING CONTROL CENTER
-bool	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
+int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 {
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
 	std::cout << "------REQUEST-----" << std::endl;
 	std::cout << buffer;
 	std::cout << "------------------" << std::endl;
+	if (!headersParsed)
+	{
+		if (buffer.find("\r\n\r\n") == std::string::npos)
+		return (0);
 
-	if (buffer.find("\r\n\r\n") == std::string::npos)
-		return (false);
-
-	parseRequestLine();
-	parseHeaders();
-	validateRequestHeaders();
-	setMatchingConfig();
-	fillRequestData(_RequestData.URI, _RequestData);
-	return (true);
+		parseRequestLine();
+		parseHeaders();
+		validateRequestHeaders();
+		setMatchingConfig();
+		fillRequestData(_RequestData.URI, _RequestData);
+		headersParsed = true;
+		if(_RequestData.Method != "POST")
+			return (2); // stop receiving
+		else if (_RequestData.isCGI)
+			return (1);
+	}
+	else
+	{
+		return (2); // stop receiving
+	}
+	return (0); // still data to be recieved
 }
-// void			Request::feedRequest(char *recvBuffer, int recvBufferSize) {
-// 	std::string		recvBuff(recvBuffer, recvBufferSize);
-// 	buffer.append(recvBuffer, recvBufferSize);
-// 	bufferSize += recvBufferSize;
-// 	parseControlCenter();
-// 	std::cout << pState << std::endl;
-// }

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 20:19:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/23 14:40:31 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,10 @@
 
 # define RECV_BUFFER_SIZE 16384
 
-// enum e_parsingState {
-// 	REQUEST_INIT,
-// 	REQUEST_HEADERS,
-// 	REQUEST_FINISHED
-// };
+enum e_reqState {
+	REGULAR,
+	CGI
+};
 
 typedef struct								RequestData {
 	/*					  BOOLEANS  				*/
@@ -99,6 +98,7 @@ class Request {
 		/*			   PARSING FLAGS			*/
 		bool							isEncoded;
 		bool							isMultipart;
+		bool							headersParsed;
 
 		/*				STATE FLAGS				*/
 		// e_parsingState					pState;
@@ -117,19 +117,21 @@ class Request {
 		std::string					extractHeadersFromBuffer();
 		// void						feedRequest(char *recvBuffer, int bufferSize);
 
-		bool						parseControlCenter(char *recvBuffer, int bufferSize);
+		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
 		// bool						parseControlCenter();
-		bool						storeHeadersInVector();
 		void						parseRequestLine();
 		void						parseHeaders();
 		bool						parseRequestBody();
-		bool						decodeChunkedBody();
-		bool						processRequestRawBody();
-		bool						processMultipartFormData();
-		bool						processMultipartHeaders();
-		bool						processMultipartData();
+		void						decodeChunkedBody();
+		void						processRequestRawBody();
+		void						processMultipartFormData();
+		void						processMultipartHeaders();
+		void						processMultipartData();
 		bool						processBinaryBody();
-		bool						parseLengthBody();
+		void						parseLengthBody();
+		void						storeBody( void );
+		void						uploadBody( void );
+		
 		void						validateRequestHeaders();
 
 		// void						storeBody( void );

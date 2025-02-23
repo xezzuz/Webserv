@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/21 19:18:59 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/23 18:22:27 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Request::~Request() {}
 
-Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
+Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers), headersParsed(false) {
 	_RequestData.StatusCode = 200;
 	bufferSize = 0;
 	
@@ -49,12 +49,31 @@ Request&	Request::operator=(const Request& rhs)
 		// body = rhs.body;
 		// header = rhs.header;
 		// requestLine = rhs.requestLine;
+		headersParsed = rhs.headersParsed;
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
 		// statusCode = rhs.statusCode;
 	}
 	return (*this);
 }
+
+// void	Request::receive()
+// {
+// 	char	buf[RECV_BUFFER_SIZE] = {0};
+
+// 	ssize_t	bytesReceived = recv(socket, buf, RECV_BUFFER_SIZE, 0);
+// 	if (bytesReceived > 0)
+// 	{
+// 		buffer += std::string(buf, bytesReceived);
+// 		bufferSize += bytesReceived;
+// 		parseControlCenter();
+// 		return (pState);
+// 	}
+// 	else if (bytesReceived == 0)
+// 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+// 	else
+// 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
+// }
 
 // int&						Request::getStatusCode() {
 // 	return this->statusCode;
