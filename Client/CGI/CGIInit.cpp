@@ -96,5 +96,5 @@ void	CGIHandler::execCGI()
 			exit(errno);
 		}
 	}
-	close(pipe_out);
+	// close(pipe_out);
 }

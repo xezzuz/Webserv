@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/23 22:16:59 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:10:48 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,17 +55,17 @@
 // }
 
 std::string			stringtrim(const std::string& str, const std::string& set) {
-    if (str.empty() || set.empty()) {
-        return str; // Nothing to trim
-    }
+	if (str.empty() || set.empty()) {
+		return (str);
+	}
 
-    size_t first = str.find_first_not_of(set);
-    if (first == std::string::npos) {
-        return ""; // Entire string consists of characters from `set`
-    }
+	size_t first = str.find_first_not_of(set);
+	if (first == std::string::npos) {
+		return "";
+	}
 
-    size_t last = str.find_last_not_of(set);
-    return str.substr(first, last - first + 1);
+	size_t last = str.find_last_not_of(set);
+	return str.substr(first, last - first + 1);
 }
 
 std::string		stringtolower(std::string str) {
@@ -85,21 +85,21 @@ bool			stringIsDigit(const std::string& str) {
 
 bool			isHexa(const std::string& num) {
 	std::string		hex = "0123456789ABCDEFabcdef";
-
-	for (size_t i = 0; i < num.size(); i++) {
-		if (hex.find(num[i]) == std::string::npos)
-			return false;
-	}
-	return true;
+	
+	if (num.find_first_not_of(hex) != std::string::npos)
+		return (false);
+	return (true);
 }
 
-int				hexToInt(const std::string& num) {
-	int						result;
-	std::stringstream		ss;
+ssize_t htoi(const std::string& num)
+{
+	char *stop;
+	unsigned long value = std::strtoul(num.c_str(), &stop, 16);
 
-	ss << std::hex << num;
-	ss >> result;
-	return result;
+	if (*stop)
+		return (-1);
+
+	return (static_cast<ssize_t>(value));
 }
 
 unsigned int	parseIPv4(const std::string& ipAddress) {
@@ -143,12 +143,12 @@ std::string	getContentType(const std::string& target, std::map<std::string, std:
 
 std::string	getDate( void )
 {
-    char buffer[100];
+	char buffer[100];
 
 	std::time_t now = std::time(0);
-    std::tm* gmt = std::gmtime(&now);
+	std::tm* gmt = std::gmtime(&now);
 
-    std::strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S GMT", gmt);
+	std::strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S GMT", gmt);
 	return (buffer);
 }
 
@@ -231,38 +231,38 @@ std::string capitalize(const std::string& input)
 
 inline std::string toHex(size_t size)
 {
-    if (size == 0)
+	if (size == 0)
 		return "0";
-    
-    std::string	result;
+	
+	std::string	result;
 	static char base16[] = "0123456789ABCDEF";
 	
 
-    while (size > 0)
+	while (size > 0)
 	{
-        result = base16[size % 16] + result;
-        size /= 16;
-    }
-    
-    return (result);
+		result = base16[size % 16] + result;
+		size /= 16;
+	}
+	
+	return (result);
 }
 
 std::string buildChunk(const char* data, size_t size)
 {
-    if (!data || size == 0)
-        return "0\r\n\r\n";
-    
-    std::string hex = toHex(size);
-    std::string result;
+	if (!data || size == 0)
+		return "0\r\n\r\n";
+	
+	std::string hex = toHex(size);
+	std::string result;
 
-    result.reserve(hex.length() + 2 + size + 2);
-    
-    result.append(hex);
-    result.append("\r\n", 2);
-    result.append(data, size);
-    result.append("\r\n", 2);
-    
-    return (result);
+	result.reserve(hex.length() + 2 + size + 2);
+	
+	result.append(hex);
+	result.append("\r\n", 2);
+	result.append(data, size);
+	result.append("\r\n", 2);
+	
+	return (result);
 }
 
 // std::string	buildChunk(const char *data, size_t size) // error

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:04:48 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:15:06 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,9 +99,9 @@ class Request {
 		bool							isEncoded;
 		bool							isMultipart;
 		bool							headersParsed;
+		bool							bodyDone;
 
 		/*				STATE FLAGS				*/
-		bool								finished;
 		// e_parsingState					pState;
 		// int								statusCode;
 	
@@ -122,27 +122,16 @@ class Request {
 		// bool						parseControlCenter();
 		void						parseRequestLine();
 		void						parseHeaders();
-		// bool						parseRequestBody();
-		// void						decodeChunkedBody();
-		// void						processRequestRawBody();
-		// void						processMultipartFormData();
-		// void						processMultipartHeaders();
-		// void						processMultipartData();
-		// bool						processBinaryBody();
-		// void						parseLengthBody();
-
-		bool						parseRequestBody();
-		bool						decodeChunkedBody();
-		bool						processRequestRawBody();
-		bool						processMultipartFormData();
-		bool						processMultipartHeaders();
-		bool						processMultipartData();
+		void						parseRequestBody();
+		void						decodeChunkedBody();
+		void						processRequestRawBody();
+		void						processMultipartFormData();
+		void						processMultipartHeaders();
+		void						processMultipartData();
 		bool						processBinaryBody();
-		bool						parseLengthBody();
-
+		void						parseLengthBody();
 		void						storeBody( void );
 		void						uploadBody( void );
-		
 		
 		void						validateRequestHeaders();
 
@@ -168,6 +157,5 @@ bool			stringIsDigit(const std::string& str);
 std::string		stringtrim(const std::string& str, const std::string& set);
 std::string		stringtolower(std::string str);
 bool			isHexa(const std::string& num);
-int				hexToInt(const std::string& num);
 
 #endif

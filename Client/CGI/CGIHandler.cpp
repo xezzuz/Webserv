@@ -15,7 +15,16 @@ CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientS
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
 		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] pipe: " + strerror(errno)));
-	pipe_in = pipe_fd[0];
+	if (data->isEncoded)
+	{
+		bodyFile.open(/*opened file by the request*/);
+		if (!bodyFile.is_open())
+			throw(500);
+		close(pipe_fd[0]);
+	}
+	else
+		pipe_in = pipe_fd[0];
+
 	pipe_out = pipe_fd[1];
 	CGIreader = &CGIHandler::readCGILength;
 }
@@ -85,28 +94,26 @@ void		CGIHandler::readCGILength()
 		state = DONE;
 	}
 }
-void printState(State state, std::string name)
-{
-	switch (state)
-	{
-		case HEADERS:
-			std::cout << name << "===> HEADERS" << std::endl;
-			break;
-		case READ:
-			std::cout << name << "===> READ" << std::endl;
-			break;
-		case WRITE:
-			std::cout << name << "===> WRITE" << std::endl;
-			break;
-		case DONE:
-			std::cout << name << "===> DONE" << std::endl;
-			break;
-	}
-}
+// void printState(State state, std::string name)
+// {
+// 	switch (state)
+// 	{
+// 		case HEADERS:
+// 			std::cout << name << "===> HEADERS" << std::endl;
+// 			break;
+// 		case READ:
+// 			std::cout << name << "===> READ" << std::endl;
+// 			break;
+// 		case WRITE:
+// 			std::cout << name << "===> WRITE" << std::endl;
+// 			break;
+// 		case DONE:
+// 			std::cout << name << "===> DONE" << std::endl;
+// 			break;
+// 	}
+// }
 int		CGIHandler::respond()
 {
-	printState(state, "State");
-	printState(nextState, "nextState");
 	switch (state)
 	{
 		case HEADERS:
@@ -128,10 +135,8 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	if ((events & EPOLLIN) || ((events & EPOLLHUP) && nextState != DONE)) // care EPOLLHUP
+	if ((events & EPOLLIN) || ((events & EPOLLHUP) && state != DONE)) // care EPOLLHUP
 	{
-		printState(state, "HState");
-		printState(nextState, "HnextState");
 		(this->*CGIreader)();
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 		HTTPserver->updateHandler(pipe_in, 0);

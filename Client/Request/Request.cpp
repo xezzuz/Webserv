@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:04:58 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:14:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,7 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers), head
 	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
 	isMultipart = false;
-
-	finished = false;
+	bodyDone = false;
 	
 	_RequestRaws.bodySize = 0;
 	_RequestData.contentLength = -1;

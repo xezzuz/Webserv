@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <unistd.h>
+#include <string>
 #include <sys/stat.h>
 #include <map>
 
@@ -35,7 +36,7 @@ std::string		stringtrim(const std::string& str, const std::string& set);
 bool			isHexa(const std::string& num);
 std::string		stringtolower(std::string str);
 bool			stringIsDigit(const std::string& str);
-int				hexToInt(const std::string& num);
+ssize_t			htoi(const std::string& num);
 unsigned int	parseIPv4(const std::string& ipAddress);
 std::string		getDate( void );
 std::string		getDate( void );

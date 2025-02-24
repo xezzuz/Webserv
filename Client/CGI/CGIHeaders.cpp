@@ -82,7 +82,6 @@ void	CGIHandler::parseHeaders()
 		if (field[field.size() - 1] == '\r')
 			field.erase(field.size() - 1);
 	
-	
 		std::cout << "Field :::::::" << field << "::::::: End_Field" << std::endl;
 		size_t pos = field.find(':');
 		if (pos == std::string::npos)

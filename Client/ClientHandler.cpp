@@ -54,11 +54,10 @@ void	ClientHandler::createResponse()
 	if (request.getRequestData()->isCGI)
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
-		std::cout << cgi->getOutfd() << std::endl;
-		// HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
 		cgi->execCGI();
+		// HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
 		HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
-		// close(cgi->getOutfd());
+		close(cgi->getOutfd());
 		response = cgi;
 		cgiActive = true;
 		HTTPserver->updateHandler(socket, 0);
@@ -92,12 +91,13 @@ void 	ClientHandler::handleRead()
 				if (retVal == 1) // receive CGI body
 				{
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+					cgi->execCGI();
 					HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
 					HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
-					cgi->execCGI();
 					response = cgi;
 					cgiActive = true;
 					reqState = CGI;
+					//set buffer
 				}
 				else if (retVal == 2) // receiving done - move to response
 					createResponse();

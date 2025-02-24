@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:06:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:24:49 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 	if (!headersParsed)
 	{
 		if (buffer.find("\r\n\r\n") == std::string::npos)
-			return (0);
+		return (0);
 
 		parseRequestLine();
 		parseHeaders();
@@ -57,15 +57,15 @@ int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 		setMatchingConfig();
 		fillRequestData(_RequestData.URI, _RequestData);
 		headersParsed = true;
-		if (_RequestData.Method != "POST")
+		if(_RequestData.Method != "POST")
 			return (2); // stop receiving
-		else if (_RequestData.isCGI)
-			return (1);
+		else if (_RequestData.isCGI && !isEncoded)
+			return (1); // move to CGI body posting
 	}
 	else
 	{
 		parseRequestBody();
-		if (finished)
+		if (bodyDone)
 			return (2); // stop receiving
 	}
 	return (0); // still data to be recieved
