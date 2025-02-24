@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/23 14:48:02 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:07:07 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-void	Request::storeBody( void )
-{
-	uploader.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc);
-	if (!uploader.is_open())
-		throw(500);
+// void	Request::storeBody( void )
+// {
+// 	uploader.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc);
+// 	if (!uploader.is_open())
+// 		throw(500);
 
-	uploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
-	if (!uploader)
-		throw(500);
-	_RequestRaws.rawBody.clear(); //
-}
+// 	uploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
+// 	if (!uploader)
+// 		throw(500);
+// 	_RequestRaws.rawBody.clear(); //
+// }
 
 // void			Request::putRequestBodyInFile() {
 // 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC);
@@ -219,7 +219,7 @@ void	Request::storeBody( void )
 // 	std::cout << "processRequestRawBody(true);" << std::endl;
 // }
 
-// // BODY CONTROL CENTER
+// BODY CONTROL CENTER
 // void			Request::parseRequestBody() {		// store request body in raw Body
 // 	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
 // 	if (isEncoded && !buffer.empty()) {

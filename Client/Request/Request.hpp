@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/23 14:40:31 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:04:48 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ class Request {
 		bool							headersParsed;
 
 		/*				STATE FLAGS				*/
+		bool								finished;
 		// e_parsingState					pState;
 		// int								statusCode;
 	
@@ -121,16 +122,27 @@ class Request {
 		// bool						parseControlCenter();
 		void						parseRequestLine();
 		void						parseHeaders();
+		// bool						parseRequestBody();
+		// void						decodeChunkedBody();
+		// void						processRequestRawBody();
+		// void						processMultipartFormData();
+		// void						processMultipartHeaders();
+		// void						processMultipartData();
+		// bool						processBinaryBody();
+		// void						parseLengthBody();
+
 		bool						parseRequestBody();
-		void						decodeChunkedBody();
-		void						processRequestRawBody();
-		void						processMultipartFormData();
-		void						processMultipartHeaders();
-		void						processMultipartData();
+		bool						decodeChunkedBody();
+		bool						processRequestRawBody();
+		bool						processMultipartFormData();
+		bool						processMultipartHeaders();
+		bool						processMultipartData();
 		bool						processBinaryBody();
-		void						parseLengthBody();
+		bool						parseLengthBody();
+
 		void						storeBody( void );
 		void						uploadBody( void );
+		
 		
 		void						validateRequestHeaders();
 
