@@ -15,14 +15,14 @@ CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientS
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
 		throw(Disconnect("[CLIENT-" + _toString(clientSocket) + "] pipe: " + strerror(errno)));
-	if (data->isEncoded)
-	{
-		bodyFile.open(/*opened file by the request*/);
-		if (!bodyFile.is_open())
-			throw(500);
-		close(pipe_fd[0]);
-	}
-	else
+	// if (data->isEncoded)
+	// {
+	// 	bodyFile.open(/*opened file by the request*/);
+	// 	if (!bodyFile.is_open())
+	// 		throw(500);
+	// 	close(pipe_fd[0]);
+	// }
+	// else
 		pipe_in = pipe_fd[0];
 
 	pipe_out = pipe_fd[1];

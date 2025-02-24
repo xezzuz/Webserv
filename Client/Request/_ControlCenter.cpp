@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:24:49 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:36:02 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void						Request::setMatchingConfig() {
 	_RequestData._Config = (_RequestData.matchingLocation.empty()) ? 
 	&matchingServer.ServerDirectives : &matchingServer.Locations.find(_RequestData.matchingLocation)->second;
 }
-
+#include <cassert>
 // PARSING CONTROL CENTER
 int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 {
@@ -64,6 +64,7 @@ int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 	}
 	else
 	{
+		assert(true && "");
 		parseRequestBody();
 		if (bodyDone)
 			return (2); // stop receiving

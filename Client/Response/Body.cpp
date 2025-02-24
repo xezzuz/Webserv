@@ -1,6 +1,6 @@
 #include "Response.hpp"
 
-#include "Request.hpp"
+// #include "Request.hpp"
 
 // void	Request::storeBody( void )
 // {

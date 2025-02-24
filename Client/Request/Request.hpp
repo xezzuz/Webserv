@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:15:06 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:31:07 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ typedef	struct								RequestRaws {
 	
 	std::string								boundaryBegin;
 	std::string								boundaryEnd;
-	int										bodySize;
-	int										contentLength;
+	size_t									bodySize;
+	size_t									contentLength;
 }											RequestRaws;
 
 
@@ -128,7 +128,7 @@ class Request {
 		void						processMultipartFormData();
 		void						processMultipartHeaders();
 		void						processMultipartData();
-		bool						processBinaryBody();
+		void						processBinaryBody();
 		void						parseLengthBody();
 		void						storeBody( void );
 		void						uploadBody( void );

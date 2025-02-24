@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:20:41 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/24 18:32:29 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void			Request::processMultipartHeaders() {
 		throw(400);
 	
 	std::cout << "creating " + filename << std::endl;
-	std::string tmp = "/Users/nazouz/goinfre/Webserv/" + filename;
+	std::string tmp = "/home/mmaila/goinfre/" + filename;
 	int	fd = open(tmp.c_str(), O_CREAT | O_APPEND | O_RDWR);
 	if (fd == -1) {
 		throw(500);
@@ -182,15 +182,15 @@ void			Request::processMultipartFormData() {
 	}
 }
 
-bool			Request::processBinaryBody() {
+void			Request::processBinaryBody() {
 	if (_RequestRaws.rawBody.empty())
-		return true;
+		return ;
 	// if (_RequestRaws.bodySize > _RequestData.contentLength)
 	//	throw(400);
 	if (!files.size()) {
 		std::time_t				time = std::time(NULL);
 		std::stringstream 		ss;
-		ss << "/Users/nazouz/goinfre/Webserv/" << "_clientfile" << time;
+		ss << "/home/mmaila/goinfre/" << "_clientfile" << time;
 		std::string				filename(ss.str());
 		int fd = open(filename.c_str(), O_CREAT | O_APPEND | O_RDWR);
 		if (fd == -1)
