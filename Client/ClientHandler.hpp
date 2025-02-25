@@ -13,15 +13,7 @@ public:
 	ClientHandler(int fd, std::vector<ServerConfig>& vServers);
 
 
-	ServerConfig&	matchingServer(std::string& host);
-	void			decodeUri(struct ResponseInput& input, std::string& URL);
-	void			initResponse();
-	void			setupResponse();
-	int				getSocket( void ) const;
-	// void			setResponseBuffer(std::string buffer);
-
 	void	reset();
-	void	remove();
 	void 	handleRead();
 	void 	handleWrite();
 	void	handleEvent(uint32_t events);
@@ -29,10 +21,7 @@ public:
 	void	createResponse();
 	void	deleteResponse();
 	
-	int		getFd() const
-	{
-		return (socket);
-	}
+	int		getFd() const;
 
 private:
 	int							socket;

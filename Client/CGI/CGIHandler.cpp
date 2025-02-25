@@ -22,7 +22,7 @@ CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientS
 	CGIreader = &CGIHandler::readCGILength;
 }
 
-int CGIHandler::getSocket() const
+int	CGIHandler::getFd() const
 {
 	return (cgiSocket);
 }

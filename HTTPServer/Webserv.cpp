@@ -1,7 +1,13 @@
 #include "Webserv.hpp"
 #include "../Server/ServerHandler.hpp"
 
-Webserv::~Webserv() {}
+Webserv::~Webserv()
+{
+	std::map<int, EventHandler *>::iterator it;
+	for (it = handlerMap.begin(); it != handlerMap.end(); it++)
+		delete it->second;
+	close(epoll_fd);
+}
 
 Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
@@ -46,9 +52,8 @@ void	Webserv::removeHandler(int fd)
 	close(fd);
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
-	{
 		handlerMap.erase(it);
-	}
+	
 	if (handlerMap.size() == 0)
 	{
 		std::cerr << "[WEBSERV] No Servers Left. Exiting..." << std::endl;
@@ -165,20 +170,13 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (true)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 
-		std::cout << "EVENT_COUNT (" << eventCount << ") :";
-		for (int i = 0; i < eventCount; i++)
-		{
-			print_epoll_events(events[i].events);
-		}
-		std::cout << std::endl;
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
 			try
 			{
-				// print_epoll_events(events[i].events);
 				if (events[i].events & EPOLLERR)
 				{
 					int fd = handler->getFd();
@@ -196,16 +194,5 @@ void	Webserv::run()
 				delete handler;
 			}
 		}
-		// std::vector<std::pair<EventHandler *, std::time_t>>::iterator it;
-		// for (it = Timer.begin(); it != Timer.end(); it++)
-		// {
-		// 	time_t now = time(0);
-		// 	if ((now - it->second) >= TIMEOUT)
-		// 	{
-		// 		removeHandler(it->first.getFd());
-		// 		kill(it->first.getPid(), SIGKILL);
-		// 	}
-		// }
-
 	}
 }

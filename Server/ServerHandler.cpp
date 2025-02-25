@@ -9,6 +9,11 @@ ServerHandler::ServerHandler() {}
 
 ServerHandler::ServerHandler(int fd) : socket(fd) {}
 
+int		ServerHandler::getFd() const
+{
+	return (socket);
+}
+
 void	ServerHandler::addVServer(ServerConfig& server)
 {
 	vServers.push_back(server);

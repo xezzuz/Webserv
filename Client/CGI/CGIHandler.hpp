@@ -13,10 +13,8 @@ public:
 	CGIHandler& operator=(const CGIHandler& rhs);
 	
 	pid_t	getPid() const;
-	int		getFd() const
-	{
-		return (cgiSocket);
-	}
+	int		getFd() const;
+
 	void	buildEnv();
 
 
@@ -39,8 +37,6 @@ public:
 
 	int		respond();
 
-
-	int getSocket() const;
 private:
 	// created here
 	std::vector<std::string>			envVars;

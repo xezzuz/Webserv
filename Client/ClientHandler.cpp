@@ -26,15 +26,7 @@ void	ClientHandler::reset()
 	request = Request(vServers);
 }
 
-// void	ClientHandler::remove()
-// {
-// 	std::cerr << "[WEBSERV]\tCLIENT " << socket << " REMOVED" << std::endl;
-// 	deleteResponse();
-// 	HTTPserver->removeHandler(socket);
-// 	delete this;
-// }
-
-int	ClientHandler::getSocket() const
+int	ClientHandler::getFd() const
 {
 	return (socket);
 }
@@ -55,7 +47,7 @@ void	ClientHandler::createResponse()
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgi->execCGI();
-		HTTPserver->registerHandler(cgi->getSocket(), cgi, EPOLLIN);
+		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
 		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
 		cgiActive = true;
@@ -90,7 +82,7 @@ void 	ClientHandler::handleRead()
 				{
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgi->execCGI();
-					HTTPserver->registerHandler(cgi->getSocket(), cgi, 0);
+					HTTPserver->registerHandler(cgi->getFd(), cgi, 0);
 					cgi->setBuffer(request.getBuffer());
 					response = cgi;
 					cgiActive = true;
