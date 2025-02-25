@@ -12,15 +12,12 @@ public:
 	CGIHandler(const CGIHandler& rhs);
 	CGIHandler& operator=(const CGIHandler& rhs);
 	
-	int		getInfd() const;
-	int		getOutfd() const;
 	pid_t	getPid() const;
 	int		getFd() const
 	{
-		return (pipe_in);
+		return (cgiSocket);
 	}
-	std::vector<std::string>	headersToEnv();
-	void						buildEnv();
+	void	buildEnv();
 
 
 	void	execCGI();
@@ -42,6 +39,8 @@ public:
 
 	int		respond();
 
+
+	int getSocket() const;
 private:
 	// created here
 	std::vector<std::string>			envVars;
@@ -49,10 +48,11 @@ private:
 	char								*args[3];
 	std::map<std::string, std::string>	headersMap;
 
+	int	cgiSocket;
 
 	size_t			bodySize;
-	int				pipe_in; // file descriptor where cgi reads input from
-	int				pipe_out; // file descriptor where cgi writes its output into
+	// int				pipe_in; // file descriptor where cgi reads input from
+	// int				pipe_out; // file descriptor where cgi writes its output into
 	std::ifstream	bodyFile; // file to store incoming client body in if the request is chunked
 	pid_t			pid;
 	bool			headersParsed;

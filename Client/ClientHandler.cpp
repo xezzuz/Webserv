@@ -55,12 +55,10 @@ void	ClientHandler::createResponse()
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgi->execCGI();
-		// HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
-		HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
-		close(cgi->getOutfd());
+		HTTPserver->registerHandler(cgi->getSocket(), cgi, EPOLLIN);
+		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
 		cgiActive = true;
-		HTTPserver->updateHandler(socket, 0);
 	}
 	else
 	{
@@ -92,13 +90,11 @@ void 	ClientHandler::handleRead()
 				{
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgi->execCGI();
-					HTTPserver->registerHandler(cgi->getOutfd(), cgi, 0);
-					HTTPserver->registerHandler(cgi->getInfd(), cgi, 0);
+					HTTPserver->registerHandler(cgi->getSocket(), cgi, 0);
 					cgi->setBuffer(request.getBuffer());
 					response = cgi;
 					cgiActive = true;
 					reqState = CGI;
-					//set buffer
 				}
 				else if (retVal == 2) // receiving done - move to response
 					createResponse();

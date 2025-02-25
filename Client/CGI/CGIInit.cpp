@@ -48,37 +48,42 @@ void	CGIHandler::buildEnv()
 #include <cassert>
 void	CGIHandler::execCGI()
 {
+	int sv[2];
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
+	{
+		std::cerr << "[WEBSERV][ERROR]\tsocketpair: " << strerror(errno) << std::endl;
+		throw(500);
+	}
+
 	pid = fork();
 	if (pid == -1)
 	{
-		close(pipe_in);
-		close(pipe_out);
+		close(sv[0]);
+		close(sv[1]);
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] fork: " + strerror(errno)));
 
 	}
 	else if (pid == 0)
 	{
-		if (dup2(pipe_out, 1) == -1)
+		close(sv[0]);
+		if (dup2(sv[1], STDOUT_FILENO) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
-			close(pipe_in);
-			close(pipe_out);
+			close(sv[1]);
 			exit(errno);
 		}
-		close(pipe_out);
 	
-		if (dup2(pipe_in, 0) == -1)
+		if (dup2(sv[1], STDIN_FILENO) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
-			close(pipe_in);
+			close(sv[1]);
 			exit(errno);
 		}
-		close(pipe_in);
+		close(sv[1]);
 
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find(reqCtx->scriptName));
-		std::cout << dir << std::endl;
 		if (chdir(dir.c_str()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
@@ -98,5 +103,7 @@ void	CGIHandler::execCGI()
 			exit(errno);
 		}
 	}
+	close(sv[1]);
+	cgiSocket = sv[0];
 	// close(pipe_out);
 }

@@ -77,8 +77,8 @@ public:
 		if (bytesSent == -1)
 			throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 		std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
-		std::cout << headers;
-		std::cout << "==============================================================" << std::endl;
+		// std::cout << headers;
+		// std::cout << "==============================================================" << std::endl;
 		headers.erase(0, bytesSent);
 		if (headers.empty())
 			sender = &AResponse::sendBody;
@@ -91,8 +91,8 @@ public:
 		if (bytesSent == -1)
 			throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 		std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
-		std::cout << buffer;
-		std::cout << "==============================================================" << std::endl;
+		// std::cout << buffer;
+		// std::cout << "==============================================================" << std::endl;
 		buffer.erase(0, bytesSent);
 		return (buffer.empty());
 	}
