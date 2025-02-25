@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 13:39:39 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/25 18:05:42 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ bool				Config::parseSingleServerBlock(int start, int end, ServerConfig& current
 	std::vector<std::string>		alreadyParsed;
 	
 	for (int i = start + 1; i < end; i++) {
-		if (configFileVector[i] == "[location]") {
-			i = getBlockEndIndex(i, "[location]").second;
+		if (configFileVector[i] == "[LOCATION]") {
+			i = getBlockEndIndex(i, "[LOCATION]").second;
 			continue;
 		}
 
@@ -45,10 +45,10 @@ bool				Config::parseSingleServerBlock(int start, int end, ServerConfig& current
 		alreadyParsed.push_back(key);
 	}
 	for (int i = start + 1; i < end; i++) {
-		if (configFileVector[i] == "[location]") {
-			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[location]").second, currentServer))
+		if (configFileVector[i] == "[LOCATION]") {
+			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[LOCATION]").second, currentServer))
 				return false;
-			i = getBlockEndIndex(i, "[location]").second;
+			i = getBlockEndIndex(i, "[LOCATION]").second;
 		}
 	}
 	return true;

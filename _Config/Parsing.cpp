@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/02 13:19:34 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/25 18:05:42 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,13 +58,13 @@ bool				Config::basicBlocksCountCheck() {
 	int					locationEnd = 0;
 	
 	for (size_t i = 0; i < configFileVector.size(); i++) {
-		if (configFileVector[i] == "[server]")
+		if (configFileVector[i] == "[SERVER]")
 			serverStart++;
-		else if (configFileVector[i] == "[/server]")
+		else if (configFileVector[i] == "[/SERVER]")
 			serverEnd++;
-		else if (configFileVector[i] == "[location]")
+		else if (configFileVector[i] == "[LOCATION]")
 			locationStart++;
-		else if (configFileVector[i] == "[/location]")
+		else if (configFileVector[i] == "[/LOCATION]")
 			locationEnd++;
 	}
 	if (!serverStart || !serverEnd)
@@ -79,10 +79,10 @@ std::pair<int, int>		Config::getBlockEndIndex(int blockStart, const std::string 
 	std::string				endBlock;
 	std::pair<int, int>		toReturn(blockStart, -1);
 	
-	if (startBlockStr == "[server]")
-		endBlock = "[/server]";
-	else if (startBlockStr == "[location]")
-		endBlock = "[/location]";
+	if (startBlockStr == "[SERVER]")
+		endBlock = "[/SERVER]";
+	else if (startBlockStr == "[LOCATION]")
+		endBlock = "[/LOCATION]";
 
 	for (; i < configFileVector.size(); i++) {
 		if (configFileVector[i] == endBlock) {
@@ -95,10 +95,10 @@ std::pair<int, int>		Config::getBlockEndIndex(int blockStart, const std::string 
 
 void				Config::fillServerBlocksIndexes() {
 	for (size_t i = 0; i < configFileVector.size(); i++) {
-		if (configFileVector[i] == "[server]")
-			serverBlocksIndexes.push_back(getBlockEndIndex(i, "[server]"));
-		else if (configFileVector[i] == "[location]")
-			locationBlocksIndexes.push_back(getBlockEndIndex(i, "[location]"));
+		if (configFileVector[i] == "[SERVER]")
+			serverBlocksIndexes.push_back(getBlockEndIndex(i, "[SERVER]"));
+		else if (configFileVector[i] == "[LOCATION]")
+			locationBlocksIndexes.push_back(getBlockEndIndex(i, "[LOCATION]"));
 	}
 }
 
