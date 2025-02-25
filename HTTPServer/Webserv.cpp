@@ -26,6 +26,21 @@ void print_epoll_events(uint32_t events)
 	if (events & EPOLLONESHOT) std::cout << "EPOLLONESHOT ";
 }
 
+
+void	Webserv::addTimer(int fd)
+{
+	clientTimer.insert(std::make_pair(fd, std::time(NULL)));
+}
+
+void	Webserv::updateTimer(int fd)
+{
+	std::map<int, time_t>::iterator it = clientTimer.find(fd);
+	if (it != clientTimer.end())
+	{
+		it->second = std::time(NULL);
+	}
+}
+
 void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
 {
 	struct epoll_event ev;
@@ -165,6 +180,24 @@ void	Webserv::initServers()
 	}
 }
 
+void	Webserv::clientTimeout()
+{
+	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+	{
+		time_t now = std::time(NULL);
+		if (now - timeIt->second >= TIMEOUT)
+		{
+			std::cout << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << std::endl;
+			ClientHandler *client = static_cast<ClientHandler *>(handlerMap[timeIt->first]);
+			removeHandler(timeIt->first);
+			delete client;
+			clientTimer.erase(timeIt++);
+		}
+		else
+			++timeIt;
+	}
+}
+
 void	Webserv::run()
 {
 	struct epoll_event events[MAX_EVENTS];
@@ -172,6 +205,7 @@ void	Webserv::run()
 	{
 		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 
+		clientTimeout();
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
@@ -190,7 +224,10 @@ void	Webserv::run()
 			catch (Disconnect& e)
 			{
 				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
-				removeHandler(handler->getFd()); // not complete clean up on client and CGI
+				int fd = handler->getFd();
+				removeHandler(handler->getFd());
+				if (clientTimer.find(fd) != clientTimer.end())
+					clientTimer.erase(fd);
 				delete handler;
 			}
 		}

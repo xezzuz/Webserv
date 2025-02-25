@@ -10,7 +10,7 @@
 # include <algorithm>
 # include "../Request/Request.hpp"
 
-# define SEND_BUFFER_SIZE 4096
+# define SEND_BUFFER_SIZE 16384 // 4096
 
 enum State
 {

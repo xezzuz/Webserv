@@ -16,6 +16,17 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : requ
 	cgiActive = false;
 	keepAlive = false;
 	reqState = REGULAR;
+	elapsedTime = std::time(NULL);
+}
+
+time_t	ClientHandler::getElapsedTime() const
+{
+	return (elapsedTime);
+}
+
+void	ClientHandler::ctime()
+{
+	elapsedTime = std::time(NULL);
 }
 
 void	ClientHandler::reset()
@@ -105,6 +116,7 @@ void 	ClientHandler::handleWrite()
 		std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tCLIENT SERVED" << RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
+			this->elapsedTime = std::time(NULL);
 			HTTPserver->updateHandler(socket, EPOLLIN);
 			this->reset();
 		}
@@ -115,6 +127,7 @@ void 	ClientHandler::handleWrite()
 
 void	ClientHandler::handleEvent(uint32_t events)
 {
+	this->elapsedTime = std::time(NULL);
 	try
 	{
 		if (events & EPOLLIN)

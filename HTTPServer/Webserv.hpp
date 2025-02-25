@@ -27,6 +27,9 @@ public:
 	void	updateHandler(const int fd, uint32_t events);
 	void	removeHandler(const int fd);
 
+	void	addTimer(int fd);
+	void	updateTimer(int fd);
+	void	clientTimeout();
 
 
 	void	initServers();
@@ -37,11 +40,12 @@ private:
 	void    listenForConnections(int& listener);
 
 
-	int													epoll_fd;
-	std::vector<ServerConfig>							servers;
-	std::map<int, EventHandler*>						handlerMap;
-	std::vector<std::pair<EventHandler*, std::time_t> >	Timer;
-	// std::vector<ServerConfig>		vServers; // virtual servers from config file
+	int								epoll_fd;
+	std::vector<ServerConfig>		servers;
+	std::map<int, EventHandler*>	handlerMap;
+
+	std::map<int, time_t>			clientTimer;
+	std::map<int, time_t>::iterator	timeIt;
 };
 
 #endif
