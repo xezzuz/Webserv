@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 18:05:42 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/25 18:20:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,8 @@ bool				Config::validateBlocksIndexes() {
 		b = serverBlocksIndexes[i].second;
 		c = serverBlocksIndexes[i + 1].first;
 		d = serverBlocksIndexes[i + 1].second;
+		if (b + 1 != c)
+			return false;
 		if (a == -1 || b == -1 || c == -1 || d == -1)
 			return false;
 		if (a < b && b < c && c < d)
