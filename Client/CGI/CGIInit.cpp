@@ -45,6 +45,7 @@ void	CGIHandler::buildEnv()
 	envPtr.push_back(NULL);
 }
 
+#include <cassert>
 void	CGIHandler::execCGI()
 {
 	pid = fork();
@@ -77,6 +78,7 @@ void	CGIHandler::execCGI()
 		close(pipe_in);
 
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find(reqCtx->scriptName));
+		std::cout << dir << std::endl;
 		if (chdir(dir.c_str()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";

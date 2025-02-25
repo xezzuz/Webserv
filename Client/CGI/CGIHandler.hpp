@@ -34,8 +34,10 @@ public:
 	
 	void	readCGILength();
 	void	readCGIChunked();
-	void	storeBody();
-	void	POSTbody(char *buf, ssize_t size);
+	bool	storeBody();
+
+	void	setBuffer(std::string buffer);
+	void	setBuffer(char *buf, ssize_t size);
 
 
 	int		respond();
@@ -48,7 +50,7 @@ private:
 	std::map<std::string, std::string>	headersMap;
 
 
-	size_t			inputProcessed;
+	size_t			bodySize;
 	int				pipe_in; // file descriptor where cgi reads input from
 	int				pipe_out; // file descriptor where cgi writes its output into
 	std::ifstream	bodyFile; // file to store incoming client body in if the request is chunked

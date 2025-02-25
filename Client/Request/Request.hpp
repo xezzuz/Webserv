@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:31:07 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/25 12:02:35 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ typedef	struct								RequestRaws {
 	std::string								boundaryBegin;
 	std::string								boundaryEnd;
 	size_t									bodySize;
-	size_t									contentLength;
 }											RequestRaws;
 
 
@@ -118,7 +117,7 @@ class Request {
 		std::string					extractHeadersFromBuffer();
 		// void						feedRequest(char *recvBuffer, int bufferSize);
 
-		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
+		int							parseControlCenter(char *recvBuffer, ssize_t recvBufferSize);
 		// bool						parseControlCenter();
 		void						parseRequestLine();
 		void						parseHeaders();
@@ -135,7 +134,6 @@ class Request {
 		
 		void						validateRequestHeaders();
 
-		// void						storeBody( void );
 		// void						putRequestBodyInFile();
 
 		std::string					getBuffer() const { return buffer; };

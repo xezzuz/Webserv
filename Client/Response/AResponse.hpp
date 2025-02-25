@@ -73,7 +73,7 @@ public:
 
 	bool	sendHeaders()
 	{
-		ssize_t bytesSent = send(socket, headers.c_str(), headers.length(), 0);
+		ssize_t bytesSent = send(socket, headers.c_str(), headers.size(), 0);
 		if (bytesSent == -1)
 			throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 		std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (HEADERS)]======" << RESET << std::endl;
@@ -87,7 +87,7 @@ public:
 
 	bool	sendBody()
 	{
-		ssize_t bytesSent = send(socket, buffer.c_str(), buffer.length(), 0);
+		ssize_t bytesSent = send(socket, buffer.c_str(), buffer.size(), 0);
 		if (bytesSent == -1)
 			throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
 		std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;

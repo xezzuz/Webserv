@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:50:59 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/25 13:37:04 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,18 @@ void						Request::setMatchingConfig() {
 }
 #include <cassert>
 // PARSING CONTROL CENTER
-int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
+int	Request::parseControlCenter(char *recvBuffer, ssize_t recvBufferSize)
 {
+	buffer.reserve(buffer.size() + recvBufferSize);
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
-	std::cout << "------REQUEST-----" << std::endl;
+	std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
 	std::cout << buffer;
 	std::cout << "------------------" << std::endl;
 	if (!headersParsed)
 	{
 		if (buffer.find("\r\n\r\n") == std::string::npos)
 			return (0);
-		std::cout << "HELLO" << std::endl;
 			
 		parseRequestLine();
 		parseHeaders();
@@ -60,15 +60,9 @@ int	Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 		headersParsed = true;
 		// std::cout << _RequestData.Method 
 		if(_RequestData.Method != "POST")
-		{
-			assert(false && "2");
 			return (2); // stop receiving
-		}
 		else if (_RequestData.isCGI && !isEncoded)
-		{
-			assert(false && "1");
 			return (1); // move to CGI body posting
-		}
 	}
 	parseRequestBody();
 	if (bodyDone)

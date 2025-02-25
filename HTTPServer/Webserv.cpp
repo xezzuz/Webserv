@@ -27,7 +27,7 @@ void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
 	ev.events = events;
 	ev.data.ptr = handler;
 	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev);
-	handlerMap[fd] = handler;
+	handlerMap.insert(std::make_pair(fd, handler));
 	handler->HTTPserver = this;
 }
 

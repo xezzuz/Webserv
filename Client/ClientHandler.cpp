@@ -92,8 +92,9 @@ void 	ClientHandler::handleRead()
 				{
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgi->execCGI();
-					HTTPserver->registerHandler(cgi->getOutfd(), cgi, EPOLLOUT);
-					HTTPserver->registerHandler(cgi->getInfd(), cgi, EPOLLIN);
+					HTTPserver->registerHandler(cgi->getOutfd(), cgi, 0);
+					HTTPserver->registerHandler(cgi->getInfd(), cgi, 0);
+					cgi->setBuffer(request.getBuffer());
 					response = cgi;
 					cgiActive = true;
 					reqState = CGI;
@@ -103,7 +104,7 @@ void 	ClientHandler::handleRead()
 					createResponse();
 				break;
 			case CGI:
-				static_cast<CGIHandler *>(response)->POSTbody(buf, bytesReceived);
+				static_cast<CGIHandler *>(response)->setBuffer(buf, bytesReceived);
 				break;
 		}
 	}

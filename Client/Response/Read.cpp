@@ -65,7 +65,8 @@ void	Response::readRange()
 	}
 	else if (bytesRead > 0)
 	{
-		buffer.append(std::string(buf, bytesRead));
+		buffer.reserve(buffer.size() + bytesRead);
+		buffer.append(buf, bytesRead);
 		std::cout << YELLOW << "======[(RANGE) READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		rangeData.current->rangeLength -= bytesRead;
 		if ((this->*sender)() == true)
@@ -93,7 +94,8 @@ void	Response::readBody()
 		if (bodyFile.peek() == EOF)
 			nextState = DONE;
 		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		buffer.append(std::string(buf, bytesRead));
+		buffer.reserve(buffer.size() + bytesRead);
+		buffer.append(buf, bytesRead);
 		if ((this->*sender)() == true)
 			state = nextState;
 		else
