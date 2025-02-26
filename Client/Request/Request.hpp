@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 17:07:47 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/26 17:58:13 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <string.h>
 # include <map>
 # include <vector>
+# include <algorithm>
 
 # include <fcntl.h>
 # include <sys/socket.h>
@@ -27,12 +28,8 @@
 # include "../../_Config/Config.hpp"
 
 # define RECV_BUFFER_SIZE 16384
-
-// enum e_parsingState {
-// 	RECV_ONGOING,
-// 	RECV_CGI_BODY,
-// 	RECV_DONE
-// };
+# define CRLF "\r\n"
+# define DOUBLE_CRLF "\r\n\r\n"
 
 enum e_parsingState {
 	RECV,
@@ -134,7 +131,7 @@ class Request {
 		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
 		void						parseRequestLineAndHeaders();
 		void						parseRequestLine();
-		void						parseHeaders();
+		void						parseRequestHeaders();
 		void						parseRequestBody();
 		void						decodeChunkedBody();
 		void						processRequestRawBody();
@@ -154,10 +151,10 @@ class Request {
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 		RequestData					*getRequestData() { return &_RequestData; };
 
-		bool						decodeURI();
-		void						isValidMethod(const std::string& method);
-		void						isValidURI(const std::string& uri);
-		void						isValidHTTPVersion(const std::string& httpversion);
+		void						decodeURI();
+		void						isValidMethod();
+		void						isValidURI();
+		void						isValidHTTPVersion();
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();
