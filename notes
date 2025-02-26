@@ -25,3 +25,5 @@ comments in config file
 benchmark siwtch vs fn ptr
 
 verify content-length of cgi against actual length
+
+webserv should compile using C++ not G++
