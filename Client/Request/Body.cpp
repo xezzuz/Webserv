@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 13:23:05 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/26 16:08:36 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void	Request::parseLengthBody() {
 	buffer.clear();
 	bufferSize = 0;
 	if (_RequestRaws.bodySize == _RequestData.contentLength)
-		bodyDone = true;
+		bodyFinished = true;
 	else if (_RequestRaws.bodySize > _RequestData.contentLength)
 		throw(400);
 }
@@ -85,7 +85,7 @@ void			Request::decodeChunkedBody() {
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == "\r\n\r\n") {
 			std::cout << "[INFO]\tBody Decoding is Done..." << std::endl;
 			buffer.clear(), bufferSize = 0;
-			bodyDone = true;
+			bodyFinished = true;
 			return ;
 		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != "\r\n\r\n")
 			throw(400);

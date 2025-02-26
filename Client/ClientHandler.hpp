@@ -39,8 +39,7 @@ private:
 	
 	bool						cgiActive;
 	bool						keepAlive;
-	e_reqState					reqState;
-	
+	e_reqType					reqState;
 };
 
 void			fillRequestData(const std::string URI, RequestData& _RequestData);

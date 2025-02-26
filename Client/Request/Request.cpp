@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:14:22 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/26 16:09:02 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,15 @@
 
 Request::~Request() {}
 
-Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers), headersParsed(false) {
+Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	_RequestData.StatusCode = 200;
 	bufferSize = 0;
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
 	isMultipart = false;
-	bodyDone = false;
+	headersFinished = false;
+	bodyFinished = false;
 	
 	_RequestRaws.bodySize = 0;
 	_RequestData.contentLength = -1;
@@ -50,7 +51,7 @@ Request&	Request::operator=(const Request& rhs)
 		// body = rhs.body;
 		// header = rhs.header;
 		// requestLine = rhs.requestLine;
-		headersParsed = rhs.headersParsed;
+		// headersParsed = rhs.headersParsed;
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
 		// statusCode = rhs.statusCode;

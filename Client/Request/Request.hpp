@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 12:02:35 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/26 15:48:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,19 @@
 
 # define RECV_BUFFER_SIZE 16384
 
-enum e_reqState {
+// enum e_parsingState {
+// 	RECV_ONGOING,
+// 	RECV_CGI_BODY,
+// 	RECV_DONE
+// };
+
+enum e_parsingState {
+	RECV,
+	RESPOND,
+	FORWARD_CGI
+};
+
+enum e_reqType {
 	REGULAR,
 	CGI
 };
@@ -97,11 +109,13 @@ class Request {
 		/*			   PARSING FLAGS			*/
 		bool							isEncoded;
 		bool							isMultipart;
-		bool							headersParsed;
-		bool							bodyDone;
+		// bool							headersParsed;
+		// bool							bodyDone;
 
 		/*				STATE FLAGS				*/
-		// e_parsingState					pState;
+		bool							headersFinished;
+		bool							bodyFinished;
+		e_parsingState					RequestState;
 		// int								statusCode;
 	
 	public:
@@ -110,14 +124,14 @@ class Request {
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 
-		// int							feedRequest(int clientSocket);
+		int							feedRequest(char *recvBuffer, int recvBufferSize);
 		// bool						printParsedRequest();
 
 		bool						bufferContainChunk();
 		std::string					extractHeadersFromBuffer();
 		// void						feedRequest(char *recvBuffer, int bufferSize);
 
-		int							parseControlCenter(char *recvBuffer, ssize_t recvBufferSize);
+		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
 		// bool						parseControlCenter();
 		void						parseRequestLine();
 		void						parseHeaders();

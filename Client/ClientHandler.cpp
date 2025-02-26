@@ -84,12 +84,12 @@ void 	ClientHandler::handleRead()
 	}
 	else
 	{
-		int retVal;
+		int		returnValue;
 		switch (reqState)
 		{
 			case REGULAR:
-				retVal = request.parseControlCenter(buf, bytesReceived);
-				if (retVal == 1) // receive CGI body
+				returnValue = request.parseControlCenter(buf, bytesReceived);
+				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgi->execCGI();
@@ -99,7 +99,7 @@ void 	ClientHandler::handleRead()
 					cgiActive = true;
 					reqState = CGI;
 				}
-				else if (retVal == 2) // receiving done - move to response
+				else if (returnValue == RESPOND) // receiving done - move to response
 					createResponse();
 				break;
 			case CGI:
