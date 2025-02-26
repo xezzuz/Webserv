@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 15:48:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/26 17:07:47 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ class Request {
 		// void						feedRequest(char *recvBuffer, int bufferSize);
 
 		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
-		// bool						parseControlCenter();
+		void						parseRequestLineAndHeaders();
 		void						parseRequestLine();
 		void						parseHeaders();
 		void						parseRequestBody();
