@@ -6,11 +6,25 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 18:13:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 14:53:49 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+
+bool			Request::headerExists(const std::string& key) {
+	std::map<std::string, std::string>::iterator it;
+	it = _RequestData.Headers.find(key);
+	if (it == _RequestData.Headers.end())
+		return false;
+	return true;
+}
+
+bool						Request::isCriticalHeader(const std::string& key) {
+	if (key == "content-length" || key == "host" || key == "authorization" || key == "content-type" || key == "connection")
+		return true;
+	return false;
+}
 
 void						Request::decodeURI() {
 	std::string			encodedURI = _RequestData.URI;
@@ -90,17 +104,103 @@ void						Request::parseRequestLine() {
 void						Request::parseRequestHeaders() {
 	size_t					CRLFpos = buffer.find(DOUBLE_CRLF);
 	std::stringstream		Hss(buffer.substr(0, CRLFpos + 4));
+
 	buffer.erase(0, CRLFpos + 4);
 	bufferSize -= CRLFpos;
 
 	std::string		fieldline;
 	char 			allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
 	
-	while (getline())
+	while (std::getline(Hss, fieldline) && fieldline != "\r") {
+		size_t		colonPos = fieldline.find(':');
+
+		if (colonPos == std::string::npos)
+			throw (400);
+		
+		std::string		fieldName = stringtolower(fieldline.substr(0, colonPos)); // should we trim it from spaces?
+		if (fieldName.empty() || fieldName.find_first_not_of(allowedChars) != std::string::npos)
+			throw (400);
+		
+		bool			headerExist = headerExists(fieldName);
+		if (isCriticalHeader(fieldName) && headerExist)
+			throw (400);
+		
+		std::string		fieldValue = stringtrim(fieldline.substr(colonPos + 1), " \r\n\t\v");
+		if (fieldValue.empty())
+			throw (400);
+		if (headerExist)
+			_RequestData.Headers[fieldName] += ", " + fieldValue;
+		_RequestData.Headers[fieldName] = fieldValue;
+	}
 }
 
 void						Request::validateRequestHeaders() {
+	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : "";
+	if (_RequestData.host.empty())
+		throw (400);
+	
+	_RequestData.connection = headerExists("connection") ? _RequestData.Headers["connection"] : "keep-alive";
+	if (_RequestData.connection != "close" && _RequestData.connection != "keep-alive")
+		throw (400);
+	
+	if (_RequestData.Method == "POST") {
+		bool		ContentLength = headerExists("content-length");
+		bool		TransferEncoding = headerExists("transfer-encoding");
+		bool		ContentType = headerExists("content-type");
 
+		if (TransferEncoding == ContentLength)
+			throw (400);
+		if (TransferEncoding) {
+			_RequestData.transferEncoding = stringtolower(_RequestData.Headers["transfer-encoding"]);
+			if (_RequestData.transferEncoding != "chunked")
+				throw (501);
+			isEncoded = true;
+		}
+				
+		if (ContentLength) {
+			if (!stringIsDigit(_RequestData.Headers["content-length"]))
+				throw (400);
+			char	*stop;
+			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stop, 10);
+			if (ERANGE == errno || *stop)
+				throw (400);
+		}
+		
+		if (ContentType) {
+			std::string		disallowedCharacters = "\"():<>?@[\\]{}";
+			
+			for (size_t i = 1; i < 32; i++) {
+				if (i == 9)
+					continue;
+				disallowedCharacters += i;
+			}
+			
+			if (_RequestData.Headers["content-type"].find_first_of(disallowedCharacters, 0) == std::string::npos)
+				throw (400);
+			
+			_RequestData.contentType = _RequestData.Headers["content-type"];
+			
+			size_t		semiColonPos = _RequestData.contentType.find(';');
+			if (semiColonPos == std::string::npos)
+				return ;
+			
+			std::string mediaType = _RequestData.contentType.substr(0, semiColonPos);
+			if (mediaType.empty())
+				throw (400);
+			isMultipart = (mediaType == "multipart/form-data");
+			if (!isMultipart)
+				return ;
+			
+			size_t	boundaryPos = _RequestData.contentType.find("boundary=", semiColonPos);
+			if (boundaryPos == std::string::npos)
+				throw (400);
+			
+			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(boundaryPos + 9);
+			if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72)
+				throw (400);
+			_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
+		}
+	}
 }
 
 // HEADERS CONTROL CENTER

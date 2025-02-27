@@ -63,14 +63,14 @@ void	CGIHandler::validateHeaders()
 
 void	CGIHandler::parseHeaders()
 {
-	size_t CRLF = buffer.find("\r\n\r\n");
-	if (CRLF == std::string::npos)
+	size_t CRLFpos = buffer.find("\r\n\r\n");
+	if (CRLFpos == std::string::npos)
 	{
 		std::cerr << "[WEBSERV][ERROR]\tCGI Headers Not Found" << std::endl;
 		throw(500);
 	}
-	std::stringstream headerStream(buffer.substr(0, CRLF + 2));
-	buffer.erase(0, CRLF + 4);
+	std::stringstream headerStream(buffer.substr(0, CRLFpos + 2));
+	buffer.erase(0, CRLFpos + 4);
 
 	std::string field;
 

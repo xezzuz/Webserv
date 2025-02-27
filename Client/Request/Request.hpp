@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 17:58:13 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 14:51:39 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <map>
 # include <vector>
 # include <algorithm>
+// # include <cstdlib>
 
 # include <fcntl.h>
 # include <sys/socket.h>
@@ -28,8 +29,13 @@
 # include "../../_Config/Config.hpp"
 
 # define RECV_BUFFER_SIZE 16384
+
+# ifndef CRLF
 # define CRLF "\r\n"
+# endif
+# ifndef DOUBLE_CRLF
 # define DOUBLE_CRLF "\r\n\r\n"
+# endif
 
 enum e_parsingState {
 	RECV,
@@ -151,6 +157,8 @@ class Request {
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
 		RequestData					*getRequestData() { return &_RequestData; };
 
+		bool						headerExists(const std::string& key);
+		bool						isCriticalHeader(const std::string& key);
 		void						decodeURI();
 		void						isValidMethod();
 		void						isValidURI();

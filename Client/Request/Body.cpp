@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 16:08:36 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 14:53:18 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ bool			Request::bufferContainChunk() {
 	size_t			CRLFpos = 0;
 	std::string		chunkSizeStr;
 
-	CRLFpos = buffer.find("\r\n");
+	CRLFpos = buffer.find(CRLF);
 	if (CRLFpos == std::string::npos)
 		return false;
 	
@@ -48,7 +48,7 @@ bool			Request::bufferContainChunk() {
 	if (!isHexa(chunkSizeStr))
 		return false;
 	
-	if (buffer.find("\r\n", CRLFpos + 2) == std::string::npos)
+	if (buffer.find(CRLF, CRLFpos + 2) == std::string::npos)
 		return false;
 	return true;
 }
@@ -73,7 +73,7 @@ void			Request::decodeChunkedBody() {
 		std::string		chunkSizeStr;
 		int			currPos = 0, CRLFpos = 0;
 		
-		CRLFpos = buffer.find("\r\n");
+		CRLFpos = buffer.find(CRLF);
 		// if (CRLFpos == std::string::npos || CRLFpos == currPos)
 		// 	return false;
 		
@@ -82,12 +82,12 @@ void			Request::decodeChunkedBody() {
 			throw(400);
 		
 		int chunkSize = htoi(chunkSizeStr);
-		if (!chunkSize && buffer.substr(CRLFpos, 4) == "\r\n\r\n") {
+		if (!chunkSize && buffer.substr(CRLFpos, 4) == DOUBLE_CRLF) {
 			std::cout << "[INFO]\tBody Decoding is Done..." << std::endl;
 			buffer.clear(), bufferSize = 0;
 			bodyFinished = true;
 			return ;
-		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != "\r\n\r\n")
+		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != DOUBLE_CRLF)
 			throw(400);
 
 		currPos = CRLFpos + 2;
@@ -96,7 +96,7 @@ void			Request::decodeChunkedBody() {
 
 		_RequestRaws.rawBody += buffer.substr(currPos, chunkSize);
 		_RequestRaws.bodySize += chunkSize;
-		// if (buffer.substr(currPos + chunkSize, 2) != "\r\n") // malformed chunk
+		// if (buffer.substr(currPos + chunkSize, 2) != CRLF) // malformed chunk
 		// 	return false;
 		buffer.erase(0, currPos + chunkSize + 2);
 		bufferSize -= currPos + chunkSize + 2;
@@ -109,7 +109,7 @@ void			Request::processMultipartHeaders() {
 	std::string		filename;
 
 	currPos = _RequestRaws.boundaryBegin.size() + 2;
-	contentDisposition = _RequestRaws.rawBody.substr(currPos, _RequestRaws.rawBody.find("\r\n", currPos));
+	contentDisposition = _RequestRaws.rawBody.substr(currPos, _RequestRaws.rawBody.find(CRLF, currPos));
 	filenamePos = contentDisposition.find("filename=\"") + 10;
 	if (filenamePos == std::string::npos)
 		throw(400);
@@ -129,7 +129,7 @@ void			Request::processMultipartHeaders() {
 	}
 	
 	files.push_back(fd);
-	currPos = _RequestRaws.rawBody.find("\r\n\r\n", currPos);
+	currPos = _RequestRaws.rawBody.find(DOUBLE_CRLF, currPos);
 	if (currPos == std::string::npos)
 		throw(400);
 	currPos += 4;
@@ -141,8 +141,8 @@ void			Request::processMultipartData() {
 	int				currentFile = files.back();
 	size_t			bboundary = 0, eboundary = 0;
 
-	bboundary = _RequestRaws.rawBody.find("\r\n" + _RequestRaws.boundaryBegin + "\r\n");
-	eboundary = _RequestRaws.rawBody.find("\r\n" + _RequestRaws.boundaryEnd + "\r\n");
+	bboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryBegin + CRLF);
+	eboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryEnd + CRLF);
 	
 	std::cout << "writing to old file" << std::endl;
 	int bytesToWrite = 0;
@@ -166,17 +166,17 @@ void			Request::processMultipartData() {
 	
 	_RequestRaws.rawBody.erase(0, bytesWritten + 2);
 	_RequestRaws.bodySize -= bytesWritten + 2;
-	if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + "\r\n")
+	if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF)
 		_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0;
 }
 
 void			Request::processMultipartFormData() {
 	while (!_RequestRaws.rawBody.empty()) {
 		// if rawBody contain boundaryBegin and Headers CRLF-CRLF
-		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + "\r\n") == 0 && _RequestRaws.rawBody.find("\r\n\r\n") != std::string::npos) {
+		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) == 0 && _RequestRaws.rawBody.find(DOUBLE_CRLF) != std::string::npos) {
 			processMultipartHeaders();
 		}
-		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + "\r\n") != 0 && files.size() > 0) {
+		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && files.size() > 0) {
 			processMultipartData();
 		}
 	}
