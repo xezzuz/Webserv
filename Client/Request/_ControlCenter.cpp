@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 14:52:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:29:27 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 	std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
 	std::cout << buffer;
 	std::cout << "------------------" << std::endl;
-	
+
 	if (!headersFinished) {
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;

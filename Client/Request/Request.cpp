@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/26 16:09:02 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:29:12 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ Request&	Request::operator=(const Request& rhs)
 		// body = rhs.body;
 		// header = rhs.header;
 		// requestLine = rhs.requestLine;
-		// headersParsed = rhs.headersParsed;
+		headersFinished = rhs.headersFinished;
+		bodyFinished = rhs.bodyFinished;
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
 		// statusCode = rhs.statusCode;

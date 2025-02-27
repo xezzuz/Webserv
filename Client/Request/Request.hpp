@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 14:51:39 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:02:27 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@
 # endif
 
 enum e_parsingState {
-	RECV,
-	RESPOND,
-	FORWARD_CGI
+	RECV,			// 0
+	RESPOND,		// 1
+	FORWARD_CGI		// 2
 };
 
 enum e_reqType {
