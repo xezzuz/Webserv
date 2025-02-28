@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 18:13:20 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 18:33:50 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,9 +208,9 @@ bool					Config::isValidRedirect(const std::string& redirect, Directives& toFill
 	std::stringstream	ss(redirect);
 	
 	ss >> token;
-	if (!stringIsDigit(token) || std::atoi(token.c_str()) < 300 || std::atoi(token.c_str()) > 308)
-		return false;
 	toFill.redirect.first = std::atoi(token.c_str());
+	if (!stringIsDigit(token) || toFill.redirect.first < 300 || toFill.redirect.first > 308)
+		return false;
 	ss >> token;
 	toFill.redirect.second = token;
 	return true;

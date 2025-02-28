@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 17:12:24 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 19:32:07 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,20 @@
 
 void	produceAbsPath(RequestData& _RequestData) {
 	
+	if (!_RequestData._Config->redirect.second.empty())
+	{
+		if (_RequestData._Config->redirect.second.find("http") != std::string::npos)
+		{
+			throw(Code(_RequestData._Config->redirect.first, _RequestData._Config->redirect.second));
+		}
+		else
+		{
+			if (_RequestData._Config->redirect.second.at(0) != '/')
+				_RequestData._Config->redirect.second.insert(0, "/");
+			throw(Code(_RequestData._Config->redirect.first, "http://" + _RequestData.host + _RequestData._Config->redirect.second));
+		}
+	}
+
 	if (!_RequestData._Config->alias.empty()) {
 		if (_RequestData._Config->alias[_RequestData._Config->alias.length() - 1] == '/')
 			_RequestData._Config->alias.erase(_RequestData._Config->alias.length() - 1);
