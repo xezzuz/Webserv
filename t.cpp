@@ -32,9 +32,12 @@ void	isValidIndex(const std::string& index)
 
 int main()
 {
-    std::string index = "";
+    std::string index = "HTTP/1.1";
 
-	isValidIndex(index);
+	std::cout << index.find("HTTP/") << std::endl;
+	std::cout << index.find("1.1", 5) << std::endl;
+
+	// isValidIndex(index);
 
     return 0;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 14:53:18 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/28 15:37:21 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,7 +217,7 @@ void			Request::processRequestRawBody() {
 	if (isMultipart) {
 		std::cout << "**************************** is multipart!" << std::endl;
 		processMultipartFormData();
-	} else if (!isMultipart) {
+	} else {
 		std::cout << "**************************** is binary!" << std::endl;
 		processBinaryBody();
 	}

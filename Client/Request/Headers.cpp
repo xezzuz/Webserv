@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 15:09:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 15:49:40 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void						Request::isValidHTTPVersion() {
 	if (_RequestData.HTTPversion.size() != 8 || _RequestData.HTTPversion.find("HTTP/") != 0)
 		throw (400);
 	
-	if (_RequestData.HTTPversion.find("1.1", 5) != 0)
+	if (_RequestData.HTTPversion.find("1.1", 5) != 5)
 		throw (505);
 }
 
@@ -132,14 +132,16 @@ void						Request::parseRequestHeaders() {
 }
 
 void						Request::validateRequestHeaders() {
-	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : ""; // searching twice for no reason
+	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : ""; // searching twice for no reason + creating empty string for no reason
 	if (_RequestData.host.empty())
 		throw (400);
 	
-	_RequestData.connection = headerExists("connection") ? _RequestData.Headers["connection"] : "keep-alive"; // searching twice for no reason
-	// if (_RequestData.connection != "close" && _RequestData.connection != "keep-alive")
-	// 	throw (400);
-	
+	if (headerExists("connection"))
+	{
+		if (_RequestData.Headers["connection"] == "close")
+			_RequestData.keepAlive = false;
+	}
+
 	if (_RequestData.Method == "POST") {
 		bool		ContentLength = headerExists("content-length");
 		bool		TransferEncoding = headerExists("transfer-encoding");
@@ -165,17 +167,6 @@ void						Request::validateRequestHeaders() {
 		}
 		
 		if (ContentType) {
-			// std::string		disallowedCharacters = "\"():<>?@[\\]{}";
-			
-			// for (size_t i = 1; i < 32; i++) {
-			// 	if (i == 9)
-			// 		continue;
-			// 	disallowedCharacters += i;
-			// }
-
-			// if (_RequestData.Headers["content-type"].find_first_of(disallowedCharacters, 0) == std::string::npos)
-			// 	throw (400);
-			
 			_RequestData.contentType = _RequestData.Headers["content-type"];
 			
 			size_t		semiColonPos = _RequestData.contentType.find(';');
@@ -194,7 +185,7 @@ void						Request::validateRequestHeaders() {
 				throw (400);
 			
 			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(boundaryPos + 9);
-			if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72)
+			if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72) // RFC 2046, Section 5.1.1
 				throw (400);
 			_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
 		}
