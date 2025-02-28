@@ -49,7 +49,7 @@ void	Response::handleGET( void )
 	{
 		bodyFile.open(reqCtx->fullPath.c_str());
 		if (!bodyFile.is_open())
-			throw(500);
+			throw(Code(500));
 		contentType = getContentType(reqCtx->fullPath, mimeTypes);
 		contentLength = fileLength(reqCtx->fullPath);
 	

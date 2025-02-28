@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 14:49:39 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 17:12:24 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 		endPos = _RequestData.fullPath.find('/', startPos + 1);
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
 		if (stat(pathChecker.c_str(), &pathStats) != 0) 
-			throw(404);
+			throw(Code(404));
 		if (!S_ISDIR(pathStats.st_mode))
 			break ;
 		startPos = endPos;
@@ -64,7 +64,7 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 
 void						handleDirectoryResource(RequestData& _RequestData) {
 	if (access(_RequestData.fullPath.c_str(), X_OK) != 0)
-		throw(403);
+		throw(Code(403));
 	
 	if (_RequestData.Method == "GET") {
 		std::vector<std::string>::iterator	it = _RequestData._Config->index.begin();
@@ -79,7 +79,7 @@ void						handleDirectoryResource(RequestData& _RequestData) {
 		
 		if (it == _RequestData._Config->index.end()) {
 			if (!_RequestData._Config->autoindex)
-				throw(404);
+				throw(Code(404));
 		}
 	}
 }
@@ -102,7 +102,7 @@ bool						extensionIsCGI(const std::string& fileName, RequestData& _RequestData)
 
 void						handleFileResource(RequestData& _RequestData) {
 	if (access(_RequestData.fullPath.c_str(), R_OK) != 0)
-		throw(403);
+		throw(Code(403));
 
 	std::string	filename = _RequestData.fullPath.substr(_RequestData.fullPath.find_last_of('/') + 1);
 
@@ -110,7 +110,7 @@ void						handleFileResource(RequestData& _RequestData) {
 	if (_RequestData.isCGI)
 		_RequestData.scriptName = filename;
 	else if (!_RequestData.pathInfo.empty())
-		throw(404);
+		throw(Code(404));
 }
 
 void			resolveAbsPath(RequestData& _RequestData) {
@@ -127,7 +127,7 @@ void			resolveURI(RequestData& _RequestData) {
 	_RequestData.fullPath.clear();
 
 	if (!rootJail(_RequestData.URI))
-		throw(403);
+		throw(Code(403));
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);

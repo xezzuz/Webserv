@@ -9,7 +9,7 @@ void	CGIHandler::validateHeaders()
 	if (field == headersMap.end() && !buffer.empty())
 	{
 		std::cerr << "[CGI][ERROR]\tHEADER[Contet-Type] NOT PROVIDED BY SCRIPT" << std::endl;
-		throw(500);
+		throw(Code(500));
 	}
 
 	// ContentLength
@@ -21,47 +21,41 @@ void	CGIHandler::validateHeaders()
 		buffer = buildChunk(buffer.c_str(), buffer.size());
 	}
 
-	// Location
-	std::string location;
-	field = headersMap.find("location");
-	if (headersMap.find("location") != headersMap.end())
-	{
-		location = field->second;
-		if (location.at(0) == '/')
-			throw(CGIRedirect(location));
-	}
-
 	// Status
+	std::vector<std::string> statusVec;
 	field = headersMap.find("status");
 	if (headersMap.find("status") != headersMap.end())
 	{
-		std::vector<std::string> statusVec;
 		split(field->second, " \t\f\v", statusVec);
 		if (statusVec.size() != 2)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;
-			throw(500);
+			throw(Code(500));
 		}
 
 		char *stop;
-		int statusCode = strtoul(statusVec[0].c_str(), &stop, 10);
+		reqCtx->StatusCode = strtoul(statusVec[0].c_str(), &stop, 10);
 		if (errno == ERANGE || *stop)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;
-			throw(500);
+			throw(Code(500));
 		}
-
-		if (statusCode == 302 && location.empty()) // RFC 3875 section 6.3.3
-		{
-			std::cerr << "[CGI][ERROR]\t302 STATUS CODE WITH NO LOCATION HEADER" << std::endl;
-			throw(500);
-		}
-		headers.insert(0, "HTTP/1.1 " + _toString(statusCode) + " " + statusVec[1]);
+		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusVec[1]);
 
 		headersMap.erase(field);
 	}
 	else
 		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]);
+
+	// Location
+	field = headersMap.find("location");
+	if (headersMap.find("location") != headersMap.end())
+	{
+		if (field->second.at(0) == '/')
+			throw(CGIRedirect(field->second));
+		if (statusVec.empty())
+			throw(Code(302, field->second));
+	}
 }
 
 void	CGIHandler::parseHeaders()
@@ -70,7 +64,7 @@ void	CGIHandler::parseHeaders()
 	if (CRLFpos == std::string::npos)
 	{
 		std::cerr << "[CGI][ERROR]\tCGI HEADERS NOT FOUND" << std::endl;
-		throw(500);
+		throw(Code(500));
 	}
 	size_t	start = 0;
 	size_t	end = 0;
@@ -88,7 +82,7 @@ void	CGIHandler::parseHeaders()
 		if (pos == std::string::npos)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED CGI HEADERS" << std::endl;
-			throw(500);
+			throw(Code(500));
 		}
 
 		std::string key = stringtolower(field.substr(0, pos));
@@ -104,7 +98,7 @@ void	CGIHandler::parseHeaders()
             if (!(std::isalnum(key[i]) || key[i] == '-'))
             {
                 std::cerr << "[CGI][ERROR]\tMALFORMED HEADER[" << key << "]" << std::endl;
-                throw 500;
+                throw Code(500);
             }
         }
 		headersMap[key] = value;

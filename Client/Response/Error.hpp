@@ -9,7 +9,7 @@ class ErrorPage : public AResponse
 {
 public:
 	virtual ~ErrorPage();
-	ErrorPage(int& status, int& socket, RequestData	*data);
+	ErrorPage(Code& e, int& socket, RequestData	*data);
 
 	void	readBody( void );
 	void	generateHeaders( void );
@@ -17,7 +17,7 @@ public:
 	
 private:
 	std::ifstream	bodyFile;
-	int				status;
+	Code			status;
 };
 
 #endif

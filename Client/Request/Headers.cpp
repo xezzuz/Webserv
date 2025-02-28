@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 15:49:40 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 17:14:52 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,32 +45,32 @@ void						Request::decodeURI() {
 
 void						Request::isValidMethod() {
 	if (_RequestData.Method != "GET" && _RequestData.Method != "POST" && _RequestData.Method != "DELETE")
-		throw (501);
+		throw (Code(501));
 	
 	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), _RequestData.Method) == _RequestData._Config->methods.end())
-		throw (405);
+		throw (Code(405));
 }
 
 void						Request::isValidURI() {
 	if (_RequestData.URI.empty() || _RequestData.URI[0] != '/')
-		throw (400);
+		throw (Code(400));
 	
 	if (_RequestData.URI.size() > 2048)
-		throw (414);
+		throw (Code(414));
 	
 	static const char allowedURIChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	if (_RequestData.URI.find_first_not_of(allowedURIChars) != std::string::npos)
-		throw (400);
+		throw (Code(400));
 	
 	decodeURI();
 }
 
 void						Request::isValidHTTPVersion() {
 	if (_RequestData.HTTPversion.size() != 8 || _RequestData.HTTPversion.find("HTTP/") != 0)
-		throw (400);
+		throw (Code(400));
 	
 	if (_RequestData.HTTPversion.find("1.1", 5) != 5)
-		throw (505);
+		throw (Code(505));
 }
 
 
@@ -82,7 +82,7 @@ void						Request::parseRequestLine() {
 	bufferSize -= CRLFpos + 2;
 	
 	if (std::count(_RequestRaws.rawRequestLine.begin(), _RequestRaws.rawRequestLine.end(), ' ') != 2)
-		throw (400);
+		throw (Code(400));
 	
 	std::stringstream		RLss(_RequestRaws.rawRequestLine);
 
@@ -112,19 +112,19 @@ void						Request::parseRequestHeaders() {
 		size_t		colonPos = fieldline.find(':');
 
 		if (colonPos == std::string::npos)
-			throw (400);
+			throw (Code(400));
 		
 		std::string		fieldName = stringtolower(fieldline.substr(0, colonPos));
 		if (fieldName.empty() || fieldName.find_first_not_of(allowedKeyChars) != std::string::npos)
-			throw (400);
+			throw (Code(400));
 		
 		bool			headerExist = headerExists(fieldName);
 		if (isCriticalHeader(fieldName) && headerExist)
-			throw (400);
+			throw (Code(400));
 		
 		std::string		fieldValue = stringtrim(fieldline.substr(colonPos + 1), " \r\n\t\v");
 		if (fieldValue.empty() || fieldName.find_first_not_of(allowedValChars) != std::string::npos)
-			throw (400);
+			throw (Code(400));
 		if (headerExist)
 			_RequestData.Headers[fieldName] += ", " + fieldValue;
 		_RequestData.Headers[fieldName] = fieldValue;
@@ -134,7 +134,7 @@ void						Request::parseRequestHeaders() {
 void						Request::validateRequestHeaders() {
 	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : ""; // searching twice for no reason + creating empty string for no reason
 	if (_RequestData.host.empty())
-		throw (400);
+		throw (Code(400));
 	
 	if (headerExists("connection"))
 	{
@@ -149,21 +149,21 @@ void						Request::validateRequestHeaders() {
 
 
 		if (TransferEncoding == ContentLength)
-			throw (400);
+			throw (Code(400));
 		if (TransferEncoding) {
 			_RequestData.transferEncoding = stringtolower(_RequestData.Headers["transfer-encoding"]);
 			if (_RequestData.transferEncoding != "chunked")
-				throw (501);
+				throw (Code(501));
 			isEncoded = true;
 		}
 				
 		if (ContentLength) {
 			if (!stringIsDigit(_RequestData.Headers["content-length"]))
-				throw (400);
+				throw (Code(400));
 			char	*stop;
 			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stop, 10);
 			if (ERANGE == errno || *stop)
-				throw (400);
+				throw (Code(400));
 		}
 		
 		if (ContentType) {
@@ -175,18 +175,18 @@ void						Request::validateRequestHeaders() {
 			
 			std::string mediaType = _RequestData.contentType.substr(0, semiColonPos);
 			if (mediaType.empty())
-				throw (400);
+				throw (Code(400));
 			isMultipart = (mediaType == "multipart/form-data");
 			if (!isMultipart)
 				return ;
 
 			size_t	boundaryPos = _RequestData.contentType.find("boundary=", semiColonPos);
 			if (boundaryPos == std::string::npos)
-				throw (400);
+				throw (Code(400));
 			
 			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(boundaryPos + 9);
 			if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72) // RFC 2046, Section 5.1.1
-				throw (400);
+				throw (Code(400));
 			_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
 		}
 		else

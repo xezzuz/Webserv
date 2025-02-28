@@ -80,7 +80,7 @@ void 	ClientHandler::handleRead()
 	else if (bytesReceived < 0)
 	{
 		std::cerr << "[WEBSERV][ERROR]\t recv: " << strerror(errno) << std::endl;
-		throw(500);
+		throw(Code(500));
 	}
 	else
 	{
@@ -152,10 +152,10 @@ void	ClientHandler::handleEvent(uint32_t events)
 			}
 		}
 	}
-	catch (int& status)
+	catch (Code& e)
 	{
 		deleteResponse();
-		this->response = new ErrorPage(status, socket, request.getRequestData());
+		this->response = new ErrorPage(e, socket, request.getRequestData());
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
 	if (events & EPOLLHUP)

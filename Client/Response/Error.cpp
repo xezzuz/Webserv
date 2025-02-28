@@ -2,9 +2,13 @@
 
 ErrorPage::~ErrorPage() {}
 
-ErrorPage::ErrorPage(int& status, int& socket, RequestData	*data) : AResponse(socket, data)
+ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket, data), status(e)
 {
-	this->status = status;
+	statusCodes.insert(std::make_pair(301, "Moved Permanently"));
+	statusCodes.insert(std::make_pair(302, "Found"));
+	statusCodes.insert(std::make_pair(303, "See Other"));
+	statusCodes.insert(std::make_pair(307, "Temporary Redirect"));
+	statusCodes.insert(std::make_pair(308, "Permanent Redirect"));
 	statusCodes.insert(std::make_pair(400, "Bad Request"));
 	statusCodes.insert(std::make_pair(403, "Forbidden"));
 	statusCodes.insert(std::make_pair(404, "Not Found"));
@@ -16,7 +20,7 @@ ErrorPage::ErrorPage(int& status, int& socket, RequestData	*data) : AResponse(so
 	statusCodes.insert(std::make_pair(431, "Request Header Fields Too Large"));
 	statusCodes.insert(std::make_pair(500, "Internal Server Error"));
 	statusCodes.insert(std::make_pair(501, "Not Implemented"));
-	statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
+	// statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
 	statusCodes.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
@@ -54,6 +58,9 @@ void	ErrorPage::generateHeaders()
 	else
 		headers.append("\r\nConnection: close");
 
+	if (!status.location.empty())
+		headers.append("\r\nLocation: " + status.location);
+
 	try
 	{
 		std::map<int, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(reqCtx->StatusCode);
@@ -64,20 +71,19 @@ void	ErrorPage::generateHeaders()
 		resolveAbsPath(*reqCtx);
 		bodyFile.open(reqCtx->fullPath.c_str());
 		if (!bodyFile.is_open())
-			throw(500);
+			throw(Code(500));
 
 		headers.append("\r\nContent-Type: " + getContentType(reqCtx->fullPath, mimeTypes));
 		headers.append("\r\nContent-Length: " + _toString(fileLength(reqCtx->fullPath)));
 		headers.append("\r\n\r\n");
 	}
-	catch (int& newStatus)
+	catch (Code& newCode)
 	{
-		status = newStatus; // maybe remove
 		buffer = "<!DOCTYPE html>\n"
 				"<html>\n"
-				"<head><title> " + _toString(newStatus) + " " + statusCodes[newStatus] + " </title></head>\n"
+				"<head><title> " + _toString(newCode.status) + " " + statusCodes[newCode.status] + " </title></head>\n"
 				"<body>\n"
-				"<center><h1> " + _toString(newStatus) + " " + statusCodes[newStatus] + " </h1></center>\n"
+				"<center><h1> " + _toString(newCode.status) + " " + statusCodes[newCode.status] + " </h1></center>\n"
 				"<hr><center>webserv/1.0</center>\n"
 				"</body>\n"
 				"</html>";
@@ -87,7 +93,7 @@ void	ErrorPage::generateHeaders()
 		headers.append(buffer);
 		nextState = DONE;
 	}
-	headers.insert(0, "HTTP/1.1 " + _toString(status) + " " + statusCodes[status]);
+	headers.insert(0, "HTTP/1.1 " + _toString(status.status) + " " + statusCodes[status.status]);
 	if ((this->*sender)() == true)
 		state = nextState;
 	else

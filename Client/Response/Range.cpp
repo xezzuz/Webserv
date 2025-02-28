@@ -9,7 +9,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 	if (pos == std::string::npos)
 	{
 		std::cerr << "PREFIX NOT FOUND" << std::endl;
-		throw(416);
+		throw(Code(416));
 	}
 	pos += prefix.length();
 
@@ -33,7 +33,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (delim == std::string::npos)
 		{
 			std::cerr << "DELIM ERRROR" << std::endl;
-			throw(416);
+			throw(Code(416));
 		}
 
 		startStr = rangeStr.substr(0, delim);
@@ -41,7 +41,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (startStr.empty() && endStr.empty())
 		{
 			std::cerr << "both EMPTH" << std::endl;
-			throw(416);
+			throw(Code(416));
 		}
 
 		if (!startStr.empty())
@@ -50,7 +50,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 			if (errno == ERANGE || *stop)
 			{
 				std::cerr << "ERANGE FIRST" << std::endl;
-				throw(416);
+				throw(Code(416));
 			}
 			if (endStr.empty())
 				end = contentLength - 1;
@@ -61,7 +61,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 			if (errno == ERANGE || *stop)
 			{
 				std::cerr << "ERANGE SECOND" << std::endl;
-				throw(416);
+				throw(Code(416));
 			}
 			if (startStr.empty())
 			{
@@ -73,7 +73,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (start > end || end >= contentLength)
 		{
 			std::cerr << "CONTENTLENGTH" << std::endl;
-			throw(416);
+			throw(Code(416));
 		}
 
 		std::cout << "Start >> " << start << " | End >> " << end << std::endl;

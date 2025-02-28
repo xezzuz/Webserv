@@ -33,6 +33,17 @@ public:
 	std::string	location;
 };
 
+class Code : public std::exception
+{
+public:
+	virtual ~Code() throw() {}
+	Code(int status) : status(status) {}
+	Code(int status, std::string location) : status(status), location(location) {}
+
+	const int 			status;
+	const std::string	location;
+};
+
 void			split(const std::string& str, const char *set, std::vector<std::string>& result);
 std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);

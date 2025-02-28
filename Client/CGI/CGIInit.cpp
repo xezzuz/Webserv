@@ -52,7 +52,7 @@ void	CGIHandler::execCGI()
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
 	{
 		std::cerr << "[WEBSERV][ERROR]\tsocketpair: " << strerror(errno) << std::endl;
-		throw(500);
+		throw(Code(500));
 	}
 
 	pid = fork();

@@ -15,7 +15,7 @@ CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientS
 	// {
 	// 	bodyFile.open(/*opened file by the request*/);
 	// 	if (!bodyFile.is_open())
-	// 		throw(500);
+	// 		throw(Code(500));
 	// 	close(pipe_fd[0]);
 	// }
 
@@ -160,7 +160,7 @@ void	CGIHandler::handleEvent(uint32_t events)
 				HTTPserver->updateHandler(cgiSocket, EPOLLIN);
 			}
 			else if (bodySize > reqCtx->contentLength)
-				throw(400); // problem
+				throw(Code(400)); // problem
 			else
 			{
 				HTTPserver->updateHandler(socket, EPOLLIN);
