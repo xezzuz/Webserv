@@ -81,7 +81,7 @@ void	Response::generateHeaders( void )
 	else
 		headers.append("\r\nConnection: close");
 
-	headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]); // status line
+	headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + getCodeDescription(reqCtx->StatusCode)); // status line
 	headers.append("\r\n\r\n");
 	if ((this->*sender)() == true)
 		state = nextState;

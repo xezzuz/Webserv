@@ -188,7 +188,7 @@ void	Webserv::clientTimeout()
 	{
 		if (now - timeIt->second >= TIMEOUT)
 		{
-			std::cout << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << std::endl;
+			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
 			ClientHandler *client = static_cast<ClientHandler *>(handlerMap[timeIt->first]);
 			removeHandler(timeIt->first);
 			delete client;

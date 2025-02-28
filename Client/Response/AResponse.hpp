@@ -71,6 +71,14 @@ public:
 	virtual void	generateHeaders( void ) = 0;
 	virtual int		respond() = 0;
 
+	std::string	getCodeDescription(int code)
+	{
+		std::map<int, std::string>::iterator	it = statusCodes.find(code);
+		if (it != statusCodes.end())
+			return (it->second);
+		return ("");
+	}
+
 	bool	sendHeaders()
 	{
 		ssize_t bytesSent = send(socket, headers.c_str(), headers.size(), 0);
@@ -96,7 +104,6 @@ public:
 		buffer.erase(0, bytesSent);
 		return (buffer.empty());
 	}
-
 	
 protected:
 	int				socket;

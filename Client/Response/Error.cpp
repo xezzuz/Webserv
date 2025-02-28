@@ -93,7 +93,7 @@ void	ErrorPage::generateHeaders()
 		headers.append(buffer);
 		nextState = DONE;
 	}
-	headers.insert(0, "HTTP/1.1 " + _toString(status.status) + " " + statusCodes[status.status]);
+	headers.insert(0, "HTTP/1.1 " + _toString(status.status) + " " + getCodeDescription(status.status));
 	if ((this->*sender)() == true)
 		state = nextState;
 	else

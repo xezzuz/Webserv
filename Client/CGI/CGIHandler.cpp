@@ -9,7 +9,7 @@ CGIHandler::~CGIHandler()
 		kill(pid, SIGTERM);
 }
 
-CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), bodySize(0), pid(-1), headersParsed(false)
+CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), bodySize(0), pid(-1)
 {
 	// if (data->isEncoded)
 	// {
@@ -36,7 +36,7 @@ bool	CGIHandler::storeBody()
 {
 	int		bytesWritten = write(cgiSocket, buffer.c_str(), buffer.size());
 	if (bytesWritten == -1)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] write: " + strerror(errno)));
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "][CGI] write: " + strerror(errno)));
 	std::cout << "SOCKPAIR STORE_____" << std::endl << buffer;
 	std::cout << "_____SOCKPAIR STORE" << std::endl;
 	buffer.erase(0, bytesWritten);
@@ -47,6 +47,8 @@ void	CGIHandler::setBuffer(std::string buffer)
 {
 	if (!buffer.empty())
 	{
+		if (buffer.size() > reqCtx->contentLength)
+			throw(Code(400));
 		this->buffer = buffer;
 		bodySize += buffer.size();
 		HTTPserver->updateHandler(socket, 0);
@@ -56,13 +58,12 @@ void	CGIHandler::setBuffer(std::string buffer)
 
 void	CGIHandler::setBuffer(char *buf, ssize_t size)
 {
-	if (size)
-	{
-		buffer = std::string(buf, size);
-		bodySize += size;
-		HTTPserver->updateHandler(socket, 0);
-		HTTPserver->updateHandler(cgiSocket, EPOLLOUT);
-	}
+	buffer = std::string(buf, size);
+	bodySize += size;
+	if (bodySize > reqCtx->contentLength)
+		throw(Code(400));
+	HTTPserver->updateHandler(socket, 0);
+	HTTPserver->updateHandler(cgiSocket, EPOLLOUT);
 }
 
 void	CGIHandler::readCGIChunked()
@@ -76,9 +77,12 @@ void	CGIHandler::readCGIChunked()
 	std::cout << buffer;
 	std::cout << "+++++++++++++++++++++++++" << std::endl;
 	buffer = buildChunk(buf, bytesRead);
-	state = WRITE;
 	if (bytesRead == 0)
 		nextState = DONE;
+	if ((this->*sender)() == true)
+		state = nextState;
+	else
+		state = WRITE;
 }
 
 void		CGIHandler::readCGILength()
@@ -95,8 +99,7 @@ void		CGIHandler::readCGILength()
 		std::cout << YELLOW << "======[READ(LENGTH) DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		std::cout << buffer;
 		std::cout << "+++++++++++++++++++++++++" << std::endl;
-		if (headersParsed)
-			state = WRITE;
+		state = WRITE;
 	}
 	else
 	{
@@ -144,7 +147,7 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	if (events & EPOLLIN) // care EPOLLHUP
+	if (events & EPOLLIN)
 	{
 		(this->*CGIreader)();
 		HTTPserver->updateHandler(socket, EPOLLOUT);
@@ -159,8 +162,6 @@ void	CGIHandler::handleEvent(uint32_t events)
 				HTTPserver->updateHandler(socket, 0);
 				HTTPserver->updateHandler(cgiSocket, EPOLLIN);
 			}
-			else if (bodySize > reqCtx->contentLength)
-				throw(Code(400)); // problem
 			else
 			{
 				HTTPserver->updateHandler(socket, EPOLLIN);

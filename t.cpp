@@ -32,10 +32,18 @@ void	isValidIndex(const std::string& index)
 
 int main()
 {
-    std::string index = "HTTP/1.1";
-
-	std::cout << index.find("HTTP/") << std::endl;
-	std::cout << index.find("1.1", 5) << std::endl;
+	int x = 5;
+	switch (x)
+	{
+		case 6:
+			break;
+		case 5:
+			int y = 10;
+			std::cout << "Y: " << y << std::endl;
+			break;
+		// default:
+		// 	std::cout << "NONE" << std::endl;
+	}
 
 	// isValidIndex(index);
 

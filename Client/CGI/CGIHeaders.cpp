@@ -45,7 +45,7 @@ void	CGIHandler::validateHeaders()
 		headersMap.erase(field);
 	}
 	else
-		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusCodes[reqCtx->StatusCode]);
+		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + getCodeDescription(reqCtx->StatusCode));
 
 	// Location
 	field = headersMap.find("location");
@@ -131,8 +131,7 @@ void	CGIHandler::generateHeaders()
 	addHeaders();
 	headers.append("\r\n\r\n");
 
-	headersParsed = true;
-	if ((this->*sender)() == true && buffer.empty()) //
+	if ((this->*sender)() == true && buffer.empty())
 		state = nextState;
 	else
 		state = WRITE;
