@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 14:31:26 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 16:12:06 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,8 @@ typedef struct								RequestData {
 	std::string								pathInfo;
 	std::string								scriptName;
 	std::string								cgiIntrepreter;
+	std::fstream							CGITempFilestream;
+	std::string								CGITempFilename; // i.e /path/to/tempfile
 	
 	/*					  RESPONSE   				*/
 	std::string								fullPath;
@@ -140,7 +142,8 @@ class Request {
 		void						parseRequestHeaders();
 		void						parseRequestBody();
 		void						decodeChunkedBody();
-		void						processRequestRawBody();
+		void						processRegularRequestRawBody();
+		void						processCGIRequestRawBody();
 		void						processMultipartFormData();
 		void						processMultipartHeaders();
 		void						processMultipartData();
