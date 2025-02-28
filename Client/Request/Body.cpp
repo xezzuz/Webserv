@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 16:32:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/28 17:34:17 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 // {
 // 	uploader.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc); // this line shouldnt happen everytime we try to write
 // 	if (!uploader.is_open())
-// 		throw(500);
+// 		throw(Code(500));
 
 // 	uploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
 // 	if (!uploader)
-// 		throw(500);
+// 		throw(Code(500));
 // 	_RequestRaws.rawBody.clear(); //
 // }
 
@@ -63,7 +63,7 @@ void	Request::parseLengthBody() {
 	if (_RequestRaws.bodySize == _RequestData.contentLength)
 		bodyFinished = true;
 	else if (_RequestRaws.bodySize > _RequestData.contentLength)
-		throw(400);
+		throw(Code(400));
 }
 
 // unchunks available chunks and send them to raw Body
@@ -79,7 +79,7 @@ void			Request::decodeChunkedBody() {
 		
 		chunkSizeStr = buffer.substr(currPos, CRLFpos - currPos);
 		if (!isHexa(chunkSizeStr))
-			throw(400);
+			throw(Code(400));
 		
 		int chunkSize = htoi(chunkSizeStr);
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == DOUBLE_CRLF) {
@@ -88,7 +88,7 @@ void			Request::decodeChunkedBody() {
 			bodyFinished = true;
 			return ;
 		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != DOUBLE_CRLF)
-			throw(400);
+			throw(Code(400));
 
 		currPos = CRLFpos + 2;
 		if (bufferSize <= currPos + chunkSize + 2)
@@ -112,26 +112,26 @@ void			Request::processMultipartHeaders() {
 	contentDisposition = _RequestRaws.rawBody.substr(currPos, _RequestRaws.rawBody.find(CRLF, currPos));
 	filenamePos = contentDisposition.find("filename=\"") + 10;
 	if (filenamePos == std::string::npos)
-		throw(400);
+		throw(Code(400));
 	filenamePos_ = contentDisposition.find("\"", filenamePos);
 	if (filenamePos_ == std::string::npos)
-		throw(400);
+		throw(Code(400));
 	
 	filename = contentDisposition.substr(filenamePos, filenamePos_ - filenamePos);
 	if (filename.empty())
-		throw(400);
+		throw(Code(400));
 	
 	std::cout << "creating " + filename << std::endl;
 	std::string tmp = "/home/mmaila/goinfre/" + filename;
 	int	fd = open(tmp.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
 	if (fd == -1) {
-		throw(500);
+		throw(Code(500));
 	}
 	
 	files.push_back(fd);
 	currPos = _RequestRaws.rawBody.find(DOUBLE_CRLF, currPos);
 	if (currPos == std::string::npos)
-		throw(400);
+		throw(Code(400));
 	currPos += 4;
 	_RequestRaws.rawBody.erase(0, currPos);
 	_RequestRaws.bodySize -= currPos;
@@ -151,7 +151,7 @@ void			Request::processMultipartData() {
 		int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
 		if (bytesWritten == -1) {
 			printf("write");
-			throw(500);
+			throw(Code(500));
 		}
 		_RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.bodySize -= bytesWritten;
 		return ;
@@ -162,7 +162,7 @@ void			Request::processMultipartData() {
 	
 	int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
 	if (bytesWritten == -1)
-		throw(500);
+		throw(Code(500));
 	
 	_RequestRaws.rawBody.erase(0, bytesWritten + 2);
 	_RequestRaws.bodySize -= bytesWritten + 2;
@@ -186,7 +186,7 @@ void			Request::processBinaryBody() {
 	if (_RequestRaws.rawBody.empty())
 		return ;
 	// if (_RequestRaws.bodySize > _RequestData.contentLength)
-	//	throw(400);
+	//	throw(Code(400));
 	if (!files.size()) {
 		std::time_t				time = std::time(NULL);
 		std::stringstream 		ss;
@@ -194,12 +194,12 @@ void			Request::processBinaryBody() {
 		std::string				filename(ss.str());
 		int fd = open(filename.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
 		if (fd == -1)
-			throw(500);
+			throw(Code(500));
 		files.push_back(fd);
 	}
 	int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
 	if (bytesWritten == -1)
-		throw(500);
+		throw(Code(500));
 	_RequestRaws.rawBody.erase(0, bytesWritten);
 	_RequestRaws.bodySize -= bytesWritten;
 	// buffer.erase(0, bytesWritten);
@@ -210,7 +210,7 @@ void			Request::processRegularRequestRawBody() {
 	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
 	
 	// if (_RequestRaws.bodySize > _RequestData.contentLength) // i need to check this
-	//	throw(400);
+	//	throw(Code(400));
 	std::cout << "processRequestRawBody(1);" << std::endl;
 	if (!_RequestRaws.bodySize) // i need to check this
 		return ;
@@ -230,12 +230,12 @@ void			Request::processCGIRequestRawBody() {
 	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
 	char *CGITempFilename = std::tmpnam(NULL);
 	if (!CGITempFilename)
-		throw (500);
+		throw (Code(500));
 	
 	_RequestData.CGITempFilename = CGITempFilename;
 	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename, std::ios::out | std::ios::app | std::ios::binary);
 	if (!_RequestData.CGITempFilestream.is_open())
-		throw (500);
+		throw (Code(500));
 	
 	_RequestData.CGITempFilestream << _RequestRaws.rawBody;
 	_RequestRaws.rawBody.clear();
@@ -243,7 +243,7 @@ void			Request::processCGIRequestRawBody() {
 	
 	_RequestData.CGITempFilestream.close();
 	if (_RequestData.CGITempFilestream.fail())
-		throw (500);
+		throw (Code(500));
 }
 
 // BODY CONTROL CENTER
