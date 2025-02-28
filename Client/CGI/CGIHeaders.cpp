@@ -69,7 +69,6 @@ void	CGIHandler::parseHeaders()
 	size_t	start = 0;
 	size_t	end = 0;
 
-
 	while (start < CRLFpos)
 	{
 		end = buffer.find("\r\n", start);

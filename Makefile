@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/26 18:00:38 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/28 17:37:34 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,6 @@ SRCS			= 		\
 						./Client/Request/Headers.cpp \
 						./Client/Request/Body.cpp \
 						./Client/Response/Response.cpp \
-						./Client/Response/Body.cpp \
 						./Client/Response/Range.cpp \
 						./Client/Response/Error.cpp \
 						./Client/Response/Read.cpp \

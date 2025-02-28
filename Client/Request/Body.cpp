@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 17:34:17 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/28 17:37:05 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,7 @@ void			Request::processCGIRequestRawBody() {
 		throw (Code(500));
 	
 	_RequestData.CGITempFilename = CGITempFilename;
-	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename, std::ios::out | std::ios::app | std::ios::binary);
+	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary);
 	if (!_RequestData.CGITempFilestream.is_open())
 		throw (Code(500));
 	

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 18:29:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/28 17:37:14 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ Request&	Request::operator=(const Request& rhs)
 		files = rhs.files;
 
 		// new
-		_RequestData = rhs._RequestData;
+		// _RequestData = rhs._RequestData;
 		_RequestRaws = rhs._RequestRaws;
 
 		// body = rhs.body;
