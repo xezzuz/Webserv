@@ -42,7 +42,4 @@ private:
 	e_reqType					reqState;
 };
 
-void			fillRequestData(const std::string URI, RequestData& _RequestData);
-void			decodeAbsPath(const std::string ABSPATH, RequestData& _RequestData);
-
 #endif

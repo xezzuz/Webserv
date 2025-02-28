@@ -2,7 +2,6 @@ add timeouts
 2 requests can be sent at the same time
 localhost should work on the config file
 check comments
-test range 0-0 | 1-1
 
 transfer encoding overrides content length
 
@@ -12,6 +11,7 @@ localhost should work on the config file
 check comments
 test range 0-0 | 1-1
 trailing / at the end of the uri (file)
+
 rje3 stdin stdout kima kano mora child kill
 
 reuse port error
@@ -27,3 +27,10 @@ benchmark siwtch vs fn ptr
 verify content-length of cgi against actual length
 
 webserv should compile using C++ not G++
+add needed headers to CGI
+
+decode url 
+
+url-encoded content-type 
+
+MAJOR HEAP USE AFTER FREE ila cgi tdeleta w client dkhel l response

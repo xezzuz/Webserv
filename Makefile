@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/02/23 17:52:12 by mmaila           ###   ########.fr        #
+#    Updated: 2025/02/26 18:00:38 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,7 +49,7 @@ SRCS			= 		\
 						./Client/CGI/CGIHeaders.cpp \
 						./Client/CGI/CGIInit.cpp \
 						./Client/ClientHandler.cpp \
-						./Client/Helpers.cpp \
+						./Client/URI.cpp \
 						./Server/ServerHandler.cpp \
 						./Utils/Helpers.cpp \
 						./main.cpp

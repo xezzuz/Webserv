@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 14:53:49 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/28 15:09:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,6 @@ void						Request::decodeURI() {
 }
 
 void						Request::isValidMethod() {
-	if (_RequestData.Method.empty())
-		throw (400);
-	
 	if (_RequestData.Method != "GET" && _RequestData.Method != "POST" && _RequestData.Method != "DELETE")
 		throw (501);
 	
@@ -61,7 +58,7 @@ void						Request::isValidURI() {
 	if (_RequestData.URI.size() > 2048)
 		throw (414);
 	
-	char allowedURIChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
+	static const char allowedURIChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._-~:/?#[]@!$&'()*+,;=%";
 	if (_RequestData.URI.find_first_not_of(allowedURIChars) != std::string::npos)
 		throw (400);
 	
@@ -69,13 +66,10 @@ void						Request::isValidURI() {
 }
 
 void						Request::isValidHTTPVersion() {
-	if (_RequestData.HTTPversion.empty())
-		throw (400);
-	
 	if (_RequestData.HTTPversion.size() != 8 || _RequestData.HTTPversion.find("HTTP/") != 0)
 		throw (400);
 	
-	if (_RequestData.HTTPversion != "HTTP/1.1")
+	if (_RequestData.HTTPversion.find("1.1", 5) != 0)
 		throw (505);
 }
 
@@ -85,7 +79,7 @@ void						Request::parseRequestLine() {
 
 	_RequestRaws.rawRequestLine = buffer.substr(0, CRLFpos);
 	buffer.erase(0, CRLFpos + 2);
-	bufferSize -= CRLFpos;
+	bufferSize -= CRLFpos + 2;
 	
 	if (std::count(_RequestRaws.rawRequestLine.begin(), _RequestRaws.rawRequestLine.end(), ' ') != 2)
 		throw (400);
@@ -93,12 +87,14 @@ void						Request::parseRequestLine() {
 	std::stringstream		RLss(_RequestRaws.rawRequestLine);
 
 	std::getline(RLss, _RequestData.Method, ' ');
-	std::getline(RLss, _RequestData.URI, ' ');
-	std::getline(RLss, _RequestData.HTTPversion, ' ');
-	
 	isValidMethod();
+	
+	std::getline(RLss, _RequestData.URI, ' ');
 	isValidURI();
+	
+	std::getline(RLss, _RequestData.HTTPversion, ' ');
 	isValidHTTPVersion();
+	
 }
 
 void						Request::parseRequestHeaders() {
@@ -106,10 +102,11 @@ void						Request::parseRequestHeaders() {
 	std::stringstream		Hss(buffer.substr(0, CRLFpos + 4));
 
 	buffer.erase(0, CRLFpos + 4);
-	bufferSize -= CRLFpos;
+	bufferSize -= CRLFpos + 4;
 
-	std::string		fieldline;
-	char 			allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'*+-.^_`|~";
+	std::string			fieldline;
+	static const char	allowedValChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_ :;.,\\/\"\'?!(){}[]@<>=-+*#$&`|~^%";
+	static const char	allowedKeyChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 	
 	while (std::getline(Hss, fieldline) && fieldline != "\r") {
 		size_t		colonPos = fieldline.find(':');
@@ -117,8 +114,8 @@ void						Request::parseRequestHeaders() {
 		if (colonPos == std::string::npos)
 			throw (400);
 		
-		std::string		fieldName = stringtolower(fieldline.substr(0, colonPos)); // should we trim it from spaces?
-		if (fieldName.empty() || fieldName.find_first_not_of(allowedChars) != std::string::npos)
+		std::string		fieldName = stringtolower(fieldline.substr(0, colonPos));
+		if (fieldName.empty() || fieldName.find_first_not_of(allowedKeyChars) != std::string::npos)
 			throw (400);
 		
 		bool			headerExist = headerExists(fieldName);
@@ -126,7 +123,7 @@ void						Request::parseRequestHeaders() {
 			throw (400);
 		
 		std::string		fieldValue = stringtrim(fieldline.substr(colonPos + 1), " \r\n\t\v");
-		if (fieldValue.empty())
+		if (fieldValue.empty() || fieldName.find_first_not_of(allowedValChars) != std::string::npos)
 			throw (400);
 		if (headerExist)
 			_RequestData.Headers[fieldName] += ", " + fieldValue;
@@ -135,18 +132,19 @@ void						Request::parseRequestHeaders() {
 }
 
 void						Request::validateRequestHeaders() {
-	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : "";
+	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : ""; // searching twice for no reason
 	if (_RequestData.host.empty())
 		throw (400);
 	
-	_RequestData.connection = headerExists("connection") ? _RequestData.Headers["connection"] : "keep-alive";
-	if (_RequestData.connection != "close" && _RequestData.connection != "keep-alive")
-		throw (400);
+	_RequestData.connection = headerExists("connection") ? _RequestData.Headers["connection"] : "keep-alive"; // searching twice for no reason
+	// if (_RequestData.connection != "close" && _RequestData.connection != "keep-alive")
+	// 	throw (400);
 	
 	if (_RequestData.Method == "POST") {
 		bool		ContentLength = headerExists("content-length");
 		bool		TransferEncoding = headerExists("transfer-encoding");
 		bool		ContentType = headerExists("content-type");
+
 
 		if (TransferEncoding == ContentLength)
 			throw (400);
@@ -167,16 +165,16 @@ void						Request::validateRequestHeaders() {
 		}
 		
 		if (ContentType) {
-			std::string		disallowedCharacters = "\"():<>?@[\\]{}";
+			// std::string		disallowedCharacters = "\"():<>?@[\\]{}";
 			
-			for (size_t i = 1; i < 32; i++) {
-				if (i == 9)
-					continue;
-				disallowedCharacters += i;
-			}
-			
-			if (_RequestData.Headers["content-type"].find_first_of(disallowedCharacters, 0) == std::string::npos)
-				throw (400);
+			// for (size_t i = 1; i < 32; i++) {
+			// 	if (i == 9)
+			// 		continue;
+			// 	disallowedCharacters += i;
+			// }
+
+			// if (_RequestData.Headers["content-type"].find_first_of(disallowedCharacters, 0) == std::string::npos)
+			// 	throw (400);
 			
 			_RequestData.contentType = _RequestData.Headers["content-type"];
 			
@@ -190,7 +188,7 @@ void						Request::validateRequestHeaders() {
 			isMultipart = (mediaType == "multipart/form-data");
 			if (!isMultipart)
 				return ;
-			
+
 			size_t	boundaryPos = _RequestData.contentType.find("boundary=", semiColonPos);
 			if (boundaryPos == std::string::npos)
 				throw (400);
@@ -200,6 +198,8 @@ void						Request::validateRequestHeaders() {
 				throw (400);
 			_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
 		}
+		else
+			_RequestData.contentType = "application/octet-stream";
 	}
 }
 

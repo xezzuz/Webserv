@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 18:29:27 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/02/28 14:33:33 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 			return RECV;
 		parseRequestLineAndHeaders();
 		setMatchingConfig();
-		fillRequestData(_RequestData.URI, _RequestData);
+		resolveURI(_RequestData);
 		headersFinished = true;
-		if (_RequestData.Method != "POST")
-			return RESPOND;
+		if(_RequestData.Method != "POST")
+			return (RESPOND); // stop receiving
 		else if (_RequestData.isCGI && !isEncoded)
 			return FORWARD_CGI;
 	}

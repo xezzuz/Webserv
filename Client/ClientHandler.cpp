@@ -84,7 +84,10 @@ void 	ClientHandler::handleRead()
 	}
 	else
 	{
-		int		returnValue;
+		std::cout << "================RECIEVED============" << std::endl;
+		std::cout << buf;
+		std::cout << "====================================" << std::endl;
+		int returnValue;
 		switch (reqState)
 		{
 			case REGULAR:
@@ -136,16 +139,17 @@ void	ClientHandler::handleEvent(uint32_t events)
 		}
 		else if (events & EPOLLOUT)
 		{
-			handleWrite();
-			// try
-			// {
-			// }
-			// catch (CGIRedirectException& redirect)
-			// {
-			// 	deleteResponse();
-			// 	decodeAbsPath(redirect.location, *request.getRequestData()); ///////       ////
-			// 	createResponse(); ///// REWORK REWORK
-			// }
+			try
+			{
+				handleWrite();
+			}
+			catch (CGIRedirect& redirect)
+			{
+				deleteResponse();
+				request.setFullPath(redirect.location);
+				resolveAbsPath(*request.getRequestData());
+				createResponse();
+			}
 		}
 	}
 	catch (int& status)

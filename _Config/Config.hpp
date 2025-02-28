@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/09 16:33:53 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:13:40 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,20 +62,14 @@ typedef struct								Directives{
 
 	// default values for every directives
 	Directives() {
-		// error_pages.push_back(std::make_pair(404, "/home/nazouz/Desktop/Webserv/Errors/400.html"));
 		client_max_body_size = INT_MAX;
 		root = "/home/mmaila/Desktop/SERV/www/";
 		index.push_back("index.html");
-		index.push_back("index.py");
-		index.push_back("index.php");
 		methods.push_back("GET");
 		methods.push_back("POST");
 		methods.push_back("DELETE");
 		upload_store = "/home/nazouz/goinfre/WebservUpload";
 		autoindex = false;
-		cgi_ext[".sh"] = "/usr/bin/sh";
-		cgi_ext[".py"] = "/usr/bin/python3";
-		cgi_ext[".php"] = "/usr/bin/php";
 	}
 }															Directives;
 
@@ -158,7 +152,8 @@ class Config {
 
 };
 
-std::string				stringtrim(const std::string& str, const std::string& set);
+void					split(const std::string& str, const char *set, std::vector<std::string>& result);
+std::string				stringtrim(const std::string& str, const char *set);
 bool					stringIsDigit(const std::string& str);
 
 #endif

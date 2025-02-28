@@ -47,8 +47,6 @@ private:
 	int	cgiSocket;
 
 	size_t			bodySize;
-	// int				pipe_in; // file descriptor where cgi reads input from
-	// int				pipe_out; // file descriptor where cgi writes its output into
 	std::ifstream	bodyFile; // file to store incoming client body in if the request is chunked
 	pid_t			pid;
 	bool			headersParsed;
