@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/15 16:01:13 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:13:20 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,8 +195,8 @@ bool					Config::isValidIndex(const std::string& index, Directives& toFill) {
 		return false;
 	
 	toFill.index.clear();
-	// should tokenize first (split by spaces)
-	toFill.index.push_back(index);
+
+	split(index, " \t\v\f", toFill.index);
 	return true;
 }
 

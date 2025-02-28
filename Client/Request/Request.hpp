@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 12:02:35 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/26 18:11:42 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ class Request {
 
 		std::string					getBuffer() const { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
+		void						setFullPath(const std::string& path) { _RequestData.fullPath = path; }
 		RequestData					*getRequestData() { return &_RequestData; };
 
 		bool						decodeURI();
@@ -145,11 +146,13 @@ class Request {
 		void						isValidURI(const std::string& uri);
 		void						isValidHTTPVersion(const std::string& httpversion);
 		
+		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();
 };
 
-void			fillRequestData(const std::string URI, RequestData& _RequestData);
+void			resolveURI(RequestData& _RequestData);
+void			resolveAbsPath(RequestData& _RequestData);
 
 bool			stringIsDigit(const std::string& str);
 std::string		stringtrim(const std::string& str, const std::string& set);

@@ -109,7 +109,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		// that would be if the server crashed and restarted the previous address bound to the socket wouldn't be unavaible due to the kernel wait period 
 
 		int yes = 1;
-		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(yes)) == -1)
 		{
 			std::cerr << "[WEBSERV]\t>";
 			perror("setsockopt");
@@ -182,16 +182,17 @@ void	Webserv::initServers()
 
 void	Webserv::clientTimeout()
 {
+	time_t now = std::time(NULL);
+	
 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
 	{
-		time_t now = std::time(NULL);
 		if (now - timeIt->second >= TIMEOUT)
 		{
 			std::cout << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << std::endl;
 			ClientHandler *client = static_cast<ClientHandler *>(handlerMap[timeIt->first]);
 			removeHandler(timeIt->first);
 			delete client;
-			clientTimer.erase(timeIt++);
+			clientTimer.erase(timeIt++); // escapes the iterator invalidation
 		}
 		else
 			++timeIt;
@@ -225,7 +226,7 @@ void	Webserv::run()
 			{
 				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
 				int fd = handler->getFd();
-				removeHandler(handler->getFd());
+				removeHandler(fd);
 				if (clientTimer.find(fd) != clientTimer.end())
 					clientTimer.erase(fd);
 				delete handler;

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import cgi
 import cgitb
 import sys
@@ -7,9 +6,6 @@ import json
 import os
 
 # Enable debugging (useful for development)
-with open("example.txt", "w") as file:
-    file.write("Hello, this is a test message!\n")
-    file.write("This text is being written into the file.\n")
 cgitb.enable()
 
 

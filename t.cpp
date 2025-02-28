@@ -6,29 +6,35 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <sys/stat.h>
 
 #include <iostream>
-void	capitalize(std::string& word)
+void	isValidIndex(const std::string& index)
 {
-	size_t pos = 0;
-	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
+	std::vector<std::string> indexvec;
 
-	while ((pos = word.find_first_of(alpha, pos)) != std::string::npos)
+	static const std::string empty = " \t\r\n\v\f";
+	size_t start = 0;
+	size_t end = index.find_first_of(empty, 0);
+	std::cout << end << std::endl;
+
+	while (start < index.size())
 	{
-		word[pos++] -= 32;
-		pos = word.find_first_not_of(alpha, pos);
+		indexvec.push_back(index.substr(start, end - start));
+		start = index.find_first_not_of(empty, end);
+		end = index.find_first_of(empty, start);
 	}
+
+	for (size_t i = 0; i < indexvec.size(); i++)
+		std::cout << indexvec[i] << std::endl;
 }
 
 int main()
 {
-    std::string key = "hello-wslorrd-a";
+    std::string index = "";
 
-	static char alpha[53] = "abcdefghijklmnopqrstuvwxyz";
-	std::cout << key.find_first_not_of(alpha, 0) << std::endl;
-	std::cout << key << std::endl;
-	capitalize(key);
-	std::cout << key << std::endl;
+	isValidIndex(index);
 
     return 0;
 }

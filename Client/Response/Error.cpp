@@ -60,7 +60,8 @@ void	ErrorPage::generateHeaders()
 		if (error_page == reqCtx->_Config->error_pages.end())
 			throw(status);
 
-		fillRequestData(error_page->second, *reqCtx);
+		reqCtx->URI = error_page->second;
+		resolveAbsPath(*reqCtx);
 		bodyFile.open(reqCtx->fullPath.c_str());
 		if (!bodyFile.is_open())
 			throw(500);

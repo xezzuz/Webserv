@@ -8,6 +8,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <string>
+#include <vector>
 #include <sys/stat.h>
 #include <map>
 
@@ -23,16 +24,17 @@ private:
 	std::string	msg;
 };
 
-class CGIRedirectException : public std::exception
+class CGIRedirect : public std::exception
 {
 public:
-	virtual ~CGIRedirectException() throw() {}
-	CGIRedirectException(const std::string& location) : location(location) {}
+	virtual ~CGIRedirect() throw() {}
+	CGIRedirect(std::string location) : location(location) {}
 
-	std::string location;
+	std::string	location;
 };
 
-std::string		stringtrim(const std::string& str, const std::string& set);
+void			split(const std::string& str, const char *set, std::vector<std::string>& result);
+std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);
 std::string		stringtolower(std::string str);
 bool			stringIsDigit(const std::string& str);

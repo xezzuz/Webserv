@@ -6,56 +6,36 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/24 18:10:48 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/27 18:18:06 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Helpers.hpp"
 
-// bool			Request::printParsedRequest() {
-// 	std::cout << "*********************************************" << std::endl;
-// 	// printf("/---------------- REQUEST ----------------/\n\n");
-// 	// for (size_t i = 0; i < rawRequest.size(); i++) {
-// 	// 	printf("[%s]\n", rawRequest[i].c_str());
-// 	// }
+void	split(const std::string& str, const char *set, std::vector<std::string>& result)
+{
+	size_t start = 0;
+    size_t end = str.find_first_of(set);
+    
+    while (start < str.size())
+    {
+        if (end == std::string::npos)
+        {
+            result.push_back(str.substr(start));
+            break;
+        }
+        
+        result.push_back(str.substr(start, end - start));
+        start = str.find_first_not_of(set, end);
+        if (start == std::string::npos)
+            break;
+        
+        end = str.find_first_of(set, start);
+    }
+}
 
-// 	// startline
-// 	printf("/---------------- REQUESTLINE ----------------/\n");
-// 	// printf("RAW STARTLINE: [%s]\n", requestLine.rawRequestLine.c_str());
-// 	printf("METHOD: [%s]\n", requestLine.method.c_str());
-// 	printf("URI: [%s]\n", requestLine.uri.c_str());
-// 	printf("HTTP VERSION: [%s]\n\n", requestLine.httpversion.c_str());
-
-// 	// header
-// 	printf("/----------------- HEADERS -----------------/\n");
-// 	// printf("RAW HEADERS: [%s]\n", header.rawHeader.c_str());
-// 	std::map<std::string, std::string>::iterator it = header.headersMap.begin();
-// 	std::map<std::string, std::string>::iterator ite = header.headersMap.end();
-// 	while (it != ite) {
-// 		printf("[%s][%s]\n", it->first.c_str(), it->second.c_str());
-// 		it++;
-// 	}
-	
-// 	// body
-// 	// printf("\n/------------------- BODY -------------------/\n");
-// 	// printf("RAW BODY: [%s]\n", body.rawBody.c_str());
-// 	std::cout << "*********************************************" << std::endl;
-// 	return true;
-// }
-
-// std::string		stringtrim(const std::string& str, const std::string& set) {
-// 	size_t		first = 0;
-// 	size_t		last = str.size();
-
-// 	while (!strchr(set.c_str(), str[first]))
-// 		first++;
-// 	while (!strrchr(set.c_str(), str[last]))
-// 		last--;
-// 	return str.substr(first, last - first);
-// }
-
-std::string			stringtrim(const std::string& str, const std::string& set) {
-	if (str.empty() || set.empty()) {
+std::string			stringtrim(const std::string& str, const char *set) {
+	if (str.empty() || !set) {
 		return (str);
 	}
 

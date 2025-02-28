@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 13:37:04 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/02/26 19:24:08 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ int	Request::parseControlCenter(char *recvBuffer, ssize_t recvBufferSize)
 	buffer.reserve(buffer.size() + recvBufferSize);
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
-	std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
-	std::cout << buffer;
-	std::cout << "------------------" << std::endl;
+	// std::cout << "------REQUEST----SIZE(" << recvBufferSize << ")-----" << std::endl;
+	// std::cout << buffer;
+	// std::cout << "------------------" << std::endl;
 	if (!headersParsed)
 	{
 		if (buffer.find("\r\n\r\n") == std::string::npos)
@@ -56,9 +56,8 @@ int	Request::parseControlCenter(char *recvBuffer, ssize_t recvBufferSize)
 		parseHeaders();
 		validateRequestHeaders();
 		setMatchingConfig();
-		fillRequestData(_RequestData.URI, _RequestData);
+		resolveURI(_RequestData);
 		headersParsed = true;
-		// std::cout << _RequestData.Method 
 		if(_RequestData.Method != "POST")
 			return (2); // stop receiving
 		else if (_RequestData.isCGI && !isEncoded)

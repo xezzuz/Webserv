@@ -36,7 +36,7 @@ bool	CGIHandler::storeBody()
 {
 	int		bytesWritten = write(cgiSocket, buffer.c_str(), buffer.size());
 	if (bytesWritten == -1)
-		throw(500); // big problem
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] write: " + strerror(errno)));
 	std::cout << "SOCKPAIR STORE_____" << std::endl << buffer;
 	std::cout << "_____SOCKPAIR STORE" << std::endl;
 	buffer.erase(0, bytesWritten);
@@ -73,6 +73,8 @@ void	CGIHandler::readCGIChunked()
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
 
 	std::cout << YELLOW << "======[READ(CHUNKED) DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
+	std::cout << buffer;
+	std::cout << "+++++++++++++++++++++++++" << std::endl;
 	buffer = buildChunk(buf, bytesRead);
 	state = WRITE;
 	if (bytesRead == 0)
@@ -91,6 +93,8 @@ void		CGIHandler::readCGILength()
 	{
 		buffer = std::string(buf, bytesRead);
 		std::cout << YELLOW << "======[READ(LENGTH) DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
+		std::cout << buffer;
+		std::cout << "+++++++++++++++++++++++++" << std::endl;
 		if (headersParsed)
 			state = WRITE;
 	}
