@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 16:39:41 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 17:38:33 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,17 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 {
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
-	// std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
+	// std::cout << "================RECIEVED============" << std::endl;
 	// std::cout << buffer;
-	// std::cout << "------------------" << std::endl;
+	// std::cout << "====================================" << std::endl;
 
 	if (!headersFinished) {
 		// should check the max of headers size
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;
+		// std::cout << "================RECIEVED============" << std::endl;
+		// std::cout << buffer;
+		// std::cout << "====================================" << std::endl;
 		parseRequestLineAndHeaders();
 		setMatchingConfig();
 		resolveURI(_RequestData);

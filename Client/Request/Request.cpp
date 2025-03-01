@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 13:28:36 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 17:27:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 Request::~Request() {}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	// _RequestData.StatusCode = 200;
-	// bufferSize = 0;
+	_RequestData.StatusCode = 200;
+	bufferSize = 0;
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
@@ -83,6 +83,7 @@ Request&	Request::operator=(const Request& rhs)
 
 RequestData::RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {
 	// should i generate cgitempfilename here? we will see
+	contentLength = 0;
 	_Config = NULL; // ?
 }
 

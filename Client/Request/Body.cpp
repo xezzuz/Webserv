@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 16:41:08 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 17:31:41 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,11 @@ void	Request::parseLengthBody() {
 	if (!bufferSize)
 		return ;
 
+	std::cout << RED << "totalBodySize = " << _RequestRaws.totalBodySize << RESET << std::endl;
+	std::cout << RED << "bufferSize = " << bufferSize << RESET << std::endl;
+	std::cout << RED << "clientmaxbodysize = " << _RequestData._Config->client_max_body_size << RESET << std::endl;
+	std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
+	
 	if (_RequestRaws.totalBodySize + bufferSize < _RequestRaws.totalBodySize)
 		throw (Code(413));
 	if (_RequestRaws.totalBodySize + bufferSize > _RequestData._Config->client_max_body_size)
@@ -297,9 +302,6 @@ void			Request::processRegularRequestRawBody() {
 	if (!_RequestRaws.rawBodySize) // i need to check this
 		return ;
 	std::cout << "processRequestRawBody(2);" << std::endl;
-	
-	if (_RequestData._Config->upload_store.empty())
-		throw (Code(403));
 
 	if (isMultipart) {
 		std::cout << "**************************** is multipart!" << std::endl;
@@ -333,6 +335,9 @@ void			Request::processCGIRequestRawBody() {
 
 // BODY CONTROL CENTER
 void			Request::parseRequestBody() {		// store request body in raw Body
+	if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
+		throw (Code(403));
+	
 	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
 	if (isEncoded)
 		decodeChunkedBody(); // after this the decoded body will be stored in _RequestRaws.rawBody

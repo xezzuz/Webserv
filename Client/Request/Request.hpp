@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:12:54 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 17:19:52 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ typedef	struct								RequestRaws {
 	size_t									totalBodySize;
 
 	std::map<std::string, std::string>		mimeTypes;
+
+	RequestRaws() : rawBodySize(0), totalBodySize(0) {}
 }											RequestRaws;
 
 

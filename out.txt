@@ -1,0 +1,489 @@
+
+
+----------------- SERVER 1 -----------------
+LISTEN:			0.0.0.0:8080
+SERVER NAME:		nazouz.com
+SERVER NAME:		mmaila.com
+CLIENT_MBS:		10485760
+ROOT:			/home/nazouz/Desktop/Webserv/www
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+
+----------------- LOCATION /cgi-bin/ -----------------
+CLIENT_MBS:		10485760
+ROOT:			/home/nazouz/Desktop/Webserv/www
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+METHODS:		POST
+METHODS:		DELETE
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+CGI_EXT:			.py:/usr/bin/python3
+----------------- END LOCATION -----------------
+
+----------------- LOCATION /upload -----------------
+CLIENT_MBS:		10485760
+ROOT:			/home/nazouz/Desktop/Webserv/www
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+METHODS:		POST
+METHODS:		DELETE
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+----------------- END LOCATION -----------------
+
+----------------- END SERVER -----------------
+[WEBSERV]	 [34m[1mServer listening on 0.0.0.0:8080[0m
+[SERVER]	Client Connected To Socket 6...
+================RECIEVED=6============
+GET / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/index.html
+RESPOND
+[32m======[SENT DATA OF SIZE 170 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:00 GMT
+Content-Length: 1175
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[33m======[READ DATA OF SIZE 1175]======[0m
+[32m======[SENT DATA OF SIZE 1175 (BODY)]======[0m
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic HTML Web Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Basic Web Page</h1>
+    </header>
+
+    <main>
+        <p>This is a simple example of a basic HTML web page.</p>
+        <!-- <img src="https://via.placeholder.com/150" alt="Placeholder Image"> -->
+    </main>
+
+    <footer>
+        <p>&copy; 2023 My Basic Web Page</p>
+    </footer>
+
+</body>
+</html>==============================================================
+[32m[WEBSERV][CLIENT-6]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-6]	RESETTING..[0m
+================RECIEVED=6============
+GET /upload/upload-multipart.html HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/upload/upload-multipart.html
+RESPOND
+[32m======[SENT DATA OF SIZE 169 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:05 GMT
+Content-Length: 411
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[33m======[READ DATA OF SIZE 411]======[0m
+[32m======[SENT DATA OF SIZE 411 (BODY)]======[0m
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h2>Upload a File</h2>
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+==============================================================
+[32m[WEBSERV][CLIENT-6]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-6]	RESETTING..[0m
+================RECIEVED=6============
+GET /upload HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Sec-Purpose: prefetch;prerender
+Purpose: prefetch
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/upload
+RESPOND
+[32m======[SENT DATA OF SIZE 176 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:07 GMT
+Transfer-Encoding: chunked
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[32m======[SENT DATA OF SIZE 264 (BODY)]======[0m
+FD
+<html>
+<head><title>Index of /upload</title></head>
+<body>
+<h1>Index of /upload</h1>
+<hr><pre>
+<a href="../">../</a>
+<a href="upload-binary.html">upload-binary.html</a>
+<a href="upload-multipart.html">upload-multipart.html</a>
+</pre><hr>
+</body>
+</html>
+0
+
+==============================================================
+[32m[WEBSERV][CLIENT-6]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-6]	RESETTING..[0m
+================RECIEVED=6============
+GET /upload-multipart.html HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:8080/upload
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+[32m======[SENT DATA OF SIZE 318 (HEADERS)]======[0m
+HTTP/1.1 404 Not Found
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:10 GMT
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 164
+
+<!DOCTYPE html>
+<html>
+<head><title> 404 Not Found </title></head>
+<body>
+<center><h1> 404 Not Found </h1></center>
+<hr><center>webserv/1.0</center>
+</body>
+</html>==============================================================
+[32m[WEBSERV][CLIENT-6]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-6]	RESETTING..[0m
+[33m[WEBSERV][CLIENT-6]	TIMEOUT[0m
+[SERVER]	Client Connected To Socket 6...
+[SERVER]	Client Connected To Socket 7...
+[SERVER]	Client Connected To Socket 8...
+================RECIEVED=8============
+GET /upload/upload-multipart.html HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/upload/upload-multipart.html
+RESPOND
+[32m======[SENT DATA OF SIZE 169 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:34 GMT
+Content-Length: 411
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[33m======[READ DATA OF SIZE 411]======[0m
+[32m======[SENT DATA OF SIZE 411 (BODY)]======[0m
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h2>Upload a File</h2>
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+==============================================================
+[32m[WEBSERV][CLIENT-8]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-8]	RESETTING..[0m
+================RECIEVED=8============
+GET /upload/ HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/upload/
+RESPOND
+[32m======[SENT DATA OF SIZE 176 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:36 GMT
+Transfer-Encoding: chunked
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[32m======[SENT DATA OF SIZE 266 (BODY)]======[0m
+FF
+<html>
+<head><title>Index of /upload/</title></head>
+<body>
+<h1>Index of /upload/</h1>
+<hr><pre>
+<a href="../">../</a>
+<a href="upload-binary.html">upload-binary.html</a>
+<a href="upload-multipart.html">upload-multipart.html</a>
+</pre><hr>
+</body>
+</html>
+0
+
+==============================================================
+[32m[WEBSERV][CLIENT-8]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-8]	RESETTING..[0m
+[SERVER]	Client Connected To Socket 9...
+================RECIEVED=9============
+GET /upload-multipart.html HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:8080/upload
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+[32m======[SENT DATA OF SIZE 318 (HEADERS)]======[0m
+HTTP/1.1 404 Not Found
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:41 GMT
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 164
+
+<!DOCTYPE html>
+<html>
+<head><title> 404 Not Found </title></head>
+<body>
+<center><h1> 404 Not Found </h1></center>
+<hr><center>webserv/1.0</center>
+</body>
+</html>==============================================================
+[32m[WEBSERV][CLIENT-9]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-9]	RESETTING..[0m
+================RECIEVED=9============
+GET /upload HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+FULLPATH: /home/nazouz/Desktop/Webserv/www/upload
+RESPOND
+[32m======[SENT DATA OF SIZE 176 (HEADERS)]======[0m
+HTTP/1.1 200 OK
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:43 GMT
+Transfer-Encoding: chunked
+Content-Type: text/html
+Accept-Ranges: bytes
+Connection: keep-alive
+
+==============================================================
+[32m======[SENT DATA OF SIZE 264 (BODY)]======[0m
+FD
+<html>
+<head><title>Index of /upload</title></head>
+<body>
+<h1>Index of /upload</h1>
+<hr><pre>
+<a href="../">../</a>
+<a href="upload-binary.html">upload-binary.html</a>
+<a href="upload-multipart.html">upload-multipart.html</a>
+</pre><hr>
+</body>
+</html>
+0
+
+==============================================================
+[32m[WEBSERV][CLIENT-9]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-9]	RESETTING..[0m
+================RECIEVED=9============
+GET /upload-multipart.html HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:8080/upload
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+====================================
+[32m======[SENT DATA OF SIZE 318 (HEADERS)]======[0m
+HTTP/1.1 404 Not Found
+Server: webserv/1.0
+Date: Sat, 01 Mar 2025 17:43:44 GMT
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 164
+
+<!DOCTYPE html>
+<html>
+<head><title> 404 Not Found </title></head>
+<body>
+<center><h1> 404 Not Found </h1></center>
+<hr><center>webserv/1.0</center>
+</body>
+</html>==============================================================
+[32m[WEBSERV][CLIENT-9]	CLIENT SERVED[0m
+[32m[WEBSERV][CLIENT-9]	RESETTING..[0m
+[33m[WEBSERV][CLIENT-6]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-7]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-8]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-9]	TIMEOUT[0m

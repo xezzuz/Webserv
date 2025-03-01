@@ -26,7 +26,7 @@ void	Response::directoryListing()
 			continue ;
 		if (entry->d_type == DT_DIR)
 			name.append("/");
-		buffer.append("<a href=\"" + name + "\">" + name + "</a>\n");
+		buffer.append("<a href=\"" + reqCtx->URI + name + "\">" + name + "</a>\n");
 		i++;
 	}
 	if (entry == NULL)
