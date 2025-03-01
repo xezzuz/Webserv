@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   URI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:01:59 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:48:55 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,9 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 	std::string	pathChecker;
 	
 	size_t	startPos = 0;
-	size_t	endPos;
+	size_t	endPos = 0;
 	while (startPos < _RequestData.fullPath.size()) {
-		endPos = _RequestData.fullPath.find('/', startPos + 1);
+		endPos = _RequestData.fullPath.find('/', startPos + 1); // check whether it was found or not
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
 		if (stat(pathChecker.c_str(), &pathStats) != 0) 
 			throw(Code(404));

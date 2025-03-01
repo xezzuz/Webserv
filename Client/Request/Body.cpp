@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 17:31:41 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:55:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,16 +320,16 @@ void			Request::processCGIRequestRawBody() {
 		throw (Code(500));
 	
 	_RequestData.CGITempFilename = CGITempFilename;
-	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
-	if (!_RequestData.CGITempFilestream.is_open())
+	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
+	if (!fileUploader.is_open())
 		throw (Code(500));
 	
-	_RequestData.CGITempFilestream << _RequestRaws.rawBody;  // should i flush after this?
+	fileUploader << _RequestRaws.rawBody;  // should i flush after this?
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.rawBodySize = 0;
 	
-	_RequestData.CGITempFilestream.close();
-	if (_RequestData.CGITempFilestream.fail())
+	fileUploader.close();
+	if (fileUploader.fail())
 		throw (Code(500));
 }
 

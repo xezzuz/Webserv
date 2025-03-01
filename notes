@@ -1,9 +1,8 @@
 add CGI timeouts
+
 check comments
 
 trailing / at the end of the uri (file)
-
-comments in config file {[SERVER]#flkdasflkdasf}
 
 benchmark siwtch vs fn ptr
 
@@ -19,10 +18,10 @@ verify atoi
 
 a 404 when accessing /cgi-bin/ and then from autoindex acessing /cgi-bin/login.html, the new request doesn't append the new requested file from autoindex
 
-remove upload store from the default values
+cgitempfilestream should be removed, its removed now, we should test for bugs
 
-limit length of http headers
+root directive isFile // check my comment in URI.cpp
 
-cgitempfilestream should be removed
+i should fix processCGIRequestRawBody()
 
-all ints should be initialized
+for mkstemp tmpnam, mkstemp is not allowed

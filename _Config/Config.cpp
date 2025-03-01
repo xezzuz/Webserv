@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:15:15 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:52:18 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ Config::Config(const std::string& configFileName) {
 Config::~Config() {
 	if (configFile.is_open())
 		configFile.close();
-	close(logs);
 }
 
 void				Config::ErrorLogger(const std::string& error) {
@@ -103,10 +102,6 @@ void				Config::printServersConfigs() {
 		}
 		printf("\n----------------- END SERVER -----------------\n");
 	}
-}
-
-int&										Config::getLogs() {
-	return this->logs;
 }
 
 std::vector<ServerConfig>&					Config::getServers() {

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 17:27:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:42:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,14 @@
 Request::~Request() {}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	_RequestData.StatusCode = 200;
 	bufferSize = 0;
 	
-	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
 	isMultipart = false;
 	headersFinished = false;
 	bodyFinished = false;
 	
-	// _RequestRaws.bodySize = 0;
-	// _RequestData.contentLength = -1;
+	_RequestData._Config = &vServers[0].ServerDirectives;
 
 	_RequestRaws.mimeTypes["text/html"] = ".html";
 	_RequestRaws.mimeTypes["text/css"] = ".css";
@@ -65,74 +62,69 @@ Request&	Request::operator=(const Request& rhs)
 		buffer = rhs.buffer;
 		bufferSize = rhs.bufferSize;
 
-		// new
 		_RequestData = rhs._RequestData;
 		_RequestRaws = rhs._RequestRaws;
-
-		// body = rhs.body;
-		// header = rhs.header;
-		// requestLine = rhs.requestLine;
+		
 		headersFinished = rhs.headersFinished;
 		bodyFinished = rhs.bodyFinished;
 		isEncoded = rhs.isEncoded;
 		isMultipart = rhs.isMultipart;
-		// statusCode = rhs.statusCode;
 	}
 	return *this;
 }
 
-RequestData::RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {
-	// should i generate cgitempfilename here? we will see
-	contentLength = 0;
-	_Config = NULL; // ?
-}
+// RequestData::RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {
+// 	// should i generate cgitempfilename here? we will see
+// 	contentLength = 0;
+// 	_Config = NULL; // ?
+// }
 
-RequestData&		RequestData::operator=(const RequestData &rhs) {
-	if (this != &rhs) {
-		isCGI = rhs.isCGI;
-		isDir = rhs.isDir;
-		isRange = rhs.isRange;
-		keepAlive = rhs.keepAlive;
-		StatusCode = rhs.StatusCode;
+// RequestData&		RequestData::operator=(const RequestData &rhs) {
+// 	if (this != &rhs) {
+// 		isCGI = rhs.isCGI;
+// 		isDir = rhs.isDir;
+// 		isRange = rhs.isRange;
+// 		keepAlive = rhs.keepAlive;
+// 		StatusCode = rhs.StatusCode;
 
-		Method = rhs.Method;
-		URI = rhs.URI;
-		HTTPversion = rhs.HTTPversion;
+// 		Method = rhs.Method;
+// 		URI = rhs.URI;
+// 		HTTPversion = rhs.HTTPversion;
 
-		queryString = rhs.queryString;
-		pathInfo = rhs.pathInfo;
-		scriptName = rhs.scriptName;
-		cgiIntrepreter = rhs.cgiIntrepreter;
-		CGITempFilename = rhs.CGITempFilename;
+// 		queryString = rhs.queryString;
+// 		pathInfo = rhs.pathInfo;
+// 		scriptName = rhs.scriptName;
+// 		cgiIntrepreter = rhs.cgiIntrepreter;
+// 		CGITempFilename = rhs.CGITempFilename;
 		
-		fullPath = rhs.fullPath;
-		contentType = rhs.contentType;
-		contentLength = rhs.contentLength;
-		connection = rhs.connection;
-		host = rhs.host;
-		transferEncoding = rhs.transferEncoding;
-		matchingLocation = rhs.matchingLocation;
+// 		fullPath = rhs.fullPath;
+// 		contentType = rhs.contentType;
+// 		contentLength = rhs.contentLength;
+// 		connection = rhs.connection;
+// 		host = rhs.host;
+// 		transferEncoding = rhs.transferEncoding;
+// 		matchingLocation = rhs.matchingLocation;
 
-		Headers = rhs.Headers;
+// 		Headers = rhs.Headers;
 
-		// _Config: deep copy or shallow copy?
-		// if (rhs._Config) {
-		// 	if (!_Config) {
-		// 		_Config = new Directives(*rhs._Config); // Deep copy
-		// 	} else {
-		// 		*_Config = *rhs._Config;
-		// 	}
-		// } else {
-		// 	delete _Config;
-		// 	_Config = nullptr;
-		// }
+// 		// _Config: deep copy or shallow copy?
+// 		// if (rhs._Config) {
+// 		// 	if (!_Config) {
+// 		// 		_Config = new Directives(*rhs._Config); // Deep copy
+// 		// 	} else {
+// 		// 		*_Config = *rhs._Config;
+// 		// 	}
+// 		// } else {
+// 		// 	delete _Config;
+// 		// 	_Config = nullptr;
+// 		// }
 
-		// reset CGITempFilestream since fstream cannot be copied
-		if (CGITempFilestream.is_open())
-			CGITempFilestream.close();
-		// if (!rhs.CGITempFilename.empty()) {
-		// 	CGITempFilestream.open(rhs.CGITempFilename, std::ios::in | std::ios::out);
-		// }
-	}
-	return *this;
-}
+// 		// reset CGITempFilestream since fstream cannot be copied
+// 		if (CGITempFilestream.is_open())
+// 			CGITempFilestream.close();
+// 		// if (!rhs.CGITempFilename.empty()) {
+// 		// 	CGITempFilestream.open(rhs.CGITempFilename, std::ios::in | std::ios::out);
+// 		// }
+// 	}
+// 	return *this;
+// }

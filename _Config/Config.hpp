@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 16:43:46 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:53:23 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,15 +66,13 @@ typedef struct								Directives{
 	std::map<std::string, std::string>		cgi_ext;
 
 	// default values for every directives
-	Directives() {
-		client_max_body_size = 10 * MB;
+	Directives() : client_max_body_size(10 * MB), autoindex(false) {
 		// root = "/home/mmaila/Desktop/SERV/www/";
 		index.push_back("index.html");
 		methods.push_back("GET");
 		methods.push_back("POST");
 		methods.push_back("DELETE");
 		// upload_store = "/home/nazouz/goinfre/WebservUpload";
-		autoindex = false;
 	}
 }															Directives;
 
@@ -87,8 +85,8 @@ typedef struct												ServerConfig {
 
 	// default values for server only directives
 	ServerConfig() {
-		host = "127.0.0.1";
-		port = "8080";
+		host = "0.0.0.0";
+		port = "80";
 		server_names.push_back("nazouz.com");
 		server_names.push_back("mmaila.com");
 	}
@@ -101,8 +99,6 @@ class Config {
 		
 		std::vector< std::pair<int, int> >								serverBlocksIndexes;
 		std::vector< std::pair<int, int> >								locationBlocksIndexes;
-
-		int																logs;
 
 		std::vector<ServerConfig>										Servers;
 		

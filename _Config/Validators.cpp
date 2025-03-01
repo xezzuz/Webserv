@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 12:09:40 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:48:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 	if (isalpha(client_max_body_size[client_max_body_size.size() - 1]))
 		isUnit = true, unit = std::toupper(client_max_body_size[client_max_body_size.size() - 1]);
 	
-	size_t				value;
+	size_t				value = 0;
 	if (isUnit) {
 		if (unit == 'G' || unit == 'M' || unit == 'K' || !stringIsDigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
 			return false;

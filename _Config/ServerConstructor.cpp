@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 16:32:57 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:45:27 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool				Config::constructServers() {
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
-		int						start, end;
+		int						start = 0, end = 0;
 		ServerConfig			newServerBlock;
 		
 		start = serverBlocksIndexes[i].first;

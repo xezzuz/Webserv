@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 18:20:08 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:45:17 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ bool				Config::parseConfigFile() {
 }
 
 bool				Config::storeConfigFileInVector() {
+	size_t				pos;
 	std::string			line;
 
 	while (std::getline(configFile, line)) {
@@ -44,6 +45,8 @@ bool				Config::storeConfigFileInVector() {
 			continue;
 		if (line[0] == '#')
 			continue;
+		if ((pos = line.find('#')) != std::string::npos)
+			line = line.substr(0, pos);
 		configFileVector.push_back(line);
 		if (configFile.eof())
 			break;
@@ -112,7 +115,7 @@ bool				Config::locationBlockIsInsideAServerBlock(int locationStart, int locatio
 }
 
 bool				Config::validateBlocksIndexes() {
-	int			a, b, c, d;
+	int			a = 0, b = 0, c = 0, d = 0;
 	for (size_t i = 0; i < serverBlocksIndexes.size() - 1; i++) {
 		a = serverBlocksIndexes[i].first;
 		b = serverBlocksIndexes[i].second;

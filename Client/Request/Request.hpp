@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 17:19:52 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:41:03 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ typedef struct								RequestData {
 	std::string								pathInfo;
 	std::string								scriptName;
 	std::string								cgiIntrepreter;
-	std::fstream							CGITempFilestream;
+	// std::fstream							CGITempFilestream;
 	std::string								CGITempFilename; // i.e /path/to/tempfile
 	
 	/*					  RESPONSE   				*/
@@ -82,9 +82,7 @@ typedef struct								RequestData {
 	std::map<std::string, std::string>		Headers;
 	Directives								*_Config; // ptr
 	
-	// RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {}
-	RequestData();
-	RequestData&	operator=(const RequestData &rhs);
+	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200), contentLength(0) {}
 }											RequestData;
 
 typedef	struct								RequestRaws {
