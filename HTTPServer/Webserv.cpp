@@ -11,6 +11,7 @@ Webserv::~Webserv()
 
 Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
+	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
 }
 
@@ -26,7 +27,6 @@ void print_epoll_events(uint32_t events)
 	if (events & EPOLLONESHOT) std::cout << "EPOLLONESHOT ";
 }
 
-
 void	Webserv::addTimer(int fd)
 {
 	clientTimer.insert(std::make_pair(fd, std::time(NULL)));
@@ -36,9 +36,7 @@ void	Webserv::updateTimer(int fd)
 {
 	std::map<int, time_t>::iterator it = clientTimer.find(fd);
 	if (it != clientTimer.end())
-	{
 		it->second = std::time(NULL);
-	}
 }
 
 void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
@@ -190,7 +188,6 @@ void	Webserv::clientTimeout()
 		{
 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
 			ClientHandler *client = static_cast<ClientHandler *>(handlerMap[timeIt->first]);
-			removeHandler(timeIt->first);
 			delete client;
 			clientTimer.erase(timeIt++); // escapes the iterator invalidation
 		}
@@ -201,8 +198,6 @@ void	Webserv::clientTimeout()
 
 void	Webserv::run()
 {
-	srand(std::time(0));
-
 	struct epoll_event events[MAX_EVENTS];
 	while (true)
 	{
@@ -218,7 +213,6 @@ void	Webserv::run()
 				{
 					int fd = handler->getFd();
 					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << RESET << std::endl;
-					removeHandler(fd);
 					delete handler;
 				}
 				else
@@ -228,7 +222,6 @@ void	Webserv::run()
 			{
 				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
 				int fd = handler->getFd();
-				removeHandler(fd);
 				if (clientTimer.find(fd) != clientTimer.end())
 					clientTimer.erase(fd);
 				delete handler;

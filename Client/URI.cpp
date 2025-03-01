@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 19:39:40 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:07:30 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,4 +146,5 @@ void			resolveURI(RequestData& _RequestData) {
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);
+	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
 }

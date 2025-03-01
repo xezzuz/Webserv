@@ -13,7 +13,6 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : requ
 {
 	socket = fd;
 	response = NULL;
-	cgiActive = false;
 	keepAlive = false;
 	reqState = REGULAR;
 	elapsedTime = std::time(NULL);
@@ -31,7 +30,7 @@ void	ClientHandler::ctime()
 
 void	ClientHandler::reset()
 {
-	std::cout << "[WEBSERV][CLIENT-" << socket << "]\tRESETING.." << std::endl;
+	std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tRESETTING.." << RESET << std::endl;
 	reqState = REGULAR;
 	deleteResponse();
 	request = Request(vServers);
@@ -49,7 +48,6 @@ void	ClientHandler::deleteResponse()
 		delete response;
 		response = NULL;
 	}
-	cgiActive = false;
 }
 
 void	ClientHandler::createResponse()
@@ -61,7 +59,6 @@ void	ClientHandler::createResponse()
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
 		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
-		cgiActive = true;
 	}
 	else
 	{
@@ -102,7 +99,6 @@ void 	ClientHandler::handleRead()
 					HTTPserver->registerHandler(cgi->getFd(), cgi, 0);
 					cgi->setBuffer(request.getBuffer());
 					response = cgi;
-					cgiActive = true;
 					reqState = CGI;
 				}
 				else if (returnValue == RESPOND) // receiving done - move to response

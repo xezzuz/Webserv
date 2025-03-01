@@ -63,12 +63,12 @@ void	ErrorPage::generateHeaders()
 
 	try
 	{
-		std::map<int, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(reqCtx->StatusCode);
+		std::map<int, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(status.status);
 		if (error_page == reqCtx->_Config->error_pages.end())
 			throw(status);
 
 		reqCtx->URI = error_page->second;
-		resolveAbsPath(*reqCtx);
+		resolveURI(*reqCtx);
 		bodyFile.open(reqCtx->fullPath.c_str());
 		if (!bodyFile.is_open())
 			throw(Code(500));

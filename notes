@@ -1,42 +1,21 @@
-add timeouts
-2 requests can be sent at the same time
+add CGI timeouts
 check comments
-
-transfer encoding overrides content length
-
-2 requests can be sent at the same time
-test range 0-0 | 1-1
 
 trailing / at the end of the uri (file)
 
-rje3 stdin stdout kima kano mora child kill
-
-client body size
-
-reuse port error
-
-html text in the config file
-
-error page directive is not absolute path
-
-comments in config file
+comments in config file {[SERVER]#flkdasflkdasf}
 
 benchmark siwtch vs fn ptr
 
-verify content-length of cgi against actual length
-
 webserv should compile using C++ not G++
+
 add needed headers to CGI
 
-decode url 
-
-url-encoded content-type 
+test decode url
 
 MAJOR HEAP USE AFTER FREE ila cgi tdeleta w client dkhel l response
 
 verify atoi
-
-cgi timer
 
 a 404 when accessing /cgi-bin/ and then from autoindex acessing /cgi-bin/login.html, the new request doesn't append the new requested file from autoindex
 
