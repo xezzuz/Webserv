@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:07:30 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:01:59 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,5 +146,7 @@ void			resolveURI(RequestData& _RequestData) {
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);
+	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
+		throw(Code(301, _RequestData.URI + '/'));
 	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
 }
