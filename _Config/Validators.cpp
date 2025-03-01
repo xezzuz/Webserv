@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 19:45:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 20:07:51 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ bool					Config::isValidRedirect(const std::string& redirect, Directives& toFill
 	
 	ss >> token;
 	toFill.redirect.first = std::atoi(token.c_str());
-	if (!stringIsDigit(token) || toFill.redirect.first < 300 || toFill.redirect.first > 308)
+	if (!stringIsDigit(token) || toFill.redirect.first < 300 || toFill.redirect.first > 399)
 		return false;
 	ss >> token;
 	toFill.redirect.second = token;
@@ -251,6 +251,10 @@ bool					Config::isValidCgiExt(const std::string& cgi_pass, Directives& toFill) 
 		std::string key = stringtrim(token.substr(0, colonPos), " \t");
 		std::string value = stringtrim(token.substr(colonPos + 1), " \t");
 		if (key.empty() || value.empty() || key[0] != '.' || value[0] != '/') // should we allow just some cgis?
+			return false;
+		if (std::count(key.begin(), key.end(), '.') != 1)
+			return false;
+		if (toFill.cgi_ext.find(key) != toFill.cgi_ext.end())
 			return false;
 		toFill.cgi_ext[key] = value;
 	}
