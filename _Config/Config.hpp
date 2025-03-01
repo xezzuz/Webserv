@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/27 18:13:40 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:13:03 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@
 
 typedef struct								Directives{
 	std::map<int, std::string>				error_pages;
-	int										client_max_body_size;
+	size_t									client_max_body_size;
 	std::string								root;
 	std::string								alias;
 	std::vector<std::string>				index;

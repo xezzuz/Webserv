@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 12:10:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:22:37 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 	// std::cout << "------------------" << std::endl;
 
 	if (!headersFinished) {
+		// should check the max of headers size
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;
 		parseRequestLineAndHeaders();

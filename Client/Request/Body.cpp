@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 12:17:27 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:14:12 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@
 // void			Request::putRequestBodyInFile() {
 // 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC);
 // 	// std::tmpnam();
-// 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
+// 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 
 // 	std::cout << "******************** BODY ********************\n";
-// 	for (int i = 0; i <= (int)_RequestRaws.bodySize; i++)
+// 	for (int i = 0; i <= (int)_RequestRaws.rawBodySize; i++)
 // 		std::cout << _RequestRaws.rawBody[i];
 // 	std::cout << "\n**********************************************\n";
 // }
@@ -56,14 +56,22 @@ bool			Request::bufferContainChunk() {
 void	Request::parseLengthBody() {
 	if (!bufferSize)
 		return ;
-	_RequestRaws.rawBody += buffer.substr(0, bufferSize);
-	_RequestRaws.bodySize += bufferSize;
-	buffer.clear();
-	bufferSize = 0;
-	if (_RequestRaws.bodySize == _RequestData.contentLength)
+
+	if (_RequestRaws.totalBodySize + bufferSize < _RequestRaws.totalBodySize)
+		throw (Code(413));
+	if (_RequestRaws.totalBodySize + bufferSize > _RequestData._Config->client_max_body_size)
+		throw (Code(413));
+	if (_RequestRaws.totalBodySize + bufferSize > _RequestData.contentLength)
+		throw (Code(400));
+	
+	if (_RequestRaws.totalBodySize == _RequestData.contentLength)
 		bodyFinished = true;
-	else if (_RequestRaws.bodySize > _RequestData.contentLength)
-		throw(Code(400));
+	
+	_RequestRaws.rawBody += buffer.substr(0, bufferSize);
+	_RequestRaws.rawBodySize += bufferSize;
+
+	_RequestRaws.totalBodySize += bufferSize;
+	buffer.clear(), bufferSize = 0;
 }
 
 // unchunks available chunks and send them to raw Body
@@ -94,8 +102,14 @@ void			Request::decodeChunkedBody() {
 		if (bufferSize <= currPos + chunkSize + 2)
 			return ;
 
+		if (_RequestRaws.totalBodySize + chunkSize < _RequestRaws.totalBodySize)
+			throw (Code(413));
+		if (_RequestRaws.totalBodySize + chunkSize > _RequestData._Config->client_max_body_size)
+			throw (Code(413));
+
 		_RequestRaws.rawBody += buffer.substr(currPos, chunkSize);
-		_RequestRaws.bodySize += chunkSize;
+		_RequestRaws.rawBodySize += chunkSize;
+		_RequestRaws.totalBodySize += chunkSize;
 		// if (buffer.substr(currPos + chunkSize, 2) != CRLF) // malformed chunk
 		// 	return false;
 		buffer.erase(0, currPos + chunkSize + 2);
@@ -141,7 +155,7 @@ void			Request::processMultipartHeaders() {
 	}
 	currPos += 4;
 	_RequestRaws.rawBody.erase(0, currPos);
-	_RequestRaws.bodySize -= currPos;
+	_RequestRaws.rawBodySize -= currPos;
 }
 
 // old file i.e write to it rawBody
@@ -155,7 +169,7 @@ void			Request::processMultipartData() {
 	std::cout << "writing to old file" << std::endl;
 	int bytesToWrite = 0;
 	if (bboundary == std::string::npos && eboundary == std::string::npos) {
-		bytesToWrite = _RequestRaws.bodySize;
+		bytesToWrite = _RequestRaws.rawBodySize;
 		// int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
 		// if (bytesWritten == -1) {
 		// 	printf("write");
@@ -172,8 +186,8 @@ void			Request::processMultipartData() {
 		}
 		
 		_RequestRaws.rawBody.clear();
-		_RequestRaws.bodySize = 0;
-		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.bodySize -= bytesWritten;
+		_RequestRaws.rawBodySize = 0;
+		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.rawBodySize -= bytesWritten;
 		return ;
 	} else if (bboundary != std::string::npos)
 		bytesToWrite = bboundary;
@@ -192,9 +206,9 @@ void			Request::processMultipartData() {
 	// 	throw(500);
 	
 	_RequestRaws.rawBody.erase(0, bytesToWrite + 2);
-	_RequestRaws.bodySize -= bytesToWrite + 2;
+	_RequestRaws.rawBodySize -= bytesToWrite + 2;
 	// if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // i moved this one to below
-	// 	_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0;
+	// 	_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0;
 }
 
 void			Request::processMultipartFormData() {
@@ -211,7 +225,7 @@ void			Request::processMultipartFormData() {
 			processMultipartData();
 		}
 		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // should i set bodyFinished?
-			_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
+			_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
 		// std::cout << "wa l7amaaaaaaa9 infinite loop hhhhhhh" << std::endl;
 	}
 }
@@ -219,7 +233,7 @@ void			Request::processMultipartFormData() {
 void			Request::processBinaryBody() {
 	if (_RequestRaws.rawBody.empty())
 		return ;
-	// if (_RequestRaws.bodySize > _RequestData.contentLength)
+	// if (_RequestRaws.rawBodySize > _RequestData.contentLength)
 	//	throw(400);
 
 	if (!fileUploader.is_open()) {
@@ -232,8 +246,6 @@ void			Request::processBinaryBody() {
 		
 		std::string		contentType = semiColonPos != std::string::npos ? 
 			_RequestData.contentType.substr(0, semiColonPos) : _RequestData.contentType;
-		// std::string		contentType = semiColonPos != std::string::npos ? 
-		// 	_RequestData.contentType.substr(0, semiColonPos) : contentType = _RequestData.contentType;
 		
 		if (_RequestRaws.mimeTypes.find(_RequestData.contentType) == _RequestRaws.mimeTypes.end())
 			throw (Code(415));
@@ -252,7 +264,7 @@ void			Request::processBinaryBody() {
 	}
 	
 	_RequestRaws.rawBody.clear();
-	_RequestRaws.bodySize = 0;
+	_RequestRaws.rawBodySize = 0;
 
 	if (bodyFinished)
 		_RequestData.StatusCode = 201;
@@ -267,22 +279,22 @@ void			Request::processBinaryBody() {
 	// 		throw(500);
 	// 	files.push_back(fd);
 	// }
-	// int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
+	// int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	// if (bytesWritten == -1)
 	// 	throw(500);
 	// _RequestRaws.rawBody.erase(0, bytesWritten);
-	// _RequestRaws.bodySize -= bytesWritten;
+	// _RequestRaws.rawBodySize -= bytesWritten;
 	// buffer.erase(0, bytesWritten);
-	// _RequestRaws.bodySize -= bytesWritten;
+	// _RequestRaws.rawBodySize -= bytesWritten;
 }
 
 void			Request::processRegularRequestRawBody() {
 	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
 	
-	// if (_RequestRaws.bodySize > _RequestData.contentLength) // i need to check this
+	// if (_RequestRaws.rawBodySize > _RequestData.contentLength) // i need to check this
 	//	throw(Code(400));
 	std::cout << "processRequestRawBody(1);" << std::endl;
-	if (!_RequestRaws.bodySize) // i need to check this
+	if (!_RequestRaws.rawBodySize) // i need to check this
 		return ;
 	std::cout << "processRequestRawBody(2);" << std::endl;
 	
@@ -309,7 +321,7 @@ void			Request::processCGIRequestRawBody() {
 	
 	_RequestData.CGITempFilestream << _RequestRaws.rawBody;  // should i flush after this?
 	_RequestRaws.rawBody.clear();
-	_RequestRaws.bodySize = 0;
+	_RequestRaws.rawBodySize = 0;
 	
 	_RequestData.CGITempFilestream.close();
 	if (_RequestData.CGITempFilestream.fail())
