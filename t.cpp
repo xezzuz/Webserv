@@ -32,20 +32,21 @@ void	isValidIndex(const std::string& index)
 
 int main()
 {
-	int x = 5;
-	switch (x)
-	{
-		case 6:
-			break;
-		case 5:
-			int y = 10;
-			std::cout << "Y: " << y << std::endl;
-			break;
-		// default:
-		// 	std::cout << "NONE" << std::endl;
-	}
+	size_t x = 					18446744073709551615;
+	unsigned long y = 			18446744073709551615;
+	unsigned long long z = 		18446744073709551615;
 
-	// isValidIndex(index);
+	std::cout << x << std::endl;
+	std::cout << y << std::endl;
+	std::cout << z << std::endl;
+	
+	x = x + 1;
+	y = y + 1;
+	z = z + 1;
+
+	std::cout << x << std::endl;
+	std::cout << y << std::endl;
+	std::cout << z << std::endl;
 
     return 0;
 }
