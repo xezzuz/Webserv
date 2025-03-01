@@ -3,14 +3,10 @@
 void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-1499
 {
 	std::string	value = reqCtx->Headers["range"];
-	std::cerr << "RANGE :: >= "<< value << std::endl;
 	std::string prefix = "bytes=";
 	size_t pos = value.find(prefix);
 	if (pos == std::string::npos)
-	{
-		std::cerr << "PREFIX NOT FOUND" << std::endl;
 		throw(Code(416));
-	}
 	pos += prefix.length();
 
 
@@ -31,27 +27,18 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		stringtrim(rangeStr, " \t");
 		delim = rangeStr.find("-");
 		if (delim == std::string::npos)
-		{
-			std::cerr << "DELIM ERRROR" << std::endl;
 			throw(Code(416));
-		}
 
 		startStr = rangeStr.substr(0, delim);
 		endStr = rangeStr.substr(delim + 1);
 		if (startStr.empty() && endStr.empty())
-		{
-			std::cerr << "both EMPTH" << std::endl;
 			throw(Code(416));
-		}
 
 		if (!startStr.empty())
 		{
 			start = std::strtoul(startStr.c_str(), &stop, 10); // 10: base decimal
 			if (errno == ERANGE || *stop)
-			{
-				std::cerr << "ERANGE FIRST" << std::endl;
 				throw(Code(416));
-			}
 			if (endStr.empty())
 				end = contentLength - 1;
 		}
@@ -59,10 +46,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		{
 			end = std::strtoul(endStr.c_str(), &stop, 10); // 10: base decimal
 			if (errno == ERANGE || *stop)
-			{
-				std::cerr << "ERANGE SECOND" << std::endl;
 				throw(Code(416));
-			}
 			if (startStr.empty())
 			{
 				start = contentLength - end;
@@ -71,12 +55,8 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		}
 
 		if (start > end || end >= contentLength)
-		{
-			std::cerr << "CONTENTLENGTH" << std::endl;
 			throw(Code(416));
-		}
 
-		std::cout << "Start >> " << start << " | End >> " << end << std::endl;
 		Range unit;
 
 		unit.range = std::make_pair(start, end);
@@ -102,7 +82,7 @@ int	Response::rangeContentLength( void )
 		length += it->header.length();
 		length += it->rangeLength;
 	}
-	length += 8 + rangeData.boundary.length(); // 8 is  the length of the constant "\r\n--" "--\r\n" // FIX
+	length += 8 + rangeData.boundary.length(); // 8 is  the length of the constant "\r\n--" "--\r\n"
 	return (length);
 }
 
@@ -110,9 +90,9 @@ void	Response::handleRange()
 {
 	reqCtx->StatusCode = 206;
 	parseRangeHeader();
+	std::cout << "content-length: " << contentLength << std::endl;
 	if (rangeData.ranges.size() == 1)
 	{
-		contentLength = rangeData.current->rangeLength;
 		headers.append("\r\nContent-Range: bytes " + _toString(rangeData.current->range.first) + "-" + _toString(rangeData.current->range.second) + "/" + _toString(contentLength));
 	}
 	else
