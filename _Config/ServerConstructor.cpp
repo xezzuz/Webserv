@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/25 18:05:42 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 16:32:57 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ bool				Config::parseSingleServerBlock(int start, int end, ServerConfig& current
 			return false;
 		alreadyParsed.push_back(key);
 	}
+	if (std::find(alreadyParsed.begin(), alreadyParsed.end(), "root") == alreadyParsed.end())
+		return (ErrorLogger("[SERVER] the root directive must be set"), false);
+
 	for (int i = start + 1; i < end; i++) {
 		if (configFileVector[i] == "[LOCATION]") {
 			if (!parseSingleLocationBlock(i, getBlockEndIndex(i, "[LOCATION]").second, currentServer))

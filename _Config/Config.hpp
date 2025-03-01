@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:13:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 16:43:46 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@
 #include <fstream>
 #include <algorithm>
 #include <limits.h>
+
+#define B  1
+#define KB 1024 * B
+#define MB 1024 * KB
+#define GB 1024 * MB
 
 #define RESET      "\033[0m"
 #define BOLD       "\033[1m"
@@ -62,13 +67,13 @@ typedef struct								Directives{
 
 	// default values for every directives
 	Directives() {
-		client_max_body_size = INT_MAX;
-		root = "/home/mmaila/Desktop/SERV/www/";
+		client_max_body_size = 10 * MB;
+		// root = "/home/mmaila/Desktop/SERV/www/";
 		index.push_back("index.html");
 		methods.push_back("GET");
 		methods.push_back("POST");
 		methods.push_back("DELETE");
-		upload_store = "/home/nazouz/goinfre/WebservUpload";
+		// upload_store = "/home/nazouz/goinfre/WebservUpload";
 		autoindex = false;
 	}
 }															Directives;
