@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/07 13:36:26 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:15:15 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void				Config::printServersConfigs() {
 		for (std::map<int, std::string>::iterator errorPage = Servers[i].ServerDirectives.error_pages.begin(); errorPage != Servers[i].ServerDirectives.error_pages.end(); errorPage++) {
 			printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
 		}
-		printf("CLIENT_MBS:\t\t%d\n", Servers[i].ServerDirectives.client_max_body_size);
+		printf("CLIENT_MBS:\t\t%ld\n", Servers[i].ServerDirectives.client_max_body_size);
 		printf("ROOT:\t\t\t%s\n", Servers[i].ServerDirectives.root.c_str());
 		printf("ALIAS:\t\t\t%s\n", Servers[i].ServerDirectives.alias.c_str());
 		
@@ -73,7 +73,7 @@ void				Config::printServersConfigs() {
 			for (std::map<int, std::string>::iterator errorPage = it->second.error_pages.begin(); errorPage != it->second.error_pages.end(); errorPage++) {
 				printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
 			}
-			printf("CLIENT_MBS:\t\t%d\n", it->second.client_max_body_size);
+			printf("CLIENT_MBS:\t\t%ld\n", it->second.client_max_body_size);
 			printf("ROOT:\t\t\t%s\n", it->second.root.c_str());
 			printf("ALIAS:\t\t\t%s\n", it->second.alias.c_str());
 			

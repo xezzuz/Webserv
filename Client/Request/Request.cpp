@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 12:16:24 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 13:28:36 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 Request::~Request() {}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	_RequestData.StatusCode = 200;
-	bufferSize = 0;
+	// _RequestData.StatusCode = 200;
+	// bufferSize = 0;
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
 	isEncoded = false;
@@ -24,8 +24,8 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	headersFinished = false;
 	bodyFinished = false;
 	
-	_RequestRaws.bodySize = 0;
-	_RequestData.contentLength = -1;
+	// _RequestRaws.bodySize = 0;
+	// _RequestData.contentLength = -1;
 
 	_RequestRaws.mimeTypes["text/html"] = ".html";
 	_RequestRaws.mimeTypes["text/css"] = ".css";
@@ -78,7 +78,7 @@ Request&	Request::operator=(const Request& rhs)
 		isMultipart = rhs.isMultipart;
 		// statusCode = rhs.statusCode;
 	}
-	return (*this);
+	return *this;
 }
 
 RequestData::RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {

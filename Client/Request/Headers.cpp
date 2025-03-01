@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 17:41:03 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:24:47 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,24 +148,30 @@ void						Request::validateRequestHeaders() {
 		bool		ContentType = headerExists("content-type");
 
 
-		if (TransferEncoding == ContentLength)
-			throw (Code(400));
+		if (!TransferEncoding && !ContentLength)
+			throw (Code(411));
+		if (TransferEncoding && ContentLength)
+			_RequestData.Headers.erase("content-length"), ContentLength = false;
+		
 		if (TransferEncoding) {
 			_RequestData.transferEncoding = stringtolower(_RequestData.Headers["transfer-encoding"]);
 			if (_RequestData.transferEncoding != "chunked")
 				throw (Code(501));
 			isEncoded = true;
 		}
-				
 		if (ContentLength) {
 			if (!stringIsDigit(_RequestData.Headers["content-length"]))
 				throw (Code(400));
-			char	*stop;
-			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stop, 10);
-			if (ERANGE == errno || *stop)
+			char	*stringstop;
+			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);
+			if (ERANGE == errno)
+				throw (Code(413));
+			if (EINVAL == errno || *stringstop)
 				throw (Code(400));
+			if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)
+				throw (Code(413));
 		}
-		
+
 		if (ContentType) {
 			_RequestData.contentType = _RequestData.Headers["content-type"];
 			

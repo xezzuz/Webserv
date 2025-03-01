@@ -39,3 +39,11 @@ verify atoi
 cgi timer
 
 a 404 when accessing /cgi-bin/ and then from autoindex acessing /cgi-bin/login.html, the new request doesn't append the new requested file from autoindex
+
+remove upload store from the default values
+
+limit length of http headers
+
+cgitempfilestream should be removed
+
+all ints should be initialized
