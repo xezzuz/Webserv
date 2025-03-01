@@ -213,6 +213,8 @@ void	Webserv::run()
 				{
 					int fd = handler->getFd();
 					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << RESET << std::endl;
+					if (clientTimer.find(fd) != clientTimer.end())
+						clientTimer.erase(fd);
 					delete handler;
 				}
 				else

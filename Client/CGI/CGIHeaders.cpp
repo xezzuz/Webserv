@@ -130,9 +130,9 @@ void	CGIHandler::generateHeaders()
 	validateHeaders();
 	addHeaders();
 	headers.append("\r\n\r\n");
-
+	headersParsed = true;
 	if ((this->*sender)() == true && buffer.empty())
 		state = nextState;
 	else
-		state = WRITE;
+		state = WRITE;	
 }
