@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:48:14 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 19:45:06 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,25 +125,33 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 	
 	size_t				value = 0;
 	if (isUnit) {
-		if (unit == 'G' || unit == 'M' || unit == 'K' || !stringIsDigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
+		if (!(unit == 'G' || unit == 'M' || unit == 'K') || !stringIsDigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
 			return false;
-		value = std::atoi(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str());
-		if (unit == 'K')
-			value = value * 1024;
-		else if (unit == 'M')
-			value = value * 1024 * 1024;
-		else if (unit == 'G')
-			value = value * 1024 * 1024 * 1024;
-
-		toFill.client_max_body_size = value;
-		// std::stringstream	ss;
-		// ss << value;
-		// client_max_body_size = ss.str();
+		
+		value = std::atol(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str());
+		if (unit == 'K') {
+			if (value * KB < value)
+				return false;
+			value = value * KB;
+		}
+		else if (unit == 'M') {
+			if (value * MB < value)
+				return false;
+			value = value * MB;
+		}
+		else if (unit == 'G') {
+			if (value * GB < value)
+				return false;
+			value = value * GB;
+		}
 	} else {
 		if (!stringIsDigit(client_max_body_size))
 			return false;
+
+		value = std::atol(client_max_body_size.c_str());
 	}
-	return true;
+	toFill.client_max_body_size = value;
+	return value != 0;
 }
 
 bool					Config::isValidRoot(const std::string& root, Directives& toFill) {

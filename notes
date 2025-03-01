@@ -25,3 +25,7 @@ root directive isFile // check my comment in URI.cpp
 i should fix processCGIRequestRawBody()
 
 for mkstemp tmpnam, mkstemp is not allowed
+
+strtoul is not safe, we should find an alternative
+
+CGI_EXT:			..py:/usr/bin/python3
