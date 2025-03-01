@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 18:33:50 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 12:09:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,8 @@ bool					Config::isValidRoot(const std::string& root, Directives& toFill) {
 bool					Config::isValidUploadStore(const std::string& upload_store, Directives& toFill) {
 	if (tokensCounter(upload_store) != 1)
 		return false;
+	if (upload_store[upload_store.size() - 1] != '/')
+		const_cast<std::string&>(upload_store) += "/";
 	toFill.upload_store = upload_store;
 	return true;
 }

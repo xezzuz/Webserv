@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 16:12:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 12:16:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,9 @@ typedef struct								RequestData {
 	std::map<std::string, std::string>		Headers;
 	Directives								*_Config; // ptr
 	
-	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {}
+	// RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {}
+	RequestData();
+	RequestData&	operator=(const RequestData &rhs);
 }											RequestData;
 
 typedef	struct								RequestRaws {
@@ -93,6 +95,8 @@ typedef	struct								RequestRaws {
 	std::string								boundaryBegin;
 	std::string								boundaryEnd;
 	size_t									bodySize;
+
+	std::map<std::string, std::string>		mimeTypes;
 }											RequestRaws;
 
 
@@ -102,8 +106,8 @@ class Request {
 		std::string						buffer;
 		int								bufferSize;
 
-		std::vector<int>				files;
-		std::ofstream					uploader;
+		// std::vector<int>				files;
+		std::ofstream					fileUploader;
 
 		/*			PARSING STRUCTURES			*/
 		RequestData						_RequestData;
@@ -114,14 +118,11 @@ class Request {
 		/*			   PARSING FLAGS			*/
 		bool							isEncoded;
 		bool							isMultipart;
-		// bool							headersParsed;
-		// bool							bodyDone;
 
 		/*				STATE FLAGS				*/
 		bool							headersFinished;
 		bool							bodyFinished;
 		e_parsingState					RequestState;
-		// int								statusCode;
 	
 	public:
 		Request(std::vector<ServerConfig>& vServers);

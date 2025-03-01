@@ -38,3 +38,5 @@ MAJOR HEAP USE AFTER FREE ila cgi tdeleta w client dkhel l response
 verify atoi
 
 cgi timer
+
+a 404 when accessing /cgi-bin/ and then from autoindex acessing /cgi-bin/login.html, the new request doesn't append the new requested file from autoindex

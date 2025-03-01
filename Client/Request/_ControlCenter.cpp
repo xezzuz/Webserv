@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 14:33:33 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 12:10:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 {
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
-	std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
-	std::cout << buffer;
-	std::cout << "------------------" << std::endl;
+	// std::cout << "------REQUEST " << recvBufferSize << "-----" << std::endl;
+	// std::cout << buffer;
+	// std::cout << "------------------" << std::endl;
 
 	if (!headersFinished) {
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)

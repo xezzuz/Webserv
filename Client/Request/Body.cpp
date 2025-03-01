@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/02/28 17:37:05 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/01 12:17:27 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ void			Request::decodeChunkedBody() {
 	}
 }
 
+// new file, just create it i.e open the fileUploader filestream
 void			Request::processMultipartHeaders() {
 	size_t			currPos, filenamePos, filenamePos_;
 	std::string		contentDisposition;
@@ -112,33 +113,40 @@ void			Request::processMultipartHeaders() {
 	contentDisposition = _RequestRaws.rawBody.substr(currPos, _RequestRaws.rawBody.find(CRLF, currPos));
 	filenamePos = contentDisposition.find("filename=\"") + 10;
 	if (filenamePos == std::string::npos)
-		throw(Code(400));
+		throw Code(400);
 	filenamePos_ = contentDisposition.find("\"", filenamePos);
 	if (filenamePos_ == std::string::npos)
-		throw(Code(400));
+		throw (Code(400));
 	
 	filename = contentDisposition.substr(filenamePos, filenamePos_ - filenamePos);
 	if (filename.empty())
-		throw(Code(400));
+		throw (Code(400));
 	
-	std::cout << "creating " + filename << std::endl;
-	std::string tmp = "/home/mmaila/goinfre/" + filename;
-	int	fd = open(tmp.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
-	if (fd == -1) {
-		throw(Code(500));
-	}
+	std::cout << "creating " + std::string(_RequestData._Config->upload_store + filename) << std::endl;
+	fileUploader.open(std::string(_RequestData._Config->upload_store + filename).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	if (!fileUploader.is_open())
+		throw (Code(500));
+
+	// std::string tmp = "/home/mmaila/goinfre/file.txx" + filename;
+	// int	fd = open(tmp.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
+	// if (fd == -1) {
+	// 	throw (Code(500));
+	// }
+	// files.push_back(fd);
 	
-	files.push_back(fd);
 	currPos = _RequestRaws.rawBody.find(DOUBLE_CRLF, currPos);
-	if (currPos == std::string::npos)
-		throw(Code(400));
+	if (currPos == std::string::npos) {
+		fileUploader.close();
+		throw (Code(400));
+	}
 	currPos += 4;
 	_RequestRaws.rawBody.erase(0, currPos);
 	_RequestRaws.bodySize -= currPos;
 }
 
+// old file i.e write to it rawBody
 void			Request::processMultipartData() {
-	int				currentFile = files.back();
+	// int				currentFile = files.back();
 	size_t			bboundary = 0, eboundary = 0;
 
 	bboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryBegin + CRLF);
@@ -148,37 +156,63 @@ void			Request::processMultipartData() {
 	int bytesToWrite = 0;
 	if (bboundary == std::string::npos && eboundary == std::string::npos) {
 		bytesToWrite = _RequestRaws.bodySize;
-		int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
-		if (bytesWritten == -1) {
-			printf("write");
-			throw(Code(500));
+		// int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
+		// if (bytesWritten == -1) {
+		// 	printf("write");
+		// 	throw(500);
+		// }
+		
+		if (!fileUploader.is_open())
+			throw (Code(500));
+		
+		fileUploader << _RequestRaws.rawBody; // should i flush after this?
+		if (fileUploader.fail()) {
+			fileUploader.close();
+			throw (Code(500));
 		}
-		_RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.bodySize -= bytesWritten;
+		
+		_RequestRaws.rawBody.clear();
+		_RequestRaws.bodySize = 0;
+		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.bodySize -= bytesWritten;
 		return ;
 	} else if (bboundary != std::string::npos)
 		bytesToWrite = bboundary;
 	else
 		bytesToWrite = eboundary;
 	
-	int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
-	if (bytesWritten == -1)
-		throw(Code(500));
+	fileUploader << _RequestRaws.rawBody.substr(0, bytesToWrite); // should i flush after this?
+	if (fileUploader.fail()) {
+		fileUploader.close();
+		throw (Code(500));
+	}
+
 	
-	_RequestRaws.rawBody.erase(0, bytesWritten + 2);
-	_RequestRaws.bodySize -= bytesWritten + 2;
-	if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF)
-		_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0;
+	// int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
+	// if (bytesWritten == -1)
+	// 	throw(500);
+	
+	_RequestRaws.rawBody.erase(0, bytesToWrite + 2);
+	_RequestRaws.bodySize -= bytesToWrite + 2;
+	// if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // i moved this one to below
+	// 	_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0;
 }
 
 void			Request::processMultipartFormData() {
 	while (!_RequestRaws.rawBody.empty()) {
 		// if rawBody contain boundaryBegin and Headers CRLF-CRLF
 		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) == 0 && _RequestRaws.rawBody.find(DOUBLE_CRLF) != std::string::npos) {
+			// i.e new file
+			std::cout << "[BODY]\tNEW FILE" << std::endl;
 			processMultipartHeaders();
 		}
-		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && files.size() > 0) {
+		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open()) {
+			// i.e old file
+			std::cout << "[BODY]\tOLD FILE" << std::endl;
 			processMultipartData();
 		}
+		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // should i set bodyFinished?
+			_RequestRaws.rawBody.clear(), _RequestRaws.bodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
+		// std::cout << "wa l7amaaaaaaa9 infinite loop hhhhhhh" << std::endl;
 	}
 }
 
@@ -186,22 +220,58 @@ void			Request::processBinaryBody() {
 	if (_RequestRaws.rawBody.empty())
 		return ;
 	// if (_RequestRaws.bodySize > _RequestData.contentLength)
-	//	throw(Code(400));
-	if (!files.size()) {
-		std::time_t				time = std::time(NULL);
-		std::stringstream 		ss;
-		ss << "/home/mmaila/goinfre/" << "_clientfile" << time;
-		std::string				filename(ss.str());
-		int fd = open(filename.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
-		if (fd == -1)
-			throw(Code(500));
-		files.push_back(fd);
+	//	throw(400);
+
+	if (!fileUploader.is_open()) {
+		std::string		fileUploaderRandname = "file_" + generateRandomString();
+		
+		if (access(fileUploaderRandname.c_str(), F_OK) == 0)
+			throw (Code(503)); // 503 (service unavailable) or should we throw (Code(409)) conflict
+		
+		size_t			semiColonPos = _RequestData.contentType.find(';');
+		
+		std::string		contentType = semiColonPos != std::string::npos ? 
+			_RequestData.contentType.substr(0, semiColonPos) : _RequestData.contentType;
+		// std::string		contentType = semiColonPos != std::string::npos ? 
+		// 	_RequestData.contentType.substr(0, semiColonPos) : contentType = _RequestData.contentType;
+		
+		if (_RequestRaws.mimeTypes.find(_RequestData.contentType) == _RequestRaws.mimeTypes.end())
+			throw (Code(415));
+		
+		fileUploader.open(std::string(_RequestData._Config->upload_store + fileUploaderRandname 
+			+ _RequestRaws.mimeTypes[contentType]).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	}
-	int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
-	if (bytesWritten == -1)
-		throw(Code(500));
-	_RequestRaws.rawBody.erase(0, bytesWritten);
-	_RequestRaws.bodySize -= bytesWritten;
+	
+	if (!fileUploader.is_open())
+		throw (Code(500));
+	
+	fileUploader << _RequestRaws.rawBody;  // should i flush after this?
+	if (fileUploader.fail()) {
+		fileUploader.close();
+		throw (Code(500));
+	}
+	
+	_RequestRaws.rawBody.clear();
+	_RequestRaws.bodySize = 0;
+
+	if (bodyFinished)
+		_RequestData.StatusCode = 201;
+	
+	// if (!files.size()) {
+	// 	std::time_t				time = std::time(NULL);
+	// 	std::stringstream 		ss;
+	// 	ss << "/home/mmaila/goinfre/" << "_clientfile" << time;
+	// 	std::string				filename(ss.str());
+	// 	int fd = open(filename.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
+	// 	if (fd == -1)
+	// 		throw(500);
+	// 	files.push_back(fd);
+	// }
+	// int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.bodySize);
+	// if (bytesWritten == -1)
+	// 	throw(500);
+	// _RequestRaws.rawBody.erase(0, bytesWritten);
+	// _RequestRaws.bodySize -= bytesWritten;
 	// buffer.erase(0, bytesWritten);
 	// _RequestRaws.bodySize -= bytesWritten;
 }
@@ -233,11 +303,11 @@ void			Request::processCGIRequestRawBody() {
 		throw (Code(500));
 	
 	_RequestData.CGITempFilename = CGITempFilename;
-	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary);
+	_RequestData.CGITempFilestream.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
 	if (!_RequestData.CGITempFilestream.is_open())
 		throw (Code(500));
 	
-	_RequestData.CGITempFilestream << _RequestRaws.rawBody;
+	_RequestData.CGITempFilestream << _RequestRaws.rawBody;  // should i flush after this?
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.bodySize = 0;
 	
@@ -249,12 +319,10 @@ void			Request::processCGIRequestRawBody() {
 // BODY CONTROL CENTER
 void			Request::parseRequestBody() {		// store request body in raw Body
 	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
-	if (isEncoded) {
+	if (isEncoded)
 		decodeChunkedBody(); // after this the decoded body will be stored in _RequestRaws.rawBody
-	}
-	else {
+	else
 		parseLengthBody();   // after this the decoded body will be stored in _RequestRaws.rawBody
-	}
 	
 	if (_RequestData.isCGI)
 		processCGIRequestRawBody();     // process _RequestRaws.rawBody

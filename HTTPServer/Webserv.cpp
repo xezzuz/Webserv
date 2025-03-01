@@ -201,6 +201,8 @@ void	Webserv::clientTimeout()
 
 void	Webserv::run()
 {
+	srand(std::time(0));
+
 	struct epoll_event events[MAX_EVENTS];
 	while (true)
 	{
