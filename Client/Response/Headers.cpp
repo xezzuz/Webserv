@@ -3,36 +3,35 @@
 void	Response::handlePOST()
 {
 	buffer = "<!DOCTYPE html>\n"
-			"<html lang=\"en\">\n"
+			"<html>\n"
 			"<head>\n"
-			"<meta charset=\"UTF-8\">\n"
-			"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-			"<title>Success Response</title>\n"
-			"<style>\n"
-			"body {\n"
-			"font-family: Arial, sans-serif;\n"
-			"margin: 40px auto;\n"
-			"max-width: 650px;\n"
-			"padding: 20px;\n"
-			"}\n"
-			"h1 {\n"
-			"color: #2c662d;\n"
-			"}\n"
-			"p {\n"
-			"color: #333;\n"
-			"line-height: 1.4;\n"
-			"}\n"
-			"</style>\n"
+			"<title>Upload Successful</title>\n"
 			"</head>\n"
 			"<body>\n"
-			"<h1>Success</h1>\n"
-			"<p>Your request has been processed successfully.</p>\n"
-			"<p>The data has been saved to our system.</p>\n"
+			"<center><h1>Upload Successful</h1></center>\n"
+			"<hr width=\"100%\" size=\"1\" color=\"black\">\n"
+			"<center><p>data has been uploaded successfully.</p></center>\n"
 			"</body>\n"
-			"</html>";
+			"</html>\n";
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(buffer.size()));
 	headers.append(buffer);
+	nextState = DONE;
+}
+
+void	Response::handleDELETE( void )
+{
+	if (reqCtx->isDir)
+	{
+		if (rmdir(reqCtx->fullPath.c_str()) == -1)
+			throw(Code(500));
+	}
+	else
+	{
+		if (remove(reqCtx->fullPath.c_str()) == -1)
+			throw(Code(500));
+	}
+	reqCtx->StatusCode = 204;
 	nextState = DONE;
 }
 
@@ -71,10 +70,7 @@ void	Response::generateHeaders( void )
 	else if (reqCtx->Method == "POST")
 		handlePOST();
 	else if (reqCtx->Method == "DELETE")
-	{
-		nextState = DONE;
-		reqCtx->StatusCode = 204;
-	}
+		handleDELETE();
 
 	if (reqCtx->keepAlive)
 		headers.append("\r\nConnection: keep-alive");

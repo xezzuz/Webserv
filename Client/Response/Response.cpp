@@ -33,8 +33,6 @@ Response& Response::operator=(const Response& rhs)
 
 int	Response::respond()
 {
-	// printState(state, "state");
-	// printState(nextState, "nextState");
 	switch (state)
 	{
 		case HEADERS:

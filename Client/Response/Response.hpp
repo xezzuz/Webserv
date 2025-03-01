@@ -52,8 +52,11 @@ public:
 	void	initDirList();
 	
 	void	handleRange( void );
+
 	void	handleGET( void );
+	void	handleDELETE( void );
 	void	handlePOST( void );
+
 	void	generateHeaders( void );
 
 	int		respond();
