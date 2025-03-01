@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   URI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:48:55 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 19:42:47 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void			resolveURI(RequestData& _RequestData) {
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);
-	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
-		throw(Code(301, _RequestData.URI + '/'));
 	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
+	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
+		throw(Code(301, "http://" + _RequestData.host + _RequestData.URI + '/'));
 }
