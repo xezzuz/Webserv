@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:14:12 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 16:41:08 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,6 +298,9 @@ void			Request::processRegularRequestRawBody() {
 		return ;
 	std::cout << "processRequestRawBody(2);" << std::endl;
 	
+	if (_RequestData._Config->upload_store.empty())
+		throw (Code(403));
+
 	if (isMultipart) {
 		std::cout << "**************************** is multipart!" << std::endl;
 		processMultipartFormData();

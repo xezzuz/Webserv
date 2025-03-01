@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 15:24:47 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/01 16:39:30 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,4 +205,5 @@ void						Request::parseRequestLineAndHeaders() {
 	parseRequestLine();
 	parseRequestHeaders();
 	validateRequestHeaders();
+	headersFinished = true;
 }
