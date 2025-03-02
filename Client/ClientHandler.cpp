@@ -6,6 +6,7 @@
 ClientHandler::~ClientHandler()
 {
 	HTTPserver->removeHandler(socket);
+	HTTPserver->eraseTimer(socket);
 	deleteResponse();
 }
 
@@ -13,7 +14,6 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : requ
 {
 	socket = fd;
 	response = NULL;
-	keepAlive = false;
 	reqState = REGULAR;
 	elapsedTime = std::time(NULL);
 }
@@ -55,6 +55,7 @@ void	ClientHandler::createResponse()
 	if (request.getRequestData()->isCGI)
 	{
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+		HTTPserver->registerDependency(cgi, this);
 		cgi->execCGI();
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
 		HTTPserver->updateHandler(socket, 0);
@@ -95,6 +96,7 @@ void 	ClientHandler::handleRead()
 				{
 					std::cout << "FORWARD_CGI" << std::endl;
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+					HTTPserver->registerDependency(cgi, this);
 					cgi->execCGI();
 					HTTPserver->registerHandler(cgi->getFd(), cgi, 0);
 					cgi->setBuffer(request.getBuffer());
