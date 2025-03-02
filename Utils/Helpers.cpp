@@ -6,32 +6,47 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 12:19:22 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 14:51:43 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Helpers.hpp"
 
-void	split(const std::string& str, const char *set, std::vector<std::string>& result)
-{
-	size_t start = 0;
-    size_t end = str.find_first_of(set);
-    
-    while (start < str.size())
-    {
-        if (end == std::string::npos)
-        {
-            result.push_back(str.substr(start));
-            break;
-        }
-        
-        result.push_back(str.substr(start, end - start));
-        start = str.find_first_not_of(set, end);
-        if (start == std::string::npos)
-            break;
-        
-        end = str.find_first_of(set, start);
-    }
+// std::vector<std::string>	split(const std::string& str, const char *set) {
+// 	size_t start = 0;
+//     size_t end = str.find_first_of(set);
+// 	std::vector<std::string>		result;
+	
+//     while (start < str.size()) {
+//         if (end == std::string::npos) {
+//             result.push_back(str.substr(start));
+//             break;
+//         }
+		
+//         result.push_back(str.substr(start, end - start));
+//         start = str.find_first_not_of(set, end);
+//         if (start == std::string::npos)
+//             break;
+		
+//         end = str.find_first_of(set, start);
+//     }
+// 	return result;
+// }
+
+std::vector<std::string>	split(const std::string& tosplit, const std::string& charset) {
+	std::vector<std::string> result;
+	size_t start = 0, end;
+	
+	while ((end = tosplit.find_first_of(charset, start)) != std::string::npos) {
+		if (end > start) {
+			result.push_back(tosplit.substr(start, end - start));
+		}
+		start = end + 1;
+	}
+	
+	if (start < tosplit.length())
+		result.push_back(tosplit.substr(start));
+	return result;
 }
 
 std::string			stringtrim(const std::string& str, const char *set) {

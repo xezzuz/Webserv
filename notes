@@ -29,3 +29,5 @@ for mkstemp tmpnam, mkstemp is not allowed
 strtoul is not safe, we should find an alternative
 
 if CGI script fails
+
+check alias

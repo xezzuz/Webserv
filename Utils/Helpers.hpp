@@ -44,7 +44,8 @@ public:
 	const std::string	location;
 };
 
-void			split(const std::string& str, const char *set, std::vector<std::string>& result);
+// void			split(const std::string& str, const char *set, std::vector<std::string>& result);
+std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);
 std::string		stringtolower(std::string str);
