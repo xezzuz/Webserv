@@ -39,6 +39,16 @@ void	Webserv::updateTimer(int fd)
 		it->second = std::time(NULL);
 }
 
+void	Webserv::eraseTimer(int fd)
+{
+	clientTimer.erase(fd);
+}
+
+void	Webserv::registerDependency(EventHandler *dependent, EventHandler *dependency)
+{
+	dependencyMap[dependent] = dependency;
+}
+
 void	Webserv::registerHandler(int fd, EventHandler *handler, uint32_t events)
 {
 	struct epoll_event ev;
@@ -181,19 +191,26 @@ void	Webserv::initServers()
 void	Webserv::clientTimeout()
 {
 	time_t now = std::time(NULL);
-	
-	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+
+	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); timeIt++)
 	{
 		if (now - timeIt->second >= TIMEOUT)
 		{
 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
-			ClientHandler *client = static_cast<ClientHandler *>(handlerMap[timeIt->first]);
+			EventHandler *client = handlerMap[timeIt->first];
 			delete client;
-			clientTimer.erase(timeIt++); // escapes the iterator invalidation
 		}
-		else
-			++timeIt;
 	}
+}
+
+void	Webserv::cleanup(EventHandler *handler)
+{
+	std::map<EventHandler *, EventHandler *>::iterator it;
+	it = dependencyMap.find(handler);
+	if (it != dependencyMap.end())
+		delete it->second; // deleting the dependency deletes the dependent in the destructor
+	else
+		delete handler;
 }
 
 void	Webserv::run()
@@ -211,11 +228,9 @@ void	Webserv::run()
 			{
 				if (events[i].events & EPOLLERR)
 				{
-					int fd = handler->getFd();
-					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << fd << " IS UNREACHABLE" << RESET << std::endl;
-					if (clientTimer.find(fd) != clientTimer.end())
-						clientTimer.erase(fd);
-					delete handler;
+					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << handler->getFd() << " IS UNREACHABLE" << RESET << std::endl;
+					cleanup(handler);
+					// delete handler;
 				}
 				else
 					handler->handleEvent(events[i].events);
@@ -223,10 +238,8 @@ void	Webserv::run()
 			catch (Disconnect& e)
 			{
 				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
-				int fd = handler->getFd();
-				if (clientTimer.find(fd) != clientTimer.end())
-					clientTimer.erase(fd);
-				delete handler;
+				cleanup(handler);
+				// delete handler;
 			}
 		}
 	}

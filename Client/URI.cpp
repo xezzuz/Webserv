@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   URI.cpp                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/05 16:50:46 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 19:42:47 by mmaila           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "ClientHandler.hpp"
 
 void	produceAbsPath(RequestData& _RequestData) {
@@ -64,7 +52,7 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 	size_t	startPos = 0;
 	size_t	endPos = 0;
 	while (startPos < _RequestData.fullPath.size()) {
-		endPos = _RequestData.fullPath.find('/', startPos + 1); // check whether it was found or not
+		endPos = _RequestData.fullPath.find('/', startPos + 1); // check whether it was found or not // no need if it didn't find it it will substr till end of str
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
 		if (stat(pathChecker.c_str(), &pathStats) != 0) 
 			throw(Code(404));

@@ -148,6 +148,7 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
+	throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLEANUPPPPP"));
 	if (events & EPOLLIN)
 	{
 		(this->*CGIreader)();

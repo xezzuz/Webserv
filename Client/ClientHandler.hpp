@@ -37,7 +37,6 @@ private:
 	std::vector<ServerConfig>&	vServers;
 	Directives					config;
 	
-	bool						keepAlive;
 	e_reqType					reqState;
 };
 
