@@ -31,3 +31,5 @@ strtoul is not safe, we should find an alternative
 if CGI script fails
 
 check alias
+
+we need to check all those char* used in strtoul cuz they are causing stack-use-after-scope
