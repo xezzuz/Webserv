@@ -15,7 +15,6 @@ void	Response::handlePOST()
 			"</html>\n";
 	headers.append("\r\nContent-Type: text/html");
 	headers.append("\r\nContent-Length: " + _toString(buffer.size()));
-	headers.append(buffer);
 	nextState = DONE;
 }
 
@@ -67,10 +66,10 @@ void	Response::generateHeaders( void )
 
 	if (reqCtx->Method == "GET")
 		handleGET();
-	else if (reqCtx->Method == "POST")
-		handlePOST();
 	else if (reqCtx->Method == "DELETE")
 		handleDELETE();
+	else if (reqCtx->Method == "POST")
+		handlePOST();
 
 	if (reqCtx->keepAlive)
 		headers.append("\r\nConnection: keep-alive");
@@ -79,6 +78,8 @@ void	Response::generateHeaders( void )
 
 	headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + getCodeDescription(reqCtx->StatusCode)); // status line
 	headers.append("\r\n\r\n");
+	if (reqCtx->Method == "POST")
+		headers.append(buffer);
 	if ((this->*sender)() == true)
 		state = nextState;
 	else

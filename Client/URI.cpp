@@ -132,7 +132,9 @@ void			resolveURI(RequestData& _RequestData) {
 	if (!rootJail(_RequestData.URI))
 		throw(Code(403));
 
+	std::cout << "URI: " << _RequestData.URI << std::endl;
 	produceAbsPath(_RequestData);
+	std::cout << "ABSPATH: " << _RequestData.fullPath << std::endl;
 	resolveAbsPath(_RequestData);
 	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
 	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
