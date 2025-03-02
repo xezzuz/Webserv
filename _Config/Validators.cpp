@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 20:35:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 20:53:57 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,8 +176,9 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 			return false;
 		
 		value = std::strtoul(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str(), &stringstop, 10);
-		if (ERANGE == errno || EINVAL == errno || *stringstop)
+		if (ERANGE == errno || EINVAL == errno)
 			return false;
+
 		if (unit == 'K') {
 			if (value * KB < value)
 				return false;
@@ -195,10 +196,10 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 		}
 	} else {
 		if (!stringIsDigit(client_max_body_size))
-		return false;
+			return false;
 		
 		value = std::strtoul(client_max_body_size.c_str(), &stringstop, 10);
-		if (ERANGE == errno || EINVAL == errno || *stringstop)
+		if (ERANGE == errno || EINVAL == errno)
 			return false;
 	}
 	toFill.client_max_body_size = value;
