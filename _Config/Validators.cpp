@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 20:53:57 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 23:40:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ bool					Config::isValidErrorPage(const std::string& errorPage, Directives& toFi
 		char	*stringstop;
 
 		errorCode = std::strtoul(values[i].c_str(), &stringstop, 10);
-		if (ERANGE == errno || EINVAL == errno || *stringstop)
+		if (ERANGE == errno || EINVAL == errno)
 			return false;
 		toFill.error_pages.insert(std::make_pair(errorCode, values.back()));
 	}
@@ -298,7 +298,7 @@ bool					Config::isValidRedirect(const std::string& redirect, Directives& toFill
 	char	*stringstop;
 
 	value = std::strtoul(values[0].c_str(), &stringstop, 10);
-	if (ERANGE == errno || EINVAL == errno || *stringstop)
+	if (ERANGE == errno || EINVAL == errno)
 		return false;
 	if (!stringIsDigit(values[0]))
 		return false;

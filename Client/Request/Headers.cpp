@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 16:39:30 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 23:41:09 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ void						Request::validateRequestHeaders() {
 			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);
 			if (ERANGE == errno)
 				throw (Code(413));
-			if (EINVAL == errno || *stringstop)
+			if (EINVAL == errno)
 				throw (Code(400));
 			if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)
 				throw (Code(413));

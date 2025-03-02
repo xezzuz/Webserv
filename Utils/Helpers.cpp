@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 14:51:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 23:42:04 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,8 @@ ssize_t htoi(const std::string& num)
 {
 	char *stop;
 	unsigned long value = std::strtoul(num.c_str(), &stop, 16);
-
-	if (*stop)
-		return (-1);
+	if (ERANGE == errno || EINVAL == errno)
+		return -1;
 
 	return (static_cast<ssize_t>(value));
 }

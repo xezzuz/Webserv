@@ -35,7 +35,7 @@ void	CGIHandler::validateHeaders()
 
 		char *stop;
 		reqCtx->StatusCode = strtoul(statusVec[0].c_str(), &stop, 10);
-		if (errno == ERANGE || *stop)
+		if (errno == ERANGE || errno == EINVAL)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;
 			throw(Code(500));
