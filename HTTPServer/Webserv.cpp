@@ -10,7 +10,6 @@ Webserv::~Webserv()
 
 Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
-	t = true;
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
 }
@@ -212,7 +211,7 @@ void	Webserv::cleanup(EventHandler *handler)
 void	Webserv::run()
 {
 	struct epoll_event events[MAX_EVENTS];
-	while (t)
+	while (true)
 	{
 		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 

@@ -38,7 +38,6 @@ public:
 	void	initServers();
 	void	run();
 
-	bool	t;
 private:
 	int 	bindSocket(std::string& host, std::string& port);
 	void    listenForConnections(int& listener);
