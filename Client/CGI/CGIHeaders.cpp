@@ -26,7 +26,7 @@ void	CGIHandler::validateHeaders()
 	field = headersMap.find("status");
 	if (headersMap.find("status") != headersMap.end())
 	{
-		split(field->second, " \t\f\v", statusVec);
+		statusVec = split(field->second, " \t\f\v");
 		if (statusVec.size() != 2)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;

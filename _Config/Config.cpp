@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:52:18 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 16:18:13 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ void				Config::printServersConfigs() {
 			printf("SERVER NAME:\t\t%s\n", Servers[i].server_names[j].c_str());
 		}
 		
-		for (std::map<int, std::string>::iterator errorPage = Servers[i].ServerDirectives.error_pages.begin(); errorPage != Servers[i].ServerDirectives.error_pages.end(); errorPage++) {
-			printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
+		for (std::map<size_t, std::string>::iterator errorPage = Servers[i].ServerDirectives.error_pages.begin(); errorPage != Servers[i].ServerDirectives.error_pages.end(); errorPage++) {
+			printf("ERROR PAGES:\t\t%ld | %s\n", errorPage->first, errorPage->second.c_str());
 		}
 		printf("CLIENT_MBS:\t\t%ld\n", Servers[i].ServerDirectives.client_max_body_size);
 		printf("ROOT:\t\t\t%s\n", Servers[i].ServerDirectives.root.c_str());
@@ -62,15 +62,15 @@ void				Config::printServersConfigs() {
 		else if (!Servers[i].ServerDirectives.autoindex)
 			printf("AUTOINDEX:\t\tOFF\n");
 		
-		printf("REDIRECT:\t\t%d | %s\n", Servers[i].ServerDirectives.redirect.first, Servers[i].ServerDirectives.redirect.second.c_str());
+		printf("REDIRECT:\t\t%ld | %s\n", Servers[i].ServerDirectives.redirect.first, Servers[i].ServerDirectives.redirect.second.c_str());
 		
 		// printf("CGI_EXT:\t\t\t%s\n", Servers[i].ServerDirectives.cgi_ext.c_str());
 
 		std::map<std::string, Directives>::iterator it = Servers[i].Locations.begin();
 		for (; it != Servers[i].Locations.end(); ++it) {
 			printf("\n----------------- LOCATION %s -----------------\n", it->first.c_str());
-			for (std::map<int, std::string>::iterator errorPage = it->second.error_pages.begin(); errorPage != it->second.error_pages.end(); errorPage++) {
-				printf("ERROR PAGES:\t\t%d | %s\n", errorPage->first, errorPage->second.c_str());
+			for (std::map<size_t, std::string>::iterator errorPage = it->second.error_pages.begin(); errorPage != it->second.error_pages.end(); errorPage++) {
+				printf("ERROR PAGES:\t\t%ld | %s\n", errorPage->first, errorPage->second.c_str());
 			}
 			printf("CLIENT_MBS:\t\t%ld\n", it->second.client_max_body_size);
 			printf("ROOT:\t\t\t%s\n", it->second.root.c_str());
@@ -90,7 +90,7 @@ void				Config::printServersConfigs() {
 			else if (!it->second.autoindex)
 				printf("AUTOINDEX:\t\tOFF\n");
 
-			printf("REDIRECT:\t\t%d | %s\n", it->second.redirect.first, it->second.redirect.second.c_str());
+			printf("REDIRECT:\t\t%ld | %s\n", it->second.redirect.first, it->second.redirect.second.c_str());
 			
 			std::map<std::string, std::string>::iterator	ite = it->second.cgi_ext.begin();
 			for (; ite != it->second.cgi_ext.end();) {

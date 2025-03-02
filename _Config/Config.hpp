@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:53:23 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 20:21:05 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include <fstream>
 #include <algorithm>
 #include <limits.h>
+#include <sys/stat.h>
+// #include "../Utils/Helpers.hpp"
 
 #define B  1
 #define KB 1024 * B
@@ -54,7 +56,7 @@
 
 
 typedef struct								Directives{
-	std::map<int, std::string>				error_pages;
+	std::map<size_t, std::string>			error_pages;
 	size_t									client_max_body_size;
 	std::string								root;
 	std::string								alias;
@@ -62,7 +64,7 @@ typedef struct								Directives{
 	std::vector<std::string> 				methods;
 	std::string 							upload_store;
 	bool									autoindex;
-	std::pair<int, std::string>				redirect;
+	std::pair<size_t, std::string>			redirect;
 	std::map<std::string, std::string>		cgi_ext;
 
 	// default values for every directives
@@ -133,7 +135,7 @@ class Config {
 		bool						isValidClientMaxBodySize(const std::string& client_max_body_size, Directives& toFill);
 		bool						isValidRoot(const std::string& root, Directives& toFill);
 		bool						isValidUploadStore(const std::string& upload_store, Directives& toFill);
-		bool						isValidLocation(const std::string& location);
+		bool						isValidLocation(const std::string& location, std::map<std::string, Directives>& Locations);
 		bool						isValidAlias(const std::string& alias, Directives& toFill);
 		bool						isValidIndex(const std::string& index, Directives& toFill);
 		bool						isValidMethods(const std::string& methods, Directives& toFill);
@@ -153,7 +155,8 @@ class Config {
 
 };
 
-void					split(const std::string& str, const char *set, std::vector<std::string>& result);
+// void					split(const std::string& str, const char *set, std::vector<std::string>& result);
+std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string				stringtrim(const std::string& str, const char *set);
 bool					stringIsDigit(const std::string& str);
 

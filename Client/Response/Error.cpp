@@ -63,7 +63,7 @@ void	ErrorPage::generateHeaders()
 
 	try
 	{
-		std::map<int, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(status.status);
+		std::map<size_t, std::string>::iterator error_page = reqCtx->_Config->error_pages.find(status.status);
 		if (error_page == reqCtx->_Config->error_pages.end())
 			throw(status);
 

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:45:27 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 18:04:48 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ bool				Config::parseSingleLocationBlock(int start, int end, ServerConfig& curre
 		return (ErrorLogger("[LOCATION] invalid line syntax : " + location_key + " = " + location_value), false);
 	if (location_key != "location")
 		return (ErrorLogger("[LOCATION] location must be specified in the first line of location block"), false);
-	if (!isValidLocation(location_value))
+	if (!isValidLocation(location_value, currentServer.Locations))
 		return (ErrorLogger("[LOCATION] invalid line syntax : " + location_key + " = " + location_value), false);
 
 	for (int i = start + 2; i < end; i++) {
