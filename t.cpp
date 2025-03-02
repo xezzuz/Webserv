@@ -9,44 +9,10 @@
 #include <vector>
 #include <sys/stat.h>
 
-#include <iostream>
-void	isValidIndex(const std::string& index)
-{
-	std::vector<std::string> indexvec;
-
-	static const std::string empty = " \t\r\n\v\f";
-	size_t start = 0;
-	size_t end = index.find_first_of(empty, 0);
-	std::cout << end << std::endl;
-
-	while (start < index.size())
-	{
-		indexvec.push_back(index.substr(start, end - start));
-		start = index.find_first_not_of(empty, end);
-		end = index.find_first_of(empty, start);
-	}
-
-	for (size_t i = 0; i < indexvec.size(); i++)
-		std::cout << indexvec[i] << std::endl;
-}
 
 int main()
 {
-	size_t x = 					18446744073709551615;
-	unsigned long y = 			18446744073709551615;
-	unsigned long long z = 		18446744073709551615;
-
-	std::cout << x << std::endl;
-	std::cout << y << std::endl;
-	std::cout << z << std::endl;
-	
-	x = x + 1;
-	y = y + 1;
-	z = z + 1;
-
-	std::cout << x << std::endl;
-	std::cout << y << std::endl;
-	std::cout << z << std::endl;
+	std::cout << sizeof(long int) << std::endl;
 
     return 0;
 }
@@ -56,7 +22,7 @@ int main()
 // 	int		bytesRead = read(fd, buf, 1024);
 // 	std::cout << "BYTES READ: " << bytesRead << std::endl;
 // 	if (bytesRead == -1)
-// 	{
+// 	
 // 		std::cerr << "ERRORROROROROOR" << std::endl;
 // 	}
 // 	if (bytesRead > 0)

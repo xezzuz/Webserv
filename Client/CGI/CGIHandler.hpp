@@ -44,12 +44,11 @@ private:
 	char								*args[3];
 	std::map<std::string, std::string>	headersMap;
 
-	int				cgiSocket;
-	size_t			inBodySize;
-	std::ifstream	bodyFile; // file to store incoming client body in if the request is chunked
-	pid_t			pid;
-	bool			headersParsed;
-	void			(CGIHandler::*CGIreader)();
+	int		cgiSocket;
+	size_t	inBodySize;
+	pid_t	pid;
+	bool	headersParsed;
+	void	(CGIHandler::*CGIreader)();
 };
 
 #endif

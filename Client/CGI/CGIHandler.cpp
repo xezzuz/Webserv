@@ -11,14 +11,6 @@ CGIHandler::~CGIHandler()
 
 CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), inBodySize(0), pid(-1), headersParsed(false)
 {
-	// if (data->isEncoded)
-	// {
-	// 	bodyFile.open(/*opened file by the request*/);
-	// 	if (!bodyFile.is_open())
-	// 		throw(Code(500));
-	// 	close(pipe_fd[0]);
-	// }
-
 	CGIreader = &CGIHandler::readCGILength;
 }
 
@@ -107,24 +99,7 @@ void		CGIHandler::readCGILength()
 		state = DONE;
 	}
 }
-// void printState(State state, std::string name)
-// {
-// 	switch (state)
-// 	{
-// 		case HEADERS:
-// 			std::cout << name << "===> HEADERS" << std::endl;
-// 			break;
-// 		case READ:
-// 			std::cout << name << "===> READ" << std::endl;
-// 			break;
-// 		case WRITE:
-// 			std::cout << name << "===> WRITE" << std::endl;
-// 			break;
-// 		case DONE:
-// 			std::cout << name << "===> DONE" << std::endl;
-// 			break;
-// 	}
-// }
+
 int		CGIHandler::respond()
 {
 	switch (state)
@@ -148,7 +123,6 @@ int		CGIHandler::respond()
 
 void	CGIHandler::handleEvent(uint32_t events)
 {
-	throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLEANUPPPPP"));
 	if (events & EPOLLIN)
 	{
 		(this->*CGIreader)();

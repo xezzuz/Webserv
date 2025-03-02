@@ -55,6 +55,15 @@ void	CGIHandler::execCGI()
 		throw(Code(500));
 	}
 
+	if (!reqCtx->CGITempFilename.empty())
+	{
+		int fd = open(reqCtx->CGITempFilename.c_str(), O_RDONLY);
+		if (fd == -1)
+			throw(Code(500));
+		close(sv[1]);
+		sv[1] = fd;
+	}
+
 	pid = fork();
 	if (pid == -1)
 	{
@@ -105,5 +114,4 @@ void	CGIHandler::execCGI()
 	}
 	close(sv[1]);
 	cgiSocket = sv[0];
-	// close(pipe_out);
 }
