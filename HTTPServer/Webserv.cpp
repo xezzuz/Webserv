@@ -3,14 +3,14 @@
 
 Webserv::~Webserv()
 {
-	std::map<int, EventHandler *>::iterator it;
-	for (it = handlerMap.begin(); it != handlerMap.end(); it++)
-		delete it->second;
+	while (!handlerMap.empty())
+		cleanup(handlerMap.begin()->second);
 	close(epoll_fd);
 }
 
 Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
+	t = true;
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
 }
@@ -79,8 +79,7 @@ void	Webserv::removeHandler(int fd)
 	
 	if (handlerMap.size() == 0)
 	{
-		std::cerr << "[WEBSERV] No Servers Left. Exiting..." << std::endl;
-		exit(1);
+		std::cerr << "[WEBSERV] No Servers Left." << std::endl;
 	}
 }
 
@@ -97,7 +96,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	int status = getaddrinfo(host.c_str(), port.c_str(), &hints, &res);
 	if (status != 0)
 	{
-		std::cerr << "[WEBSERV]\t> getaddrinfo: " << gai_strerror(status) << std::endl;
+		std::cerr << "[WEBSERV][ERROR]\tgetaddrinfo: " << gai_strerror(status) << std::endl;
 		exit(errno);
 	}
 
@@ -119,8 +118,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		int yes = 1;
 		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(yes)) == -1)
 		{
-			std::cerr << "[WEBSERV]\t>";
-			perror("setsockopt");
+			std::cerr << "[WEBSERV][ERROR]\tsetsocketopt: " << strerror(errno) << std::endl;
 			close(serverSocket);
 			freeaddrinfo(res);
 			exit(errno);
@@ -134,7 +132,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	if (!it)
 	{
 		close(serverSocket);
-		std::cerr << "[WEBSERV]\t> Failed to Bind Any Socket..." << std::endl;
+		std::cerr << "[WEBSERV][ERROR]\t> Failed to Bind Any Socket..." << std::endl;
 		exit(errno);
 	}
 	return (serverSocket);
@@ -144,15 +142,13 @@ void    Webserv::listenForConnections(int& serverSocket)
 {
 	if (listen(serverSocket, BACKLOG) == -1)
 	{
-		std::cerr << "[WEBSERV]\t>";
-		perror("listen");
+		std::cerr << "[WEBSERV][ERROR]\tlisten: " << strerror(errno) << std::endl;
 		close(serverSocket);
 		exit(errno);
 	}
 	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
 	{
-		std::cerr << "[WEBSERV]\t>";
-		perror("fcntl");
+		std::cerr << "[WEBSERV][ERROR]\tfcntl: " << strerror(errno) << std::endl;
 		close(serverSocket);
 		exit(errno);
 	}
@@ -216,7 +212,7 @@ void	Webserv::cleanup(EventHandler *handler)
 void	Webserv::run()
 {
 	struct epoll_event events[MAX_EVENTS];
-	while (true)
+	while (t)
 	{
 		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 

@@ -34,6 +34,7 @@ void	ClientHandler::reset()
 	reqState = REGULAR;
 	deleteResponse();
 	request = Request(vServers);
+	HTTPserver->t = false;
 }
 
 int	ClientHandler::getFd() const
