@@ -83,9 +83,6 @@ void 	ClientHandler::handleRead()
 	}
 	else
 	{
-		std::cout << "================RECIEVED=" << socket << "============" << std::endl;
-		std::cout << buf;
-		std::cout << "====================================" << std::endl;
 		int returnValue;
 		switch (reqState)
 		{

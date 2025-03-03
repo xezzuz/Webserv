@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 16:58:54 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 18:07:40 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 	buffer.append(recvBuffer, recvBufferSize);
 	bufferSize += recvBufferSize;
 
+	// std::cout << "================RECIEVED=============" << std::endl;
+	// std::cout << buffer;
+	// std::cout << "====================================" << std::endl;
 	if (!headersFinished) {
 		if (bufferSize > 32 * KB)
 			throw (Code(400));
