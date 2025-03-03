@@ -37,7 +37,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (!startStr.empty())
 		{
 			start = std::strtoul(startStr.c_str(), &stop, 10); // 10: base decimal
-			if (errno == ERANGE || *stop)
+			if (errno == ERANGE || errno == EINVAL)
 				throw(Code(416));
 			if (endStr.empty())
 				end = contentLength - 1;
@@ -45,7 +45,7 @@ void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-14
 		if (!endStr.empty())
 		{
 			end = std::strtoul(endStr.c_str(), &stop, 10); // 10: base decimal
-			if (errno == ERANGE || *stop)
+			if (errno == ERANGE || errno == EINVAL)
 				throw(Code(416));
 			if (startStr.empty())
 			{
