@@ -1,6 +1,8 @@
 #include "Webserv.hpp"
 #include "../Server/ServerHandler.hpp"
 
+bool	Webserv::running = true;
+
 Webserv::~Webserv()
 {
 	while (!handlerMap.empty())
@@ -12,6 +14,12 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
+}
+
+void Webserv::stop()
+{
+	std::cout << "STOPPPPPPPP" << std::endl;
+	running = false;
 }
 
 void print_epoll_events(uint32_t events)
@@ -187,14 +195,17 @@ void	Webserv::clientTimeout()
 {
 	time_t now = std::time(NULL);
 
-	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); timeIt++)
+	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end();)
 	{
 		if (now - timeIt->second >= TIMEOUT)
 		{
 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
 			EventHandler *client = handlerMap[timeIt->first];
+			timeIt++;
 			delete client;
 		}
+		else
+			++timeIt;
 	}
 }
 
@@ -211,7 +222,7 @@ void	Webserv::cleanup(EventHandler *handler)
 void	Webserv::run()
 {
 	struct epoll_event events[MAX_EVENTS];
-	while (true)
+	while (running)
 	{
 		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 

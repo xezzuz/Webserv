@@ -12,6 +12,7 @@ ClientHandler::~ClientHandler()
 
 ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : request(vServers), vServers(vServers)
 {
+	// getsockname(fd);
 	socket = fd;
 	response = NULL;
 	reqState = REGULAR;

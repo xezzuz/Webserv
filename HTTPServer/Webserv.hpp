@@ -35,13 +35,15 @@ public:
 
 	void	cleanup(EventHandler *handler);
 
-	void	initServers();
-	void	run();
+	void		initServers();
+	static void	stop();
+	void		run();
 
 private:
 	int 	bindSocket(std::string& host, std::string& port);
 	void    listenForConnections(int& listener);
 
+	static bool						running;
 
 	int								epoll_fd;
 	std::vector<ServerConfig>		servers;

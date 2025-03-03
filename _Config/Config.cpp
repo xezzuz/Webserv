@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 16:18:13 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/02 23:54:09 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Config::Config(const std::string& configFileName) {
 		configFile.close();
 		exit(1);
 	}
-
+	configFile.close();
 	printServersConfigs();
 }
 

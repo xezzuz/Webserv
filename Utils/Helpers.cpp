@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 23:42:04 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 00:28:26 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,6 @@ bool	allDigit(std::string str)
 std::string		generateRandomString( void )
 {
 	std::string alphaNum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	// srand(static_cast<size_t>(time(0)));
 
 	std::string random;
 	for (int i = 0; i < 10; i++)
