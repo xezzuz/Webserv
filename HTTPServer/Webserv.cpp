@@ -18,7 +18,6 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 
 void Webserv::stop()
 {
-	std::cout << "STOPPPPPPPP" << std::endl;
 	running = false;
 }
 
@@ -83,11 +82,6 @@ void	Webserv::removeHandler(int fd)
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 		handlerMap.erase(it);
-	
-	if (handlerMap.size() == 0)
-	{
-		std::cerr << "[WEBSERV] No Servers Left." << std::endl;
-	}
 }
 
 int	Webserv::bindSocket(std::string& host, std::string& port)
@@ -139,7 +133,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	if (!it)
 	{
 		close(serverSocket);
-		std::cerr << "[WEBSERV][ERROR]\t> Failed to Bind Any Socket..." << std::endl;
+		std::cerr << "[WEBSERV][ERROR]\tFailed to Bind Any Socket..." << std::endl;
 		exit(errno);
 	}
 	return (serverSocket);
@@ -153,7 +147,7 @@ void    Webserv::listenForConnections(int& serverSocket)
 		close(serverSocket);
 		exit(errno);
 	}
-	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
+	if (fcntl(serverSocket, F_SETFL, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
 	{
 		std::cerr << "[WEBSERV][ERROR]\tfcntl: " << strerror(errno) << std::endl;
 		close(serverSocket);
@@ -236,7 +230,6 @@ void	Webserv::run()
 				{
 					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << handler->getFd() << " IS UNREACHABLE" << RESET << std::endl;
 					cleanup(handler);
-					// delete handler;
 				}
 				else
 					handler->handleEvent(events[i].events);
@@ -245,7 +238,6 @@ void	Webserv::run()
 			{
 				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
 				cleanup(handler);
-				// delete handler;
 			}
 		}
 	}

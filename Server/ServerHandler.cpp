@@ -32,7 +32,7 @@ void	ServerHandler::handleEvent(uint32_t events)
 		}
 
 		// set non blocking mode and close the fd on execve
-		if (fcntl(clientSocket, F_SETFL, FD_CLOEXEC | O_NONBLOCK) == -1)
+		if (fcntl(clientSocket, F_SETFL, FD_CLOEXEC) == -1)
 		{
 			std::cerr << "[WEBSERV][ERROR]\t" << std::endl;
 			perror("fcntl");

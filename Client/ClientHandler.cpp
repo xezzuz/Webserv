@@ -124,7 +124,7 @@ void 	ClientHandler::handleWrite()
 		std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tCLIENT SERVED" << RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
-			this->elapsedTime = std::time(NULL);
+			HTTPserver->updateTimer(socket);
 			HTTPserver->updateHandler(socket, EPOLLIN);
 			this->reset();
 		}
@@ -135,7 +135,7 @@ void 	ClientHandler::handleWrite()
 
 void	ClientHandler::handleEvent(uint32_t events)
 {
-	this->elapsedTime = std::time(NULL);
+	HTTPserver->updateTimer(socket);
 	try
 	{
 		if (events & EPOLLIN)

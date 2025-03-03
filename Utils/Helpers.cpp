@@ -6,32 +6,12 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 00:28:26 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 00:42:38 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Helpers.hpp"
 
-// std::vector<std::string>	split(const std::string& str, const char *set) {
-// 	size_t start = 0;
-//     size_t end = str.find_first_of(set);
-// 	std::vector<std::string>		result;
-	
-//     while (start < str.size()) {
-//         if (end == std::string::npos) {
-//             result.push_back(str.substr(start));
-//             break;
-//         }
-		
-//         result.push_back(str.substr(start, end - start));
-//         start = str.find_first_not_of(set, end);
-//         if (start == std::string::npos)
-//             break;
-		
-//         end = str.find_first_of(set, start);
-//     }
-// 	return result;
-// }
 
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset) {
 	std::vector<std::string> result;
@@ -79,7 +59,7 @@ bool			stringIsDigit(const std::string& str) {
 }
 
 bool			isHexa(const std::string& num) {
-	std::string		hex = "0123456789ABCDEFabcdef";
+	static const char	hex[] = "0123456789ABCDEFabcdef";
 	
 	if (num.find_first_not_of(hex) != std::string::npos)
 		return (false);
@@ -196,7 +176,7 @@ bool	allDigit(std::string str)
 
 std::string		generateRandomString( void )
 {
-	std::string alphaNum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	static const char alphaNum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	std::string random;
 	for (int i = 0; i < 10; i++)
@@ -210,7 +190,7 @@ std::string capitalize(const std::string& input)
 {
 	std::string output = input;
 
-	static char alpha[27] = "abcdefghijklmnopqrstuvwxyz";
+	static const char alpha[] = "abcdefghijklmnopqrstuvwxyz";
 	size_t pos = 0;
 
 	while ((pos = output.find_first_of(alpha, pos)) != std::string::npos)

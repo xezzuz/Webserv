@@ -59,7 +59,11 @@ void	CGIHandler::execCGI()
 	{
 		int fd = open(reqCtx->CGITempFilename.c_str(), O_RDONLY);
 		if (fd == -1)
+		{
+			close(sv[0]);
+			close(sv[1]);
 			throw(Code(500));
+		}
 		close(sv[1]);
 		sv[1] = fd;
 	}
