@@ -50,5 +50,4 @@ if is_valid:
 else:
 	print("Content-Type: text/html\r\n", end="")
 	print("Status: 302 Found\r\n", end="")
-	print("Location: http://localhost:8080/login.html\r\n\r\n", end="")
-	print("NOT VALID")
+	print("Location: http://localhost:8080/session/login.html\r\n\r\n", end="")

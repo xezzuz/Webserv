@@ -176,7 +176,7 @@ void	Webserv::initServers()
 		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
-		std::cout << "[WEBSERV]\t " << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
+		std::cout << BLUE << BOLD << "[WEBSERV]\t " << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
 		ServerHandler	*handler = new ServerHandler(serverSocket);
 		handler->addVServer(*it);

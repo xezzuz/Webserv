@@ -14,4 +14,4 @@ print(cookie.output())
 
 # Redirect back to login page
 print("Status: 302 Found\r\n", end="")
-print("Location: http://localhost:8080/login.html\r\n\r\n", end="")
+print("Location: http://localhost:8080/session/login.html\r\n\r\n", end="")

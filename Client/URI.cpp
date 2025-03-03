@@ -55,10 +55,7 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 		endPos = _RequestData.fullPath.find('/', startPos + 1); // check whether it was found or not // no need if it didn't find it it will substr till end of str
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
 		if (stat(pathChecker.c_str(), &pathStats) != 0)
-		{
-			std::cout << pathChecker <<  "|AAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
 			throw(Code(404));
-		}
 		if (!S_ISDIR(pathStats.st_mode))
 			break ;
 		startPos = endPos;
@@ -135,11 +132,8 @@ void			resolveURI(RequestData& _RequestData) {
 	if (!rootJail(_RequestData.URI))
 		throw(Code(403));
 
-	std::cout << "URI: " << _RequestData.URI << std::endl;
 	produceAbsPath(_RequestData);
-	std::cout << "ABSPATH: " << _RequestData.fullPath << std::endl;
 	resolveAbsPath(_RequestData);
-	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
 	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
 		throw(Code(301, "http://" + _RequestData.host + _RequestData.URI + '/'));
 }

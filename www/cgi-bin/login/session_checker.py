@@ -47,9 +47,9 @@ def redirect_to_login(is_expired=False):
     print("Status: 302 Found\r\n", end="")
     
     if is_expired:
-        print("Location: http://localhost:8080/login.html?expired=true\r\n\r\n", end="")
+        print("Location: http://localhost:8080/session/login.html?expired=true\r\n\r\n", end="")
     else:
-        print("Location: http://localhost:8080/login.html\r\n\r\n", end="")
+        print("Location: http://localhost:8080/session/login.html\r\n\r\n", end="")
     
     sys.exit(0)
 

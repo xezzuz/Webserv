@@ -6,12 +6,11 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 00:42:38 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 17:02:01 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Helpers.hpp"
-
 
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset) {
 	std::vector<std::string> result;
@@ -237,27 +236,3 @@ std::string buildChunk(const char* data, size_t size)
 	
 	return (result);
 }
-
-// std::string	buildChunk(const char *data, size_t size) // error
-// {
-// 	return (toHex(size) + "\r\n" + std::string(data, size) + "\r\n");
-// }
-
-/////////////////////////////////////////////////////
-void printMap(std::map<std::string, std::string>& map)
-{
-	std::cout << "************************************" << std::endl;
-	std::map<std::string, std::string>::iterator it;
-	for (it = map.begin(); it != map.end(); it++)
-		std::cout << it->first << "::" << it->second << std::endl;
-	std::cout << "************************************" << std::endl;
-}
-// #include <arpa/inet.h>
-// int main() {
-// 	unsigned int my = parseIPv4("192.168.1.1");
-// 	printf("mine = %d\n", my);
-// 	printf("mine = %d\n", htonl(my));
-// 	unsigned int ip = 0;
-// 	inet_pton(AF_INET, "192.168.1.1", &ip);
-// 	printf("ip = %d\n", ip);
-// }

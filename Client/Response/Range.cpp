@@ -90,10 +90,10 @@ void	Response::handleRange()
 {
 	reqCtx->StatusCode = 206;
 	parseRangeHeader();
-	std::cout << "content-length: " << contentLength << std::endl;
 	if (rangeData.ranges.size() == 1)
 	{
 		headers.append("\r\nContent-Range: bytes " + _toString(rangeData.current->range.first) + "-" + _toString(rangeData.current->range.second) + "/" + _toString(contentLength));
+		contentLength = rangeData.current->rangeLength;
 	}
 	else
 	{

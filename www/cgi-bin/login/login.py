@@ -79,7 +79,7 @@ def main():
                 # Valid session exists, redirect to the dashboard or homepage
                 print("Content-Type: text/html\r\n", end="")
                 print("Status: 302 Found\r\n", end="")
-                print("Location: http://localhost:8080/dashboard.html\r\n\r\n", end="")
+                print("Location: http://localhost:8080/session/dashboard.html\r\n\r\n", end="")
                 return
     
     # No valid session, process the login form
@@ -104,7 +104,7 @@ def main():
             print("Content-Type: text/html\r\n", end="")
             print(cookie.output(), end="\r\n")
             print("Status: 302 Found\r\n", end="")
-            print("Location: http://localhost:8080/dashboard.html\r\n\r\n", end="")
+            print("Location: http://localhost:8080/session/dashboard.html\r\n\r\n", end="")
         else:
             # Invalid credentials
             print("Content-Type: text/html\r\n\r\n", end="")
@@ -145,7 +145,7 @@ def main():
         # No form data, redirect to login page
         print("Content-Type: text/html\r\n", end="")
         print("Status: 302 Found\r\n", end="")
-        print("Location: http://localhost:8080/login.html\r\n\r\n", end="")
+        print("Location: http://localhost:8080/session/login.html\r\n\r\n", end="")
 
 if __name__ == "__main__":
     main()

@@ -39,7 +39,6 @@ void	ErrorPage::readBody()
 			nextState = DONE;
 		}
 		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		buffer.reserve(buffer.size() + bytesRead);
 		buffer.append(buf, bytesRead);
 		if ((this->*sender)() == true)
 			state = nextState;

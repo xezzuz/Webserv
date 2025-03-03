@@ -91,11 +91,8 @@ void 	ClientHandler::handleRead()
 		{
 			case REGULAR:
 				returnValue = request.parseControlCenter(buf, bytesReceived);
-				if (returnValue == RECV)
-					std::cout << "RECV" << std::endl;
 				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
-					std::cout << "FORWARD_CGI" << std::endl;
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					HTTPserver->registerDependency(cgi, this);
 					cgi->execCGI();
@@ -106,7 +103,6 @@ void 	ClientHandler::handleRead()
 				}
 				else if (returnValue == RESPOND) // receiving done - move to response
 				{
-					std::cout << "RESPOND" << std::endl;
 					createResponse();
 				}
 				break;

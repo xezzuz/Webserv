@@ -44,7 +44,7 @@ void	ServerHandler::handleEvent(uint32_t events)
 		HTTPserver->registerHandler(clientSocket, client, EPOLLIN);
 		HTTPserver->addTimer(clientSocket);
 
-		std::cout << "[SERVER]\tClient Connected To Socket " << clientSocket << "..." << std::endl;
+		std::cout << CYAN << "[WEBSERV][SERVER]\tClient Connected To Socket " << clientSocket << RESET << std::endl;
 	}
 	else if (events & EPOLLHUP)
 	{
