@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 18:07:40 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 21:33:11 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,8 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 			return RESPOND; // stop receiving
 		else if (_RequestData.isCGI && !isEncoded)
 			return FORWARD_CGI;
+		else
+			openTmpFile();
 	}
 	parseRequestBody();
 	if (bodyFinished)

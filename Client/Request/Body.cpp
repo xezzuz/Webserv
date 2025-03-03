@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:55:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 21:45:53 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	Request::parseLengthBody() {
 	if (_RequestRaws.totalBodySize == _RequestData.contentLength)
 		bodyFinished = true;
 	
-	_RequestRaws.rawBody += buffer.substr(0, bufferSize);
+	_RequestRaws.rawBody.append(buffer.substr(0, bufferSize), bufferSize);
 	_RequestRaws.rawBodySize += bufferSize;
 
 	_RequestRaws.totalBodySize += bufferSize;
@@ -262,7 +262,7 @@ void			Request::processBinaryBody() {
 	if (!fileUploader.is_open())
 		throw (Code(500));
 	
-	fileUploader << _RequestRaws.rawBody;  // should i flush after this?
+	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
 		fileUploader.close();
 		throw (Code(500));
@@ -313,8 +313,8 @@ void			Request::processRegularRequestRawBody() {
 	std::cout << "processRequestRawBody(true);" << std::endl;
 }
 
-void			Request::processCGIRequestRawBody() {
-	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
+void	Request::openTmpFile()
+{
 	char *CGITempFilename = std::tmpnam(NULL);
 	if (!CGITempFilename)
 		throw (Code(500));
@@ -323,14 +323,19 @@ void			Request::processCGIRequestRawBody() {
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
 	if (!fileUploader.is_open())
 		throw (Code(500));
+}
+
+void			Request::processCGIRequestRawBody() {
+	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
+
+	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
+	if (fileUploader.fail()) {
+		fileUploader.close();
+		throw (Code(500));
+	}
 	
-	fileUploader << _RequestRaws.rawBody;  // should i flush after this?
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.rawBodySize = 0;
-	
-	fileUploader.close();
-	if (fileUploader.fail())
-		throw (Code(500));
 }
 
 // BODY CONTROL CENTER

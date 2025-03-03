@@ -6,13 +6,16 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:42:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 17:34:05 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-Request::~Request() {}
+Request::~Request() {
+	if (fileUploader.is_open())
+		fileUploader.close();
+}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	bufferSize = 0;

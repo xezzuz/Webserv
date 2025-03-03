@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:41:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 21:33:02 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,8 @@ class Request {
 		void						isValidMethod();
 		void						isValidURI();
 		void						isValidHTTPVersion();
+
+		void						openTmpFile();
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();

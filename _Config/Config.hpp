@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 20:21:05 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 21:20:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@
 #include <sys/stat.h>
 // #include "../Utils/Helpers.hpp"
 
-#define B  1
-#define KB 1024 * B
+#define KB 1024
 #define MB 1024 * KB
 #define GB 1024 * MB
 

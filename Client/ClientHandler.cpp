@@ -77,10 +77,7 @@ void 	ClientHandler::handleRead()
 	if (bytesReceived == 0)
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
 	else if (bytesReceived < 0)
-	{
-		std::cerr << "[WEBSERV][ERROR]\t recv: " << strerror(errno) << std::endl;
-		throw(Code(500));
-	}
+		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
 	else
 	{
 		int returnValue;
