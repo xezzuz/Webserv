@@ -9,8 +9,6 @@ class CGIHandler : public EventHandler, public AResponse
 public:
 	virtual ~CGIHandler();
 	CGIHandler(int& clientSocket, RequestData *data);
-	CGIHandler(const CGIHandler& rhs);
-	CGIHandler& operator=(const CGIHandler& rhs);
 	
 	pid_t	getPid() const;
 	int		getFd() const;

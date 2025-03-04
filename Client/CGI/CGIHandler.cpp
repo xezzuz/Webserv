@@ -3,14 +3,20 @@
 
 CGIHandler::~CGIHandler()
 {
-	HTTPserver->removeHandler(cgiSocket);
+	std::cout << "CGI CLEANUP" << std::endl;
+	if (cgiSocket != -1)
+		HTTPserver->removeHandler(cgiSocket);
 
-	if (waitpid(pid, NULL, WNOHANG) == 0)
+	if (pid != -1 && waitpid(pid, NULL, WNOHANG) == 0)
+	{
+		std::cout << "CGI PROCESS KILL: " << pid << std::endl;
 		kill(pid, SIGTERM);
+	}
 }
 
 CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), inBodySize(0), pid(-1), headersParsed(false)
 {
+	execCGI();
 	CGIreader = &CGIHandler::readCGILength;
 }
 

@@ -22,15 +22,18 @@ void	CGIHandler::buildEnv()
 	envVars.push_back("SCRIPT_NAME=" + reqCtx->scriptName);
 	envVars.push_back("PATH_INFO=" + reqCtx->pathInfo);
 	envVars.push_back("QUERY_STRING=" + reqCtx->queryString);
+	envVars.push_back("PATH_TRANSLATED="+ reqCtx->fullPath);
 	envVars.push_back("SERVER_SOFTWARE=webserv/1.0");
 	envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	envVars.push_back("SERVER_NAME=");
+	envVars.push_back("SERVER_PORT=");
 
 	if (reqCtx->Headers.find("content-length") == reqCtx->Headers.end() && !reqCtx->CGITempFilename.empty())
 	{
 		ssize_t fileSize = fileLength(reqCtx->CGITempFilename);
 		if (fileSize == -1)
-			throw(Code(500));
+			throw(ChildException());
 		envVars.push_back("CONTENT_LENGTH=" + _toString(fileSize));
 	}
 
@@ -89,7 +92,9 @@ void	CGIHandler::execCGI()
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
 			close(sv[1]);
-			exit(errno);
+			if(fd != -1)
+				close(fd);
+			throw(ChildException());
 		}
 
 		if (fd != -1)
@@ -103,7 +108,7 @@ void	CGIHandler::execCGI()
 			std::cerr << "[WEBSERV]\t";
 			perror("dup2");
 			close(sv[1]);
-			exit(errno);
+			throw(ChildException());
 		}
 		close(sv[1]);
 
@@ -112,7 +117,7 @@ void	CGIHandler::execCGI()
 		{
 			std::cerr << "[WEBSERV]\t";
 			perror("chdir");
-			exit(errno);
+			throw(ChildException());
 		}
 
 		args[0] = const_cast<char *>(reqCtx->cgiIntrepreter.c_str());
@@ -124,9 +129,11 @@ void	CGIHandler::execCGI()
 		{
 			std::cerr << "[WEBSERV][ERROR]\t";
 			perror("execve");
-			exit(errno);
+			throw(ChildException());
 		}
 	}
+	if (fd != -1)
+		close(fd);
 	close(sv[1]);
 	cgiSocket = sv[0];
 }

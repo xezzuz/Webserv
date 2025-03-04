@@ -99,7 +99,6 @@ void	ErrorPage::generateHeaders()
 		state = nextState;
 	else
 		state = WRITE;
-	std::cout << state << std::endl;
 }
 
 int	ErrorPage::respond()

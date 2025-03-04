@@ -5,14 +5,16 @@
 
 ClientHandler::~ClientHandler()
 {
+	std::cout << "CLIENT CLEANUP" << std::endl;
 	HTTPserver->removeHandler(socket);
+	std::cout << "ERASING TIMER" << std::endl;
 	HTTPserver->eraseTimer(socket);
+	std::cout << "DELETING RESPONSE" << std::endl;
 	deleteResponse();
 }
 
 ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : request(vServers), vServers(vServers)
 {
-	// getsockname(fd);
 	socket = fd;
 	response = NULL;
 	reqState = REGULAR;
@@ -46,9 +48,13 @@ void	ClientHandler::deleteResponse()
 {
 	if (response)
 	{
+		std::cout << "RESPONSE POINTER: " << response << std::endl;
 		delete response;
 		response = NULL;
 	}
+	else
+		std::cout << "RESPONSE IS NULL" << std::endl;
+
 }
 
 void	ClientHandler::createResponse()
@@ -58,7 +64,6 @@ void	ClientHandler::createResponse()
 		std::cout << "CGI NORMAL" << std::endl;
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		HTTPserver->registerDependency(cgi, this);
-		cgi->execCGI();
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
 		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
@@ -93,7 +98,6 @@ void 	ClientHandler::handleRead()
 					std::cout << "FORWARD_CGI" << std::endl;
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					HTTPserver->registerDependency(cgi, this);
-					cgi->execCGI();
 					HTTPserver->registerHandler(cgi->getFd(), cgi, 0);
 					cgi->setBuffer(request.getBuffer());
 					response = cgi;
@@ -151,6 +155,10 @@ void	ClientHandler::handleEvent(uint32_t events)
 				createResponse();
 			}
 		}
+		else if (events & EPOLLHUP)
+		{
+			throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+		}
 	}
 	catch (Code& e)
 	{
@@ -158,8 +166,9 @@ void	ClientHandler::handleEvent(uint32_t events)
 		this->response = new ErrorPage(e, socket, request.getRequestData());
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
-	if (events & EPOLLHUP)
+	catch (ChildException& e)
 	{
+		HTTPserver->stop();
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
 	}
 }

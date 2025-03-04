@@ -5,6 +5,9 @@ bool	Webserv::running = true;
 
 Webserv::~Webserv()
 {
+	std::cout << "WEBSERVER_CLEANUP" << std::endl;
+	for (std::map<int, EventHandler *>::iterator it = handlerMap.begin(); it != handlerMap.end(); it++)
+		std::cout << "IN HANDLERMAP ON CLEANUP: " << it->first << ", POINTER: " << it->second << std::endl;
 	while (!handlerMap.empty())
 		cleanup(handlerMap.begin()->second);
 	close(epoll_fd);
@@ -14,6 +17,7 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
+	std::cout << "CREATED EPOLL: " << epoll_fd << std::endl;
 }
 
 void Webserv::stop()
@@ -47,6 +51,7 @@ void	Webserv::updateTimer(int fd)
 
 void	Webserv::eraseTimer(int fd)
 {
+	std::cout << "TIMER ERASED FOR: " << fd << std::endl;
 	clientTimer.erase(fd);
 }
 
@@ -77,11 +82,17 @@ void	Webserv::updateHandler(const int fd, uint32_t events)
 
 void	Webserv::removeHandler(int fd)
 {
+	std::cout << "REMOVING HANDLER FROM MAP: " << fd << std::endl;
+	std::cout << "DELETED FROM EPOLL: " << fd << std::endl;
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-	close(fd);
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
+	{
+		std::cout << "ERASED HANDLER FROM MAP: " << it->first << ", POINTER: " << it->second << std::endl;
 		handlerMap.erase(it);
+	}
+	std::cout << "CLOSED FD: " << fd << std::endl;
+	close(fd);
 }
 
 int	Webserv::bindSocket(std::string& host, std::string& port)
@@ -112,7 +123,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 			continue;
 
 		// kernel has a wait period for ports to be reusable after a socket has been closed under normal behaviour
-		// setsocketopt specifically the 3rd argument SO_REUSEADDR allows the address and port to be reusable
+		// setsocketopt specifically the 3rd argument SO_REUSEADDR and SO_REUSEPORT allows the address port to be reusable
 		// in our case we just prepare the socket to be able to bind to an address that already in use
 		// that would be if the server crashed and restarted the previous address bound to the socket wouldn't be unavaible due to the kernel wait period 
 
@@ -179,6 +190,7 @@ void	Webserv::initServers()
 		std::cout << BLUE << BOLD << "[WEBSERV]\t " << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
 		ServerHandler	*handler = new ServerHandler(serverSocket);
+		std::cout << "CREATED SERVER: " << serverSocket << ", Pointer: " << handler << std::endl;
 		handler->addVServer(*it);
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
 		registerHandler(serverSocket, handler, EPOLLIN);
@@ -194,7 +206,15 @@ void	Webserv::clientTimeout()
 		if (now - timeIt->second >= TIMEOUT)
 		{
 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
-			EventHandler *client = handlerMap[timeIt->first];
+			std::map<int, EventHandler *>::iterator clientIt = handlerMap.find(timeIt->first);
+			if (clientIt == handlerMap.end())
+			{
+				close(timeIt->first);
+				clientTimer.erase(timeIt++);
+				continue;
+			}
+			// EventHandler *client = handlerMap[timeIt->first];
+			EventHandler *client = clientIt->second;
 			timeIt++;
 			delete client;
 		}
@@ -205,6 +225,9 @@ void	Webserv::clientTimeout()
 
 void	Webserv::cleanup(EventHandler *handler)
 {
+	if (!handler)
+		return;
+
 	std::map<EventHandler *, EventHandler *>::iterator it;
 	it = dependencyMap.find(handler);
 	if (it != dependencyMap.end())
@@ -218,7 +241,7 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 4500);
 
 		clientTimeout();
 		for (int i = 0; i < eventCount; i++)

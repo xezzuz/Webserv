@@ -44,7 +44,13 @@ public:
 	const std::string	location;
 };
 
-// void			split(const std::string& str, const char *set, std::vector<std::string>& result);
+class ChildException : public std::exception
+{
+public:
+	virtual ~ChildException() throw() {}
+	ChildException() {}
+};
+
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);

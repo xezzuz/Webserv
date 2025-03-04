@@ -90,7 +90,6 @@ public:
 		headers.erase(0, bytesSent);
 		if (headers.empty())
 			sender = &AResponse::sendBody;
-		std::cout << " headers empty : "<< headers.empty() << std::endl;
 		return (headers.empty());
 	}
 

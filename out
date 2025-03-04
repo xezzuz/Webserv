@@ -1,0 +1,167 @@
+
+
+----------------- SERVER 1 -----------------
+LISTEN:			localhost:8080
+SERVER NAME:		nazouz.com
+SERVER NAME:		mmaila.com
+CLIENT_MBS:		4294967296
+ROOT:			/home/mmaila/Desktop/SERV/www/
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+
+----------------- LOCATION /cgi-bin/ -----------------
+CLIENT_MBS:		4294967296
+ROOT:			/home/mmaila/Desktop/SERV/www/
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+METHODS:		POST
+METHODS:		DELETE
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+CGI_EXT:			.py:/usr/bin/python3
+----------------- END LOCATION -----------------
+
+----------------- LOCATION /session/ -----------------
+CLIENT_MBS:		4294967296
+ROOT:			/home/mmaila/Desktop/SERV/www/
+ALIAS:			
+INDEX:			login.html
+METHODS:		GET
+METHODS:		POST
+METHODS:		DELETE
+UPLOAD_STORE:		
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+----------------- END LOCATION -----------------
+
+----------------- LOCATION /upload -----------------
+CLIENT_MBS:		4294967296
+ROOT:			/home/mmaila/Desktop/SERV/www/
+ALIAS:			
+INDEX:			index.html
+METHODS:		GET
+METHODS:		POST
+METHODS:		DELETE
+UPLOAD_STORE:		/home/mmaila/goinfre/
+AUTOINDEX:		ON
+REDIRECT:		0 | 
+----------------- END LOCATION -----------------
+
+----------------- END SERVER -----------------
+EPOLL_FD: 4
+SERVER: 5
+[34m[1m[WEBSERV]	 Server listening on localhost:8080[0m
+CLIENT: 6
+[36m[WEBSERV][SERVER]	Client Connected To Socket 6[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 7, 8
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 7
+CLIENT: 8
+[36m[WEBSERV][SERVER]	Client Connected To Socket 8[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 9, 10
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 9
+CLIENT: 10
+[36m[WEBSERV][SERVER]	Client Connected To Socket 10[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 11, 12
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 11
+CLIENT: 12
+[36m[WEBSERV][SERVER]	Client Connected To Socket 12[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 13, 14
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 13
+CLIENT: 14
+[36m[WEBSERV][SERVER]	Client Connected To Socket 14[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 15, 16
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 15
+CLIENT: 16
+[36m[WEBSERV][SERVER]	Client Connected To Socket 16[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 17, 25
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 17
+CLIENT: 17
+[36m[WEBSERV][SERVER]	Client Connected To Socket 17[0m
+================RECIEVED=============
+GET /cgi-bin/requestme.py HTTP/1.1
+Host: localhost:8080
+User-Agent: python-requests/2.25.1
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: keep-alive====================================
+RESPOND
+CGI NORMAL
+SOCKET_PAIR: 25, 26
+CGI_SOCKET(SURVIVING SOCKET_PAIR): 25
+AAAAAAAAAAAAAAAAAAACGI_FD: -1
+FD: 5PTR: 0x4df2e50
+FD: 6PTR: 0x4df3e40
+FD: 8PTR: 0x4df8500
+FD: 10PTR: 0x4dfcbc0
+FD: 12PTR: 0x4e01280
+FD: 14PTR: 0x4e05940
+FD: 16PTR: 0x4e0a000
+[33m[WEBSERV][CLIENT-6]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-8]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-10]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-12]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-14]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-16]	TIMEOUT[0m
+[33m[WEBSERV][CLIENT-17]	TIMEOUT[0m
+FD: 5PTR: 0x4df2e50
+FD: 25PTR: 0x4e11390
