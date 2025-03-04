@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 21:33:02 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 22:08:54 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,6 @@ class Request {
 	private:
 		/*			 PARSING BUFFRER			*/
 		std::string						buffer;
-		int								bufferSize;
 
 		// std::vector<int>				files;
 		std::ofstream					fileUploader;
@@ -131,12 +130,9 @@ class Request {
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
 
-		int							feedRequest(char *recvBuffer, int recvBufferSize);
 		// bool						printParsedRequest();
 
 		bool						bufferContainChunk();
-		std::string					extractHeadersFromBuffer();
-		// void						feedRequest(char *recvBuffer, int bufferSize);
 
 		int							parseControlCenter(char *recvBuffer, int recvBufferSize);
 		void						parseRequestLineAndHeaders();
@@ -151,8 +147,6 @@ class Request {
 		void						processMultipartData();
 		void						processBinaryBody();
 		void						parseLengthBody();
-		void						storeBody( void );
-		void						uploadBody( void );
 		
 		void						validateRequestHeaders();
 

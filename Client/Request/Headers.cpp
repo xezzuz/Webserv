@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 23:41:09 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 22:40:54 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,6 @@ void						Request::decodeURI() {
 void						Request::isValidMethod() {
 	if (_RequestData.Method != "GET" && _RequestData.Method != "POST" && _RequestData.Method != "DELETE")
 		throw (Code(501));
-	
-	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), _RequestData.Method) == _RequestData._Config->methods.end())
-		throw (Code(405));
 }
 
 void						Request::isValidURI() {
@@ -79,7 +76,6 @@ void						Request::parseRequestLine() {
 
 	_RequestRaws.rawRequestLine = buffer.substr(0, CRLFpos);
 	buffer.erase(0, CRLFpos + 2);
-	bufferSize -= CRLFpos + 2;
 	
 	if (std::count(_RequestRaws.rawRequestLine.begin(), _RequestRaws.rawRequestLine.end(), ' ') != 2)
 		throw (Code(400));
@@ -102,7 +98,6 @@ void						Request::parseRequestHeaders() {
 	std::stringstream		Hss(buffer.substr(0, CRLFpos + 4));
 
 	buffer.erase(0, CRLFpos + 4);
-	bufferSize -= CRLFpos + 4;
 
 	std::string			fieldline;
 	static const char	allowedValChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_ :;.,\\/\"\'?!(){}[]@<>=-+*#$&`|~^%";
@@ -147,7 +142,6 @@ void						Request::validateRequestHeaders() {
 		bool		TransferEncoding = headerExists("transfer-encoding");
 		bool		ContentType = headerExists("content-type");
 
-
 		if (!TransferEncoding && !ContentLength)
 			throw (Code(411));
 		if (TransferEncoding && ContentLength)
@@ -168,8 +162,6 @@ void						Request::validateRequestHeaders() {
 				throw (Code(413));
 			if (EINVAL == errno)
 				throw (Code(400));
-			if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)
-				throw (Code(413));
 		}
 
 		if (ContentType) {

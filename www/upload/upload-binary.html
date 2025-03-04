@@ -14,34 +14,35 @@
     <script>
         function uploadFile() {
             const fileInput = document.getElementById('fileInput');
+            const statusElement = document.getElementById('status');
+
             if (fileInput.files.length === 0) {
-                document.getElementById('status').innerText = "Please select a file.";
+                statusElement.innerText = "Please select a file.";
                 return;
             }
-            
+
             const file = fileInput.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                fetch('/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/octet-stream',
-                        'X-File-Name': file.name
-                    },
-                    body: event.target.result
-                }).then(response => {
-                    if (response.status === 201) {
-                        document.getElementById('status').innerText = "File uploaded successfully.";
-                    } else {
-                        document.getElementById('status').innerText = "Upload failed.";
-                    }
-                }).catch(error => {
-                    document.getElementById('status').innerText = "Error: " + error;
-                });
-            };
-            
-            reader.readAsArrayBuffer(file);
+
+            fetch('/upload/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                    'X-File-Name': encodeURIComponent(file.name) // Encode filename for safety
+                },
+                body: file // Directly pass the File object
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                statusElement.innerText = "Upload successful: " + text;
+            })
+            .catch(error => {
+                statusElement.innerText = "Error: " + error.message;
+            });
         }
     </script>
 </body>

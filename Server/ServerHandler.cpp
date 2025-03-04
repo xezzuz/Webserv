@@ -31,11 +31,20 @@ void	ServerHandler::handleEvent(uint32_t events)
 			return;
 		}
 
-		// set non blocking mode and close the fd on execve
-		if (fcntl(clientSocket, F_SETFL, FD_CLOEXEC) == -1)
+		struct linger so_linger;
+
+		so_linger.l_onoff = 1; // enable linger option
+		so_linger.l_linger = 5; // seconds system will wait before closing the fd after closed is called
+		if (setsockopt(clientSocket, SOL_SOCKET, SO_LINGER, (char *)&so_linger, sizeof(so_linger)) == -1)
 		{
-			std::cerr << "[WEBSERV][ERROR]\t" << std::endl;
-			perror("fcntl");
+			std::cerr << "[WEBSERV][ERROR]\tsetsocketopt: " << strerror(errno) << std::endl;
+			close(clientSocket);
+			return;
+		}
+
+		if (fcntl(clientSocket, F_SETFD, FD_CLOEXEC) == -1)
+		{
+			std::cerr << "[WEBSERV][ERROR]\tfcntl :" << strerror(errno) << std::endl;
 			close(clientSocket);
 			return;
 		}

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 21:45:53 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 01:17:46 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,29 +54,29 @@ bool			Request::bufferContainChunk() {
 }
 
 void	Request::parseLengthBody() {
-	if (!bufferSize)
+	if (buffer.empty())
 		return ;
 
 	std::cout << RED << "totalBodySize = " << _RequestRaws.totalBodySize << RESET << std::endl;
-	std::cout << RED << "bufferSize = " << bufferSize << RESET << std::endl;
+	std::cout << RED << "buffer size = " << buffer.size() << RESET << std::endl;
 	std::cout << RED << "clientmaxbodysize = " << _RequestData._Config->client_max_body_size << RESET << std::endl;
 	std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
-	
-	if (_RequestRaws.totalBodySize + bufferSize < _RequestRaws.totalBodySize)
+
+	if (_RequestRaws.totalBodySize + buffer.size() < _RequestRaws.totalBodySize)
 		throw (Code(413));
-	if (_RequestRaws.totalBodySize + bufferSize > _RequestData._Config->client_max_body_size)
+	if (_RequestRaws.totalBodySize + buffer.size() > _RequestData._Config->client_max_body_size)
 		throw (Code(413));
-	if (_RequestRaws.totalBodySize + bufferSize > _RequestData.contentLength)
+	if (_RequestRaws.totalBodySize + buffer.size() > _RequestData.contentLength)
 		throw (Code(400));
+
+	_RequestRaws.rawBody.append(buffer);
+	_RequestRaws.rawBodySize += buffer.size();
+	_RequestRaws.totalBodySize += buffer.size();
+	buffer.clear();
 	
 	if (_RequestRaws.totalBodySize == _RequestData.contentLength)
 		bodyFinished = true;
 	
-	_RequestRaws.rawBody.append(buffer.substr(0, bufferSize), bufferSize);
-	_RequestRaws.rawBodySize += bufferSize;
-
-	_RequestRaws.totalBodySize += bufferSize;
-	buffer.clear(), bufferSize = 0;
 }
 
 // unchunks available chunks and send them to raw Body
@@ -84,7 +84,7 @@ void			Request::decodeChunkedBody() {
 
 	while (bufferContainChunk()) {
 		std::string		chunkSizeStr;
-		int			currPos = 0, CRLFpos = 0;
+		size_t			currPos = 0, CRLFpos = 0;
 		
 		CRLFpos = buffer.find(CRLF);
 		// if (CRLFpos == std::string::npos || CRLFpos == currPos)
@@ -94,17 +94,17 @@ void			Request::decodeChunkedBody() {
 		if (!isHexa(chunkSizeStr))
 			throw(Code(400));
 		
-		int chunkSize = htoi(chunkSizeStr);
+		size_t chunkSize = htoi(chunkSizeStr);
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == DOUBLE_CRLF) {
 			std::cout << "[INFO]\tBody Decoding is Done..." << std::endl;
-			buffer.clear(), bufferSize = 0;
+			buffer.clear();
 			bodyFinished = true;
 			return ;
 		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != DOUBLE_CRLF)
 			throw(Code(400));
 
 		currPos = CRLFpos + 2;
-		if (bufferSize <= currPos + chunkSize + 2)
+		if (buffer.size() <= currPos + chunkSize + 2)
 			return ;
 
 		if (_RequestRaws.totalBodySize + chunkSize < _RequestRaws.totalBodySize)
@@ -118,7 +118,6 @@ void			Request::decodeChunkedBody() {
 		// if (buffer.substr(currPos + chunkSize, 2) != CRLF) // malformed chunk
 		// 	return false;
 		buffer.erase(0, currPos + chunkSize + 2);
-		bufferSize -= currPos + chunkSize + 2;
 	}
 }
 
@@ -271,8 +270,13 @@ void			Request::processBinaryBody() {
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.rawBodySize = 0;
 
+	
+
 	if (bodyFinished)
+	{
+		fileUploader.close();
 		_RequestData.StatusCode = 201;
+	}
 	
 	// if (!files.size()) {
 	// 	std::time_t				time = std::time(NULL);
@@ -315,11 +319,11 @@ void			Request::processRegularRequestRawBody() {
 
 void	Request::openTmpFile()
 {
-	char *CGITempFilename = std::tmpnam(NULL);
-	if (!CGITempFilename)
+	char *tmpName = std::tmpnam(NULL);
+	if (!tmpName)
 		throw (Code(500));
 	
-	_RequestData.CGITempFilename = CGITempFilename;
+	_RequestData.CGITempFilename = tmpName;
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
 	if (!fileUploader.is_open())
 		throw (Code(500));
@@ -327,21 +331,22 @@ void	Request::openTmpFile()
 
 void			Request::processCGIRequestRawBody() {
 	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
-
 	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
 		fileUploader.close();
 		throw (Code(500));
 	}
-	
+
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.rawBodySize = 0;
+	if (bodyFinished)
+		fileUploader.close();
 }
 
 // BODY CONTROL CENTER
 void			Request::parseRequestBody() {		// store request body in raw Body
-	if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
-		throw (Code(403));
+	// if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
+	// 	throw (Code(403));
 	
 	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
 	if (isEncoded)

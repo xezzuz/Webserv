@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 21:33:11 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/03 23:06:43 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,22 +36,26 @@ void						Request::setMatchingConfig() {
 
 	_RequestData._Config = (_RequestData.matchingLocation.empty()) ? 
 	&matchingServer.ServerDirectives : &matchingServer.Locations.find(_RequestData.matchingLocation)->second;
+	
+	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), _RequestData.Method) == _RequestData._Config->methods.end())
+		throw (Code(405));
 }
 
 // PARSING CONTROL CENTER
 int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 {
 	buffer.append(recvBuffer, recvBufferSize);
-	bufferSize += recvBufferSize;
 
-	// std::cout << "================RECIEVED=============" << std::endl;
-	// std::cout << buffer;
-	// std::cout << "====================================" << std::endl;
 	if (!headersFinished) {
-		if (bufferSize > 32 * KB)
+		if (buffer.size() > 32 * KB)
 			throw (Code(400));
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;
+
+		std::cout << "================RECIEVED=============" << std::endl;
+		std::cout << buffer.substr(0, buffer.find("\r\n\r\n"));
+		std::cout << "====================================" << std::endl;
+		
 		parseRequestLineAndHeaders();
 		setMatchingConfig();
 		resolveURI(_RequestData);
@@ -59,7 +63,7 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 			return RESPOND; // stop receiving
 		else if (_RequestData.isCGI && !isEncoded)
 			return FORWARD_CGI;
-		else
+		else if (_RequestData.isCGI)
 			openTmpFile();
 	}
 	parseRequestBody();

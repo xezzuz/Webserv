@@ -135,5 +135,13 @@ void			resolveURI(RequestData& _RequestData) {
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);
 	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
-		throw(Code(301, "http://" + _RequestData.host + _RequestData.URI + '/'));
+		throw(Code(308, "http://" + _RequestData.host + _RequestData.URI + '/'));
+
+	if (_RequestData.Method == "POST")
+	{
+		if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
+			throw (Code(403));
+		if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)
+			throw (Code(413));
+	}
 }

@@ -52,7 +52,7 @@ void	ErrorPage::generateHeaders()
 	headers.clear();
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
-	if (reqCtx->Method == "POST")
+	// if (reqCtx->Method == "POST"/* && status.status >= 400*/)
 		reqCtx->keepAlive = false;
 
 	if (reqCtx->keepAlive)
@@ -96,10 +96,12 @@ void	ErrorPage::generateHeaders()
 		nextState = DONE;
 	}
 	headers.insert(0, "HTTP/1.1 " + _toString(status.status) + " " + getCodeDescription(status.status));
+	std::cout  << headers << std::endl;
 	if ((this->*sender)() == true)
 		state = nextState;
 	else
 		state = WRITE;
+	std::cout << state << std::endl;
 }
 
 int	ErrorPage::respond()

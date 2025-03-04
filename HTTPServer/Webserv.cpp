@@ -147,7 +147,7 @@ void    Webserv::listenForConnections(int& serverSocket)
 		close(serverSocket);
 		exit(errno);
 	}
-	if (fcntl(serverSocket, F_SETFL, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
+	if (fcntl(serverSocket, F_SETFD, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
 	{
 		std::cerr << "[WEBSERV][ERROR]\tfcntl: " << strerror(errno) << std::endl;
 		close(serverSocket);
@@ -218,7 +218,7 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT);
 
 		clientTimeout();
 		for (int i = 0; i < eventCount; i++)

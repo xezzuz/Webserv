@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 17:34:05 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/03 22:08:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ Request::~Request() {
 }
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	bufferSize = 0;
-	
 	isEncoded = false;
 	isMultipart = false;
 	headersFinished = false;
@@ -63,7 +61,6 @@ Request&	Request::operator=(const Request& rhs)
 	if (this != &rhs)
 	{
 		buffer = rhs.buffer;
-		bufferSize = rhs.bufferSize;
 
 		_RequestData = rhs._RequestData;
 		_RequestRaws = rhs._RequestRaws;
