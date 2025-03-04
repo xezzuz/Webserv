@@ -21,13 +21,10 @@ void	Response::handlePOST()
 void	Response::handleDELETE( void )
 {
 	if (reqCtx->isDir)
-	{
-		if (rmdir(reqCtx->fullPath.c_str()) == -1)
-			throw(Code(500));
-	}
+		throw (Code(403));
 	else
 	{
-		if (remove(reqCtx->fullPath.c_str()) == -1)
+		if (std::remove(reqCtx->fullPath.c_str()) == -1)
 			throw(Code(500));
 	}
 	reqCtx->StatusCode = 204;
