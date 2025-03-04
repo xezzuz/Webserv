@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 23:06:43 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 01:49:26 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,17 +38,16 @@ void						Request::setMatchingConfig() {
 	&matchingServer.ServerDirectives : &matchingServer.Locations.find(_RequestData.matchingLocation)->second;
 	
 	if (std::find(_RequestData._Config->methods.begin(), _RequestData._Config->methods.end(), _RequestData.Method) == _RequestData._Config->methods.end())
-		throw (Code(405));
+		throw Code(405);
 }
 
 // PARSING CONTROL CENTER
-int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
-{
+int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize) {
 	buffer.append(recvBuffer, recvBufferSize);
 
 	if (!headersFinished) {
 		if (buffer.size() > 32 * KB)
-			throw (Code(400));
+			throw Code(400);
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;
 
@@ -61,13 +60,12 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize)
 		resolveURI(_RequestData);
 		if (_RequestData.Method != "POST")
 			return RESPOND; // stop receiving
-		else if (_RequestData.isCGI && !isEncoded)
-			return FORWARD_CGI;
-		else if (_RequestData.isCGI)
-			openTmpFile();
+		if (_RequestData.isCGI) {
+			if (!isEncoded)
+				return FORWARD_CGI;
+			setupCGITempFile();
+		}
 	}
 	parseRequestBody();
-	if (bodyFinished)
-		return RESPOND;
-	return RECV;
+	return bodyFinished;
 }

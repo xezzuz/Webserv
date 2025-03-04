@@ -3,37 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 01:17:46 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 02:10:24 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
-// void	Request::storeBody( void )
-// {
-// 	uploader.open(std::tmpnam(NULL), std::ios::out | std::ios::trunc); // this line shouldnt happen everytime we try to write
-// 	if (!uploader.is_open())
-// 		throw(Code(500));
-
-// 	uploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
-// 	if (!uploader)
-// 		throw(Code(500));
-// 	_RequestRaws.rawBody.clear(); //
-// }
-
-// void			Request::putRequestBodyInFile() {
-// 	int fd = open("RequestBody.txt", O_CREAT | O_RDWR | O_TRUNC);
-// 	// std::tmpnam();
-// 	write(fd, _RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
-
-// 	std::cout << "******************** BODY ********************\n";
-// 	for (int i = 0; i <= (int)_RequestRaws.rawBodySize; i++)
-// 		std::cout << _RequestRaws.rawBody[i];
-// 	std::cout << "\n**********************************************\n";
-// }
 
 bool			Request::bufferContainChunk() {
 	size_t			cpos = 0;
@@ -63,11 +40,11 @@ void	Request::parseLengthBody() {
 	std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
 
 	if (_RequestRaws.totalBodySize + buffer.size() < _RequestRaws.totalBodySize)
-		throw (Code(413));
+		throw Code(413);
 	if (_RequestRaws.totalBodySize + buffer.size() > _RequestData._Config->client_max_body_size)
-		throw (Code(413));
+		throw Code(413);
 	if (_RequestRaws.totalBodySize + buffer.size() > _RequestData.contentLength)
-		throw (Code(400));
+		throw Code(400);
 
 	_RequestRaws.rawBody.append(buffer);
 	_RequestRaws.rawBodySize += buffer.size();
@@ -92,7 +69,7 @@ void			Request::decodeChunkedBody() {
 		
 		chunkSizeStr = buffer.substr(currPos, CRLFpos - currPos);
 		if (!isHexa(chunkSizeStr))
-			throw(Code(400));
+			throw Code(400);
 		
 		size_t chunkSize = htoi(chunkSizeStr);
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == DOUBLE_CRLF) {
@@ -101,16 +78,16 @@ void			Request::decodeChunkedBody() {
 			bodyFinished = true;
 			return ;
 		} else if (!chunkSize && buffer.substr(CRLFpos, 4) != DOUBLE_CRLF)
-			throw(Code(400));
+			throw Code(400);
 
 		currPos = CRLFpos + 2;
 		if (buffer.size() <= currPos + chunkSize + 2)
 			return ;
 
 		if (_RequestRaws.totalBodySize + chunkSize < _RequestRaws.totalBodySize)
-			throw (Code(413));
+			throw Code(413);
 		if (_RequestRaws.totalBodySize + chunkSize > _RequestData._Config->client_max_body_size)
-			throw (Code(413));
+			throw Code(413);
 
 		_RequestRaws.rawBody += buffer.substr(currPos, chunkSize);
 		_RequestRaws.rawBodySize += chunkSize;
@@ -134,28 +111,21 @@ void			Request::processMultipartHeaders() {
 		throw Code(400);
 	filenamePos_ = contentDisposition.find("\"", filenamePos);
 	if (filenamePos_ == std::string::npos)
-		throw (Code(400));
+		throw Code(400);
 	
 	filename = contentDisposition.substr(filenamePos, filenamePos_ - filenamePos);
 	if (filename.empty())
-		throw (Code(400));
+		throw Code(400);
 	
 	std::cout << "creating " + std::string(_RequestData._Config->upload_store + filename) << std::endl;
 	fileUploader.open(std::string(_RequestData._Config->upload_store + filename).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (!fileUploader.is_open())
-		throw (Code(500));
-
-	// std::string tmp = "/home/mmaila/goinfre/file.txx" + filename;
-	// int	fd = open(tmp.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
-	// if (fd == -1) {
-	// 	throw (Code(500));
-	// }
-	// files.push_back(fd);
+		throw Code(500);
 	
 	currPos = _RequestRaws.rawBody.find(DOUBLE_CRLF, currPos);
 	if (currPos == std::string::npos) {
 		fileUploader.close();
-		throw (Code(400));
+		throw Code(400);
 	}
 	currPos += 4;
 	_RequestRaws.rawBody.erase(0, currPos);
@@ -174,19 +144,15 @@ void			Request::processMultipartData() {
 	int bytesToWrite = 0;
 	if (bboundary == std::string::npos && eboundary == std::string::npos) {
 		bytesToWrite = _RequestRaws.rawBodySize;
-		// int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
-		// if (bytesWritten == -1) {
-		// 	printf("write");
-		// 	throw(500);
-		// }
 		
 		if (!fileUploader.is_open())
-			throw (Code(500));
+			throw Code(500);
 		
-		fileUploader << _RequestRaws.rawBody; // should i flush after this?
+		// fileUploader << _RequestRaws.rawBody; // should i flush after this?
+		fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
 		if (fileUploader.fail()) {
 			fileUploader.close();
-			throw (Code(500));
+			throw Code(500);
 		}
 		
 		_RequestRaws.rawBody.clear();
@@ -194,14 +160,15 @@ void			Request::processMultipartData() {
 		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.rawBodySize -= bytesWritten;
 		return ;
 	} else if (bboundary != std::string::npos)
-		bytesToWrite = bboundary;
+	bytesToWrite = bboundary;
 	else
-		bytesToWrite = eboundary;
+	bytesToWrite = eboundary;
 	
-	fileUploader << _RequestRaws.rawBody.substr(0, bytesToWrite); // should i flush after this?
+	// fileUploader << _RequestRaws.rawBody.substr(0, bytesToWrite); // should i flush after this?
+	fileUploader.write(_RequestRaws.rawBody.substr(0, bytesToWrite).c_str(), bytesToWrite);
 	if (fileUploader.fail()) {
 		fileUploader.close();
-		throw (Code(500));
+		throw Code(500);
 	}
 
 	
@@ -244,7 +211,7 @@ void			Request::processBinaryBody() {
 		std::string		fileUploaderRandname = "file_" + generateRandomString();
 		
 		if (access(fileUploaderRandname.c_str(), F_OK) == 0)
-			throw (Code(503)); // 503 (service unavailable) or should we throw (Code(409)) conflict
+			throw Code(503); // 503 (service unavailable) or should we throw (Code(409)) conflict
 		
 		size_t			semiColonPos = _RequestData.contentType.find(';');
 		
@@ -252,49 +219,28 @@ void			Request::processBinaryBody() {
 			_RequestData.contentType.substr(0, semiColonPos) : _RequestData.contentType;
 		
 		if (_RequestRaws.mimeTypes.find(_RequestData.contentType) == _RequestRaws.mimeTypes.end())
-			throw (Code(415));
+			throw Code(415);
 		
 		fileUploader.open(std::string(_RequestData._Config->upload_store + fileUploaderRandname 
 			+ _RequestRaws.mimeTypes[contentType]).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	}
 	
 	if (!fileUploader.is_open())
-		throw (Code(500));
+		throw Code(500);
 	
 	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
 		fileUploader.close();
-		throw (Code(500));
+		throw Code(500);
 	}
 	
 	_RequestRaws.rawBody.clear();
 	_RequestRaws.rawBodySize = 0;
 
-	
-
-	if (bodyFinished)
-	{
+	if (bodyFinished) {
 		fileUploader.close();
 		_RequestData.StatusCode = 201;
 	}
-	
-	// if (!files.size()) {
-	// 	std::time_t				time = std::time(NULL);
-	// 	std::stringstream 		ss;
-	// 	ss << "/home/mmaila/goinfre/" << "_clientfile" << time;
-	// 	std::string				filename(ss.str());
-	// 	int fd = open(filename.c_str(), O_CREAT | O_APPEND | O_RDWR, 0644);
-	// 	if (fd == -1)
-	// 		throw(500);
-	// 	files.push_back(fd);
-	// }
-	// int bytesWritten = write(files.back(), _RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
-	// if (bytesWritten == -1)
-	// 	throw(500);
-	// _RequestRaws.rawBody.erase(0, bytesWritten);
-	// _RequestRaws.rawBodySize -= bytesWritten;
-	// buffer.erase(0, bytesWritten);
-	// _RequestRaws.rawBodySize -= bytesWritten;
 }
 
 void			Request::processRegularRequestRawBody() {
@@ -317,16 +263,15 @@ void			Request::processRegularRequestRawBody() {
 	std::cout << "processRequestRawBody(true);" << std::endl;
 }
 
-void	Request::openTmpFile()
-{
+void	Request::setupCGITempFile() {
 	char *tmpName = std::tmpnam(NULL);
 	if (!tmpName)
-		throw (Code(500));
+		throw Code(500);
 	
 	_RequestData.CGITempFilename = tmpName;
-	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::app | std::ios::binary); // append or trunc?
+	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (!fileUploader.is_open())
-		throw (Code(500));
+		throw Code(500);
 }
 
 void			Request::processCGIRequestRawBody() {
@@ -334,7 +279,7 @@ void			Request::processCGIRequestRawBody() {
 	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
 		fileUploader.close();
-		throw (Code(500));
+		throw Code(500);
 	}
 
 	_RequestRaws.rawBody.clear();
@@ -344,7 +289,7 @@ void			Request::processCGIRequestRawBody() {
 }
 
 // BODY CONTROL CENTER
-void			Request::parseRequestBody() {		// store request body in raw Body
+void			Request::parseRequestBody() {
 	// if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
 	// 	throw (Code(403));
 	

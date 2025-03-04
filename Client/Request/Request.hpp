@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 22:08:54 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 01:44:14 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ typedef struct								RequestData {
 	std::string								pathInfo;
 	std::string								scriptName;
 	std::string								cgiIntrepreter;
-	// std::fstream							CGITempFilestream;
 	std::string								CGITempFilename; // i.e /path/to/tempfile
 	
 	/*					  RESPONSE   				*/
@@ -106,7 +105,6 @@ class Request {
 		/*			 PARSING BUFFRER			*/
 		std::string						buffer;
 
-		// std::vector<int>				files;
 		std::ofstream					fileUploader;
 
 		/*			PARSING STRUCTURES			*/
@@ -129,8 +127,6 @@ class Request {
 		~Request();
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
-
-		// bool						printParsedRequest();
 
 		bool						bufferContainChunk();
 
@@ -164,7 +160,7 @@ class Request {
 		void						isValidURI();
 		void						isValidHTTPVersion();
 
-		void						openTmpFile();
+		void						setupCGITempFile();
 		
 		void						setMatchingConfig();
 		ServerConfig&				getMatchingServer();
