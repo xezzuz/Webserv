@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 17:02:01 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 02:57:52 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ unsigned int	parseIPv4(const std::string& ipAddress) {
 	return octets;
 }
 
-long	fileLength(std::string& path)
+ssize_t	fileLength(std::string& path)
 {
 	struct stat fileStat;
 	if (stat(path.c_str(), &fileStat) == 0)

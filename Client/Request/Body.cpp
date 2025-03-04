@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 02:10:24 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/04 02:37:02 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,6 +275,8 @@ void	Request::setupCGITempFile() {
 }
 
 void			Request::processCGIRequestRawBody() {
+	std::cout << "processCGIRequestRawBody();" << std::endl;
+	std::cout << "rawBodySize = " << _RequestRaws.rawBodySize << std::endl;
 	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
 	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
