@@ -52,8 +52,6 @@ void	ErrorPage::generateHeaders()
 	headers.clear();
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
-	// if (reqCtx->Method == "POST"/* && status.status >= 400*/)
-		reqCtx->keepAlive = false;
 
 	if (reqCtx->keepAlive)
 		headers.append("\r\nConnection: keep-alive");

@@ -6,7 +6,7 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/03/03 16:54:40 by mmaila           ###   ########.fr        #
+#    Updated: 2025/03/04 04:59:53 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,7 @@ INCLUDE			=		\
 						./Client/ClientHandler.hpp \
 						./HTTPServer/Webserv.hpp \
 						./Client/CGI/CGIHandler.hpp \
+						./Utils/Helpers.hpp \
 
 
 SRCS			= 		\

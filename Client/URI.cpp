@@ -52,7 +52,7 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 	size_t	startPos = 0;
 	size_t	endPos = 0;
 	while (startPos < _RequestData.fullPath.size()) {
-		endPos = _RequestData.fullPath.find('/', startPos + 1); // check whether it was found or not // no need if it didn't find it it will substr till end of str
+		endPos = _RequestData.fullPath.find('/', startPos + 1);
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
 		if (stat(pathChecker.c_str(), &pathStats) != 0)
 			throw(Code(404));

@@ -26,11 +26,11 @@ void	CGIHandler::buildEnv()
 	envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
 
-	if (reqCtx->Headers.find("content-length") == reqCtx->Headers.end())
+	if (reqCtx->Headers.find("content-length") == reqCtx->Headers.end() && !reqCtx->CGITempFilename.empty())
 	{
 		ssize_t fileSize = fileLength(reqCtx->CGITempFilename);
 		if (fileSize == -1)
-			throw(500);
+			throw(Code(500));
 		envVars.push_back("CONTENT_LENGTH=" + _toString(fileSize));
 	}
 
@@ -53,7 +53,6 @@ void	CGIHandler::buildEnv()
 	envPtr.push_back(NULL);
 }
 
-#include <cassert>
 void	CGIHandler::execCGI()
 {
 	int sv[2];
@@ -65,17 +64,13 @@ void	CGIHandler::execCGI()
 	int fd = -1;
 	if (!reqCtx->CGITempFilename.empty())
 	{
-		std::cout << "TMP NNAAAME" << std::endl;
 		fd = open(reqCtx->CGITempFilename.c_str(), O_RDONLY);
 		if (fd == -1)
 		{
-			std::cout << "FDD: " << fd << std::endl;
 			close(sv[0]);
 			close(sv[1]);
 			throw(Code(500));
 		}
-		// close(sv[1]);
-		// sv[1] = fd;
 	}
 
 	pid = fork();
@@ -96,25 +91,19 @@ void	CGIHandler::execCGI()
 			close(sv[1]);
 			exit(errno);
 		}
+
 		if (fd != -1)
 		{
-			if (dup2(fd, STDIN_FILENO) == -1)
-			{
-				std::cerr << "[WEBSERV]\t";
-				perror("dup2");
-				close(sv[1]);
-				exit(errno);
-			}
+			close(sv[1]);
+			sv[1] = fd;
 		}
-		else
+
+		if (dup2(sv[1], STDIN_FILENO) == -1)
 		{
-			if (dup2(sv[1], STDIN_FILENO) == -1)
-			{
-				std::cerr << "[WEBSERV]\t";
-				perror("dup2");
-				close(sv[1]);
-				exit(errno);
-			}
+			std::cerr << "[WEBSERV]\t";
+			perror("dup2");
+			close(sv[1]);
+			exit(errno);
 		}
 		close(sv[1]);
 

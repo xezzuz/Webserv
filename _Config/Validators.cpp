@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 23:40:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/04 05:24:31 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,75 +41,25 @@ bool			Config::isValidPort(const std::string& port, ServerConfig& currentServer)
 }
 
 bool					Config::isValidHost(const std::string& host, ServerConfig& currentServer) {
-	std::string					byte;
-	std::stringstream			ss(host);
-	int							bytesCount = 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	static const char			allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.";
 	
+	if (host.find_first_not_of(allowedChars) != std::string::npos)
+		return (false);
+
+	std::vector<std::string>	labels = split(host, ".");
+	
+	
+	for (size_t i = 0; i < labels.size(); i++)
+	{
+		if (labels[i].size() > 63)
+			return (false);
+	}
+
+	if (host.size() > 255)
+		return (false);
+
 	currentServer.host = host;
 	return true;
-	
-	if (host == "localhost") {
-		currentServer.host = host;
-		return true;
-	}
-
-	if (host.empty() || tokensCounter(host) != 1)
-		return false;
-	while (std::getline(ss, byte, '.')) {
-		if (++bytesCount > 4)
-			return false;
-		if (byte.empty() || byte.size() > 3)
-			return false;
-		for (size_t i = 0; i < byte.size(); i++) {
-			if (!isdigit(byte[i]))
-				return false;
-		}
-		if (byte.size() > 1 && byte[0] == '0')
-			return false;
-		int byteDecimal = std::atoi(byte.c_str());
-		if (byteDecimal < 0 || byteDecimal > 255)
-			return false;
-	}
-	
-	if (bytesCount == 4)
-		currentServer.host = host;
-	return bytesCount == 4;
 }
 
 // RFC 1034 Section-3.1
