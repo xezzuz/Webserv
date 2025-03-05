@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 02:37:02 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/05 21:49:50 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,10 @@ void	Request::parseLengthBody() {
 	if (buffer.empty())
 		return ;
 
-	std::cout << RED << "totalBodySize = " << _RequestRaws.totalBodySize << RESET << std::endl;
-	std::cout << RED << "buffer size = " << buffer.size() << RESET << std::endl;
-	std::cout << RED << "clientmaxbodysize = " << _RequestData._Config->client_max_body_size << RESET << std::endl;
-	std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
+	// std::cout << RED << "totalBodySize = " << _RequestRaws.totalBodySize << RESET << std::endl;
+	// std::cout << RED << "buffer size = " << buffer.size() << RESET << std::endl;
+	// std::cout << RED << "clientmaxbodysize = " << _RequestData._Config->client_max_body_size << RESET << std::endl;
+	// std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
 
 	if (_RequestRaws.totalBodySize + buffer.size() < _RequestRaws.totalBodySize)
 		throw Code(413);
@@ -136,19 +136,18 @@ void			Request::processMultipartHeaders() {
 void			Request::processMultipartData() {
 	// int				currentFile = files.back();
 	size_t			bboundary = 0, eboundary = 0;
-
+	
 	bboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryBegin + CRLF);
 	eboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryEnd + CRLF);
+	
+	if (!fileUploader.is_open())
+		throw Code(500);
 	
 	std::cout << "writing to old file" << std::endl;
 	int bytesToWrite = 0;
 	if (bboundary == std::string::npos && eboundary == std::string::npos) {
 		bytesToWrite = _RequestRaws.rawBodySize;
-		
-		if (!fileUploader.is_open())
-			throw Code(500);
-		
-		// fileUploader << _RequestRaws.rawBody; // should i flush after this?
+
 		fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBody.size());
 		if (fileUploader.fail()) {
 			fileUploader.close();
@@ -160,10 +159,11 @@ void			Request::processMultipartData() {
 		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.rawBodySize -= bytesWritten;
 		return ;
 	} else if (bboundary != std::string::npos)
-	bytesToWrite = bboundary;
+		bytesToWrite = bboundary;
 	else
-	bytesToWrite = eboundary;
+		bytesToWrite = eboundary;
 	
+	std::cout << "writing " << _RequestRaws.rawBody.substr(0, bytesToWrite) << "to old file..." << std::endl; 
 	// fileUploader << _RequestRaws.rawBody.substr(0, bytesToWrite); // should i flush after this?
 	fileUploader.write(_RequestRaws.rawBody.substr(0, bytesToWrite).c_str(), bytesToWrite);
 	if (fileUploader.fail()) {
@@ -171,15 +171,10 @@ void			Request::processMultipartData() {
 		throw Code(500);
 	}
 
-	
-	// int bytesWritten = write(currentFile, _RequestRaws.rawBody.c_str(), bytesToWrite);
-	// if (bytesWritten == -1)
-	// 	throw(500);
+	fileUploader.close();
 	
 	_RequestRaws.rawBody.erase(0, bytesToWrite + 2);
 	_RequestRaws.rawBodySize -= bytesToWrite + 2;
-	// if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // i moved this one to below
-	// 	_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0;
 }
 
 void			Request::processMultipartFormData() {
@@ -189,11 +184,17 @@ void			Request::processMultipartFormData() {
 			// i.e new file
 			std::cout << "[BODY]\tNEW FILE" << std::endl;
 			processMultipartHeaders();
+			std::cout << "============= BUFFER =============" << std::endl;
+			std::cout << _RequestRaws.rawBody << std::endl;
+			std::cout << "==================================" << std::endl;
 		}
 		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open()) {
 			// i.e old file
 			std::cout << "[BODY]\tOLD FILE" << std::endl;
 			processMultipartData();
+			std::cout << "============= BUFFER =============" << std::endl;
+			std::cout << _RequestRaws.rawBody << std::endl;
+			std::cout << "==================================" << std::endl;
 		}
 		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // should i set bodyFinished?
 			_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
