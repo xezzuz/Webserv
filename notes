@@ -6,17 +6,6 @@ webserv should compile using C++ not G++
 
 add needed headers to CGI
 
-verify atoi
-
-cgitempfilestream should be removed, its removed now, we should test for bugs
-
-for mkstemp tmpnam, mkstemp is not allowed
-
 if CGI script fails
 
-verify in upload 409
-
 rawbody = 0
-
-
-ALIAS CANNOT BE FILE

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 01:30:16 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/05 22:10:16 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,16 @@ bool					Config::isValidLocation(const std::string& location, std::map<std::stri
 bool					Config::isValidAlias(const std::string& alias, Directives& toFill) { // FIX
 	if (tokensCounter(alias) != 1)
 		return false;
+
+	if (alias[0] != '/')
+		return (ErrorLogger("[DIRECTIVE] directive <alias> is invalid : " + alias + " should be absolute path!"), false);
+	
+	struct stat pathStats;
+	if (stat(alias.c_str(), &pathStats) != 0)
+		return (ErrorLogger("[DIRECTIVE] directive <alias> is invalid : " + alias + " doesn't exist!"), false);
+	if (!S_ISDIR(pathStats.st_mode))
+		return (ErrorLogger("[DIRECTIVE] directive <alias> is invalid : " + alias + " should be a directory!"), false);
+
 	toFill.alias = alias;
 	return true;
 }
@@ -286,7 +296,7 @@ bool					Config::isValidCgiExt(const std::string& cgi_ext, Directives& toFill) {
 		std::string value = values[i].substr(colonPos + 1);
 		if (key.empty() || value.empty() || key[0] != '.' || value[0] != '/')
 			return false;
-		if (key != ".py" && key != ".php" && key != ".sh" && key != ".bla")
+		if (key != ".py" && key != ".php" && key != ".sh")
 			return false;
 		if (toFill.cgi_ext.find(key) != toFill.cgi_ext.end())
 			return false;

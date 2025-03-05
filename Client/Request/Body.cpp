@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 21:49:50 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/05 22:17:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,6 @@ void	Request::parseLengthBody() {
 	if (buffer.empty())
 		return ;
 
-	// std::cout << RED << "totalBodySize = " << _RequestRaws.totalBodySize << RESET << std::endl;
-	// std::cout << RED << "buffer size = " << buffer.size() << RESET << std::endl;
-	// std::cout << RED << "clientmaxbodysize = " << _RequestData._Config->client_max_body_size << RESET << std::endl;
-	// std::cout << RED << "content length = " << _RequestData.contentLength << RESET << std::endl;
-
 	if (_RequestRaws.totalBodySize + buffer.size() < _RequestRaws.totalBodySize)
 		throw Code(413);
 	if (_RequestRaws.totalBodySize + buffer.size() > _RequestData._Config->client_max_body_size)
@@ -56,7 +51,6 @@ void	Request::parseLengthBody() {
 	
 }
 
-// unchunks available chunks and send them to raw Body
 void			Request::decodeChunkedBody() {
 
 	while (bufferContainChunk()) {
@@ -98,7 +92,6 @@ void			Request::decodeChunkedBody() {
 	}
 }
 
-// new file, just create it i.e open the fileUploader filestream
 void			Request::processMultipartHeaders() {
 	size_t			currPos, filenamePos, filenamePos_;
 	std::string		contentDisposition;
@@ -117,7 +110,9 @@ void			Request::processMultipartHeaders() {
 	if (filename.empty())
 		throw Code(400);
 	
-	std::cout << "creating " + std::string(_RequestData._Config->upload_store + filename) << std::endl;
+	if (access((_RequestData._Config->upload_store + filename).c_str(), F_OK) == 0)
+		throw Code(409);
+	
 	fileUploader.open(std::string(_RequestData._Config->upload_store + filename).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (!fileUploader.is_open())
 		throw Code(500);
@@ -132,9 +127,7 @@ void			Request::processMultipartHeaders() {
 	_RequestRaws.rawBodySize -= currPos;
 }
 
-// old file i.e write to it rawBody
 void			Request::processMultipartData() {
-	// int				currentFile = files.back();
 	size_t			bboundary = 0, eboundary = 0;
 	
 	bboundary = _RequestRaws.rawBody.find(CRLF + _RequestRaws.boundaryBegin + CRLF);
@@ -143,7 +136,6 @@ void			Request::processMultipartData() {
 	if (!fileUploader.is_open())
 		throw Code(500);
 	
-	std::cout << "writing to old file" << std::endl;
 	int bytesToWrite = 0;
 	if (bboundary == std::string::npos && eboundary == std::string::npos) {
 		bytesToWrite = _RequestRaws.rawBodySize;
@@ -156,23 +148,19 @@ void			Request::processMultipartData() {
 		
 		_RequestRaws.rawBody.clear();
 		_RequestRaws.rawBodySize = 0;
-		// _RequestRaws.rawBody.erase(0, bytesWritten), _RequestRaws.rawBodySize -= bytesWritten;
 		return ;
 	} else if (bboundary != std::string::npos)
 		bytesToWrite = bboundary;
 	else
 		bytesToWrite = eboundary;
 	
-	std::cout << "writing " << _RequestRaws.rawBody.substr(0, bytesToWrite) << "to old file..." << std::endl; 
-	// fileUploader << _RequestRaws.rawBody.substr(0, bytesToWrite); // should i flush after this?
 	fileUploader.write(_RequestRaws.rawBody.substr(0, bytesToWrite).c_str(), bytesToWrite);
 	if (fileUploader.fail()) {
 		fileUploader.close();
 		throw Code(500);
 	}
-
-	fileUploader.close();
 	
+	fileUploader.close();
 	_RequestRaws.rawBody.erase(0, bytesToWrite + 2);
 	_RequestRaws.rawBodySize -= bytesToWrite + 2;
 }
@@ -180,25 +168,12 @@ void			Request::processMultipartData() {
 void			Request::processMultipartFormData() {
 	while (!_RequestRaws.rawBody.empty()) {
 		// if rawBody contain boundaryBegin and Headers CRLF-CRLF
-		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) == 0 && _RequestRaws.rawBody.find(DOUBLE_CRLF) != std::string::npos) {
-			// i.e new file
-			std::cout << "[BODY]\tNEW FILE" << std::endl;
+		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) == 0 && _RequestRaws.rawBody.find(DOUBLE_CRLF) != std::string::npos)
 			processMultipartHeaders();
-			std::cout << "============= BUFFER =============" << std::endl;
-			std::cout << _RequestRaws.rawBody << std::endl;
-			std::cout << "==================================" << std::endl;
-		}
-		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open()) {
-			// i.e old file
-			std::cout << "[BODY]\tOLD FILE" << std::endl;
+		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open())
 			processMultipartData();
-			std::cout << "============= BUFFER =============" << std::endl;
-			std::cout << _RequestRaws.rawBody << std::endl;
-			std::cout << "==================================" << std::endl;
-		}
 		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // should i set bodyFinished?
 			_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
-		// std::cout << "wa l7amaaaaaaa9 infinite loop hhhhhhh" << std::endl;
 	}
 }
 
@@ -221,6 +196,10 @@ void			Request::processBinaryBody() {
 		
 		if (_RequestRaws.mimeTypes.find(_RequestData.contentType) == _RequestRaws.mimeTypes.end())
 			throw Code(415);
+		
+		if (access((_RequestData._Config->upload_store + fileUploaderRandname 
+			+ _RequestRaws.mimeTypes[contentType]).c_str(), F_OK) == 0)
+			throw Code(409);
 		
 		fileUploader.open(std::string(_RequestData._Config->upload_store + fileUploaderRandname 
 			+ _RequestRaws.mimeTypes[contentType]).c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
@@ -249,36 +228,25 @@ void			Request::processRegularRequestRawBody() {
 	
 	// if (_RequestRaws.rawBodySize > _RequestData.contentLength) // i need to check this
 	//	throw(Code(400));
-	std::cout << "processRequestRawBody(1);" << std::endl;
 	if (!_RequestRaws.rawBodySize) // i need to check this
 		return ;
-	std::cout << "processRequestRawBody(2);" << std::endl;
 
-	if (isMultipart) {
-		std::cout << "**************************** is multipart!" << std::endl;
+	if (isMultipart)
 		processMultipartFormData();
-	} else {
-		std::cout << "**************************** is binary!" << std::endl;
+	else
 		processBinaryBody();
-	}
-	std::cout << "processRequestRawBody(true);" << std::endl;
 }
 
 void	Request::setupCGITempFile() {
-	char *tmpName = std::tmpnam(NULL);
-	if (!tmpName)
-		throw Code(500);
+	std::string		fileUploaderRandname = "/tmp/temp_" + generateRandomString();
 	
-	_RequestData.CGITempFilename = tmpName;
+	_RequestData.CGITempFilename = fileUploaderRandname;
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (!fileUploader.is_open())
 		throw Code(500);
 }
 
 void			Request::processCGIRequestRawBody() {
-	std::cout << "processCGIRequestRawBody();" << std::endl;
-	std::cout << "rawBodySize = " << _RequestRaws.rawBodySize << std::endl;
-	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
 	fileUploader.write(_RequestRaws.rawBody.c_str(), _RequestRaws.rawBodySize);
 	if (fileUploader.fail()) {
 		fileUploader.close();
