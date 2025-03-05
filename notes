@@ -9,3 +9,5 @@ add needed headers to CGI
 if CGI script fails
 
 rawbody = 0
+
+check isValidHost
