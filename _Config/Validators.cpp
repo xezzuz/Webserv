@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 23:32:18 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/05 01:30:16 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,10 +201,11 @@ bool					Config::isValidLocation(const std::string& location, std::map<std::stri
 	
 	if (Locations.find(location) != Locations.end())
 		return (ErrorLogger("[LOCATION] duplicate location block : " + location), false);
+		
 	return true;
 }
 
-bool					Config::isValidAlias(const std::string& alias, Directives& toFill) {
+bool					Config::isValidAlias(const std::string& alias, Directives& toFill) { // FIX
 	if (tokensCounter(alias) != 1)
 		return false;
 	toFill.alias = alias;

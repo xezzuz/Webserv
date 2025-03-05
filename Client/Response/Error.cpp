@@ -45,6 +45,8 @@ void	ErrorPage::readBody()
 		else
 			state = WRITE;
 	}
+	else
+		state = DONE;
 }
 
 void	ErrorPage::generateHeaders()
@@ -52,6 +54,9 @@ void	ErrorPage::generateHeaders()
 	headers.clear();
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
+
+	if (reqCtx->Method == "POST")
+		reqCtx->keepAlive = false;
 
 	if (reqCtx->keepAlive)
 		headers.append("\r\nConnection: keep-alive");

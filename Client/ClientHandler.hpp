@@ -32,6 +32,7 @@ private:
 	int							socket;
 	Request						request;
 
+	bool						cgiActive;
 	AResponse					*response;
 
 	std::vector<ServerConfig>&	vServers;

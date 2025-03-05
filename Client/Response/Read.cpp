@@ -99,4 +99,6 @@ void	Response::readBody()
 		else
 			state = WRITE;
 	}
+	else
+		state = DONE;
 }

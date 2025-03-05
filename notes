@@ -21,3 +21,6 @@ verify in upload 409
 rawbody = 0
 
 URI as script name CGI
+
+
+ALIAS CANNOT BE FILE

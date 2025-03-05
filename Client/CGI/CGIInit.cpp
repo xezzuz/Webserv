@@ -26,8 +26,9 @@ void	CGIHandler::buildEnv()
 	envVars.push_back("SERVER_SOFTWARE=webserv/1.0");
 	envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	envVars.push_back("SERVER_NAME=");
+	envVars.push_back("REQUEST_URI=" + reqCtx->URI);
 	envVars.push_back("SERVER_PORT=");
+	envVars.push_back("SERVER_HOST=");
 
 	if (reqCtx->Headers.find("content-length") == reqCtx->Headers.end() && !reqCtx->CGITempFilename.empty())
 	{

@@ -14,7 +14,6 @@ Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
-	std::cout << "CREATED EPOLL: " << epoll_fd << std::endl;
 }
 
 void Webserv::stop()
@@ -39,6 +38,11 @@ void	Webserv::eraseTimer(int fd)
 	timeIt = clientTimer.find(fd);
 	if (timeIt != clientTimer.end())
 		clientTimer.erase(timeIt);
+}
+
+void	Webserv::collect(EventHandler *handler)
+{
+	deleted.push_back(handler);
 }
 
 void	Webserv::registerDependency(EventHandler *dependent, EventHandler *dependency)
@@ -182,7 +186,7 @@ void	Webserv::clientTimeout()
 {
 	time_t now = std::time(NULL);
 
-	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end();)
+	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
 	{
 		if (now - timeIt->second >= TIMEOUT)
 		{
@@ -195,7 +199,7 @@ void	Webserv::clientTimeout()
 				continue;
 			}
 			EventHandler *client = clientIt->second;
-			timeIt++;
+			clientTimer.erase(timeIt++);
 			delete client;
 		}
 		else
@@ -221,12 +225,15 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 4500);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 5010);
 
 		clientTimeout();
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
+			if (std::find(deleted.begin(), deleted.end(), handler) != deleted.end())
+				continue;
+			
 			try
 			{
 				if (events[i].events & EPOLLERR)
@@ -243,5 +250,6 @@ void	Webserv::run()
 				cleanup(handler);
 			}
 		}
+		deleted.clear();
 	}
 }

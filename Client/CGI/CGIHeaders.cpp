@@ -22,25 +22,23 @@ void	CGIHandler::validateHeaders()
 	}
 
 	// Status
-	std::vector<std::string> statusVec;
+	std::pair<std::string, std::string> statusMsg;
 	field = headersMap.find("status");
 	if (headersMap.find("status") != headersMap.end())
 	{
-		statusVec = split(field->second, " \t\f\v");
-		if (statusVec.size() != 2)
-		{
-			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;
-			throw(Code(500));
-		}
+		size_t splitPos = field->second.find_first_of(' ');
+		if (splitPos != std::string::npos)
+			statusMsg.second = field->second.substr(splitPos + 1);
+		statusMsg.first = field->second.substr(0, splitPos);
 
 		char *stop;
-		reqCtx->StatusCode = strtoul(statusVec[0].c_str(), &stop, 10);
+		reqCtx->StatusCode = strtoul(statusMsg.first.c_str(), &stop, 10);
 		if (errno == ERANGE || errno == EINVAL)
 		{
 			std::cerr << "[CGI][ERROR]\tMALFORMED STATUS HEADER IN CGI" << std::endl;
 			throw(Code(500));
 		}
-		headers.insert(0, "HTTP/1.1 " + _toString(reqCtx->StatusCode) + " " + statusVec[1]);
+		headers.insert(0, "HTTP/1.1 " + statusMsg.first + " " + statusMsg.second);
 
 		headersMap.erase(field);
 	}
@@ -53,7 +51,7 @@ void	CGIHandler::validateHeaders()
 	{
 		if (field->second.at(0) == '/')
 			throw(CGIRedirect(field->second));
-		if (statusVec.empty())
+		if (statusMsg.first.empty())
 			throw(Code(302, field->second));
 	}
 }

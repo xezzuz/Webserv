@@ -33,6 +33,7 @@ public:
 	void	eraseTimer(int fd);
 	void	clientTimeout();
 
+	void	collect(EventHandler *handler);
 	void	cleanup(EventHandler *handler);
 
 	void		initServers();
@@ -50,6 +51,8 @@ private:
 
 	std::map<int, EventHandler *>				handlerMap;
 	std::map<EventHandler *, EventHandler *>	dependencyMap;
+
+	std::list<EventHandler *>					deleted;
 
 	std::map<int, time_t>			clientTimer;
 	std::map<int, time_t>::iterator	timeIt;
