@@ -55,8 +55,8 @@ private:
 
 	std::list<EventHandler *>					deleted;
 
-	std::map<int, time_t>			clientTimer;
-	std::map<int, time_t>::iterator	timeIt;
+	std::vector<std::pair<int, time_t> >			clientTimer;
+	std::vector<std::pair<int, time_t> >::iterator	timeIt;
 };
 
 #endif

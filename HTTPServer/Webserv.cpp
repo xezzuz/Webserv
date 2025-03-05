@@ -23,21 +23,33 @@ void Webserv::stop()
 
 void	Webserv::addTimer(int fd)
 {
-	clientTimer.insert(std::make_pair(fd, std::time(NULL)));
+	clientTimer.push_back(std::make_pair(fd, std::time(NULL)));
 }
 
 void	Webserv::updateTimer(int fd)
 {
-	std::map<int, time_t>::iterator it = clientTimer.find(fd);
-	if (it != clientTimer.end())
-		it->second = std::time(NULL);
+	std::vector<std::pair<int, time_t> >::iterator it;
+	for (it = clientTimer.begin(); it != clientTimer.end(); it++)
+	{
+		if (it->first == fd)
+		{
+			it->second = std::time(NULL);
+			break;
+		}
+	}
 }
 
 void	Webserv::eraseTimer(int fd)
 {
-	timeIt = clientTimer.find(fd);
-	if (timeIt != clientTimer.end())
-		clientTimer.erase(timeIt);
+	std::vector<std::pair<int, time_t> >::iterator it;
+	for (it = clientTimer.begin(); it != clientTimer.end(); it++)
+	{
+		if (it->first == fd)
+		{
+			clientTimer.erase(it);
+			break;
+		}
+	}
 }
 
 void	Webserv::collect(EventHandler *handler)
@@ -184,83 +196,29 @@ void	Webserv::initServers()
 
 void	Webserv::clientTimeout()
 {
-// 	time_t now = std::time(NULL);
-// 	std::list<std::map<int, long>::iterator> toErase;
+	time_t now = std::time(NULL);
 
-// 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
-// 	{
-// 		std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
+	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+	{
+		std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
 		
-// 		if (now - timeIt->second >= TIMEOUT)
-// 		{
-// 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
+		if (now - timeIt->second >= TIMEOUT)
+		{
+			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
 
-// 			std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
-// 			int clientFd = timeIt->first;
+			std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
+			int clientFd = timeIt->first;
 
-// 			toErase.push_back(timeIt);
-// 			++timeIt;
-// 			clientTimer.erase(toErase);
+			timeIt = clientTimer.erase(timeIt);
 
-// 			if (clientIt != handlerMap.end())
-// 				delete clientIt->second;
-// 			else
-// 				close(clientFd);
-// 		}
-// 		else
-// 			++timeIt;
-// 	}
-	
-
-
-	// time_t now = std::time(NULL);
-
-	// for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
-	// {
-	// 	std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
-		
-	// 	if (now - timeIt->second >= TIMEOUT)
-	// 	{
-	// 		std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
-
-	// 		std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
-	// 		int clientFd = timeIt->first;
-
-	// 		timeIt = clientTimer.erase(timeIt);
-
-	// 		if (clientIt != handlerMap.end())
-	// 			delete clientIt->second;
-	// 		else
-	// 			close(clientFd);
-	// 	}
-	// 	else
-	// 		++timeIt;
-	// }
-
-
-
-	// time_t now = std::time(NULL);
-
-	// for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
-	// {
-	// 	std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
-	// 	if (now - timeIt->second >= TIMEOUT)
-	// 	{
-	// 		std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
-	// 		std::map<int, EventHandler *>::iterator clientIt = handlerMap.find(timeIt->first);
-	// 		if (clientIt == handlerMap.end())
-	// 		{
-	// 			close(timeIt->first);
-	// 			clientTimer.erase(timeIt++); 
-	// 			continue;
-	// 		}
-	// 		EventHandler *client = clientIt->second;
-	// 		clientTimer.erase(timeIt++);
-	// 		delete client;
-	// 	}
-	// 	else
-	// 		++timeIt;
-	// }
+			if (clientIt != handlerMap.end())
+				delete clientIt->second;
+			else
+				close(clientFd);
+		}
+		else
+			++timeIt;
+	}
 }
 
 void	Webserv::cleanup(EventHandler *handler)
@@ -271,7 +229,10 @@ void	Webserv::cleanup(EventHandler *handler)
 	std::map<EventHandler *, EventHandler *>::iterator it;
 	it = dependencyMap.find(handler);
 	if (it != dependencyMap.end())
+	{
 		delete it->second; // deleting the dependency deletes the dependent in the destructor
+		dependencyMap.erase(it);
+	}
 	else
 		delete handler;
 }
