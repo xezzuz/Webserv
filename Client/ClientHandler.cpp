@@ -83,6 +83,9 @@ void 	ClientHandler::handleRead()
 		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
 	else
 	{
+		std::cout << "============= RECV =============" << std::endl;
+		std::cout << buf << std::endl;
+		std::cout << "================================" << std::endl;
 		int returnValue;
 		switch (reqState)
 		{
