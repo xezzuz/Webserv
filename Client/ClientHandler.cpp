@@ -5,11 +5,8 @@
 
 ClientHandler::~ClientHandler()
 {
-	std::cout << "CLIENT CLEANUP" << std::endl;
 	HTTPserver->removeHandler(socket);
-	std::cout << "ERASING TIMER" << std::endl;
 	HTTPserver->eraseTimer(socket);
-	std::cout << "DELETING RESPONSE" << std::endl;
 	deleteResponse();
 }
 
@@ -48,12 +45,9 @@ void	ClientHandler::deleteResponse()
 {
 	if (response)
 	{
-		std::cout << "RESPONSE POINTER: " << response << std::endl;
 		delete response;
 		response = NULL;
 	}
-	else
-		std::cout << "RESPONSE IS NULL" << std::endl;
 
 }
 
@@ -92,7 +86,7 @@ void 	ClientHandler::handleRead()
 			case REGULAR:
 				returnValue = request.parseControlCenter(buf, bytesReceived);
 				if (returnValue == RECV)
-				std::cout << "RECV" << std::endl;
+					std::cout << "RECV" << std::endl;
 				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
 					std::cout << "FORWARD_CGI" << std::endl;

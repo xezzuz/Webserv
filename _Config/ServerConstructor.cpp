@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 05:21:49 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 23:28:44 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, 
 	sharedFunctions.push_back(std::make_pair("auto_index", &Config::isValidAutoIndex));
 	sharedFunctions.push_back(std::make_pair("redirect", &Config::isValidRedirect));
 	sharedFunctions.push_back(std::make_pair("upload_store", &Config::isValidUploadStore));
+	sharedFunctions.push_back(std::make_pair("cgi_ext", &Config::isValidCgiExt));
 
 	for (size_t i = 0; i < limitedFunctions.size(); i++) {
 		if (limitedFunctions[i].first == key) {

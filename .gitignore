@@ -1,5 +1,6 @@
 .vscode
 .DS_Store
 .VSCodeCounter
+valgrind.rpt
 debug.txt
 www/noreadperm

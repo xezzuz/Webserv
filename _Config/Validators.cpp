@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 05:24:31 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/04 23:32:18 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,7 +220,7 @@ bool					Config::isValidMethods(const std::string& methods, Directives& toFill) 
 	std::vector<std::string>	values = split(methods, " \t");
 
 	for (size_t i = 0; i < values.size(); i++)
-		if (values[i] != "GET" || values[i] != "POST" || values[i] != "DELETE")
+		if (values[i] != "GET" && values[i] != "POST" && values[i] != "DELETE")
 			return false;
 	toFill.methods = values;
 	return true;
@@ -271,6 +271,7 @@ bool					Config::isValidAutoIndex(const std::string& autoindex, Directives& toFi
 bool					Config::isValidCgiExt(const std::string& cgi_ext, Directives& toFill) {
 	if (!(tokensCounter(cgi_ext) >= 1 && tokensCounter(cgi_ext) <= 3))
 		return false;
+		
 	
 	toFill.cgi_ext.clear();
 	
@@ -284,7 +285,7 @@ bool					Config::isValidCgiExt(const std::string& cgi_ext, Directives& toFill) {
 		std::string value = values[i].substr(colonPos + 1);
 		if (key.empty() || value.empty() || key[0] != '.' || value[0] != '/')
 			return false;
-		if (key != ".py" && key != ".php" && key != ".sh")
+		if (key != ".py" && key != ".php" && key != ".sh" && key != ".bla")
 			return false;
 		if (toFill.cgi_ext.find(key) != toFill.cgi_ext.end())
 			return false;

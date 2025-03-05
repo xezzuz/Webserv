@@ -5,9 +5,6 @@ bool	Webserv::running = true;
 
 Webserv::~Webserv()
 {
-	std::cout << "WEBSERVER_CLEANUP" << std::endl;
-	for (std::map<int, EventHandler *>::iterator it = handlerMap.begin(); it != handlerMap.end(); it++)
-		std::cout << "IN HANDLERMAP ON CLEANUP: " << it->first << ", POINTER: " << it->second << std::endl;
 	while (!handlerMap.empty())
 		cleanup(handlerMap.begin()->second);
 	close(epoll_fd);
@@ -25,18 +22,6 @@ void Webserv::stop()
 	running = false;
 }
 
-void print_epoll_events(uint32_t events)
-{
-	if (events & EPOLLIN)  std::cout << "EPOLLIN ";
-	if (events & EPOLLOUT) std::cout << "EPOLLOUT ";
-	if (events & EPOLLRDHUP) std::cout << "EPOLLRDHUP ";
-	if (events & EPOLLPRI) std::cout << "EPOLLPRI ";
-	if (events & EPOLLERR) std::cout << "EPOLLERR ";
-	if (events & EPOLLHUP) std::cout << "EPOLLHUP ";
-	if (events & EPOLLET) std::cout << "EPOLLET ";
-	if (events & EPOLLONESHOT) std::cout << "EPOLLONESHOT ";
-}
-
 void	Webserv::addTimer(int fd)
 {
 	clientTimer.insert(std::make_pair(fd, std::time(NULL)));
@@ -51,8 +36,9 @@ void	Webserv::updateTimer(int fd)
 
 void	Webserv::eraseTimer(int fd)
 {
-	std::cout << "TIMER ERASED FOR: " << fd << std::endl;
-	clientTimer.erase(fd);
+	timeIt = clientTimer.find(fd);
+	if (timeIt != clientTimer.end())
+		clientTimer.erase(timeIt);
 }
 
 void	Webserv::registerDependency(EventHandler *dependent, EventHandler *dependency)
@@ -82,16 +68,12 @@ void	Webserv::updateHandler(const int fd, uint32_t events)
 
 void	Webserv::removeHandler(int fd)
 {
-	std::cout << "REMOVING HANDLER FROM MAP: " << fd << std::endl;
-	std::cout << "DELETED FROM EPOLL: " << fd << std::endl;
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
 	std::map<int, EventHandler*>::iterator it = handlerMap.find(fd);
 	if (it != handlerMap.end())
 	{
-		std::cout << "ERASED HANDLER FROM MAP: " << it->first << ", POINTER: " << it->second << std::endl;
 		handlerMap.erase(it);
 	}
-	std::cout << "CLOSED FD: " << fd << std::endl;
 	close(fd);
 }
 
@@ -190,7 +172,6 @@ void	Webserv::initServers()
 		std::cout << BLUE << BOLD << "[WEBSERV]\t " << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
 		ServerHandler	*handler = new ServerHandler(serverSocket);
-		std::cout << "CREATED SERVER: " << serverSocket << ", Pointer: " << handler << std::endl;
 		handler->addVServer(*it);
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
 		registerHandler(serverSocket, handler, EPOLLIN);
@@ -213,7 +194,6 @@ void	Webserv::clientTimeout()
 				clientTimer.erase(timeIt++);
 				continue;
 			}
-			// EventHandler *client = handlerMap[timeIt->first];
 			EventHandler *client = clientIt->second;
 			timeIt++;
 			delete client;

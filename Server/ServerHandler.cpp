@@ -39,7 +39,6 @@ void	ServerHandler::handleEvent(uint32_t events)
 		}
 
 		ClientHandler	*client = new ClientHandler(clientSocket, this->vServers);
-		std::cout << "CREATED CLIENT: " << clientSocket << ", Pointer: " << client << std::endl;
 		HTTPserver->registerHandler(clientSocket, client, EPOLLIN);
 		HTTPserver->addTimer(clientSocket);
 
