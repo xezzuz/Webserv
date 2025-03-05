@@ -8,9 +8,9 @@ void	Response::initDirList()
 		throw(Code(500));
 	}
 	buffer = "<html>\n"
-			"<head><title>Index of " + reqCtx->URI + "</title></head>\n"
+			"<head><title>Index of " + reqCtx->scriptName + "</title></head>\n"
 			"<body>\n"
-			"<h1>Index of " + reqCtx->URI + "</h1>\n"
+			"<h1>Index of " + reqCtx->scriptName + "</h1>\n"
 			"<hr><pre>\n";
 }
 
@@ -26,7 +26,7 @@ void	Response::directoryListing()
 			continue ;
 		if (entry->d_type == DT_DIR)
 			name.append("/");
-		buffer.append("<a href=\"" + reqCtx->URI + name + "\">" + name + "</a>\n");
+		buffer.append("<a href=\"" + reqCtx->scriptName + name + "\">" + name + "</a>\n");
 		i++;
 	}
 	if (entry == NULL)
@@ -92,8 +92,9 @@ void	Response::readBody()
 	{
 		if (bodyFile.peek() == EOF)
 			nextState = DONE;
-		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		buffer.append(buf, bytesRead);
+		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
+		std::cout << buffer ;
 		if ((this->*sender)() == true)
 			state = nextState;
 		else

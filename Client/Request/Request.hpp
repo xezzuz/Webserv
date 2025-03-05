@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 01:44:14 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/05 17:47:43 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ typedef struct								RequestData {
 	std::string								queryString;
 	std::string								pathInfo;
 	std::string								scriptName;
+	std::string								fileName;
+	std::string								pathTranslated;
 	std::string								cgiIntrepreter;
 	std::string								CGITempFilename; // i.e /path/to/tempfile
 	

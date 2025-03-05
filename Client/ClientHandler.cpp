@@ -51,7 +51,6 @@ void	ClientHandler::deleteResponse()
 		delete response;
 		response = NULL;
 	}
-
 }
 
 void	ClientHandler::createResponse()

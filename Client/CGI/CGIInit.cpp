@@ -22,11 +22,11 @@ void	CGIHandler::buildEnv()
 	envVars.push_back("SCRIPT_NAME=" + reqCtx->scriptName);
 	envVars.push_back("PATH_INFO=" + reqCtx->pathInfo);
 	envVars.push_back("QUERY_STRING=" + reqCtx->queryString);
-	envVars.push_back("PATH_TRANSLATED="+ reqCtx->fullPath);
+	envVars.push_back("PATH_TRANSLATED="+ reqCtx->pathTranslated);
+	envVars.push_back("REQUEST_URI=" + reqCtx->URI);
 	envVars.push_back("SERVER_SOFTWARE=webserv/1.0");
 	envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	envVars.push_back("REQUEST_URI=" + reqCtx->URI);
 	envVars.push_back("SERVER_PORT=");
 	envVars.push_back("SERVER_HOST=");
 
@@ -59,6 +59,7 @@ void	CGIHandler::buildEnv()
 
 void	CGIHandler::execCGI()
 {
+	std::cout << "SCRIPT_NAME=" << reqCtx->scriptName << std::endl;
 	int sv[2];
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
 	{
@@ -113,7 +114,7 @@ void	CGIHandler::execCGI()
 		}
 		close(sv[1]);
 
-		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find(reqCtx->scriptName));
+		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find_last_of("/"));
 		if (chdir(dir.c_str()) == -1)
 		{
 			std::cerr << "[WEBSERV]\t";
@@ -122,7 +123,7 @@ void	CGIHandler::execCGI()
 		}
 
 		args[0] = const_cast<char *>(reqCtx->cgiIntrepreter.c_str());
-		args[1] = const_cast<char *>(reqCtx->scriptName.c_str());
+		args[1] = const_cast<char *>(reqCtx->fileName.c_str());
 		args[2] = NULL;
 
 		buildEnv();

@@ -184,27 +184,83 @@ void	Webserv::initServers()
 
 void	Webserv::clientTimeout()
 {
-	time_t now = std::time(NULL);
+// 	time_t now = std::time(NULL);
+// 	std::list<std::map<int, long>::iterator> toErase;
 
-	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
-	{
-		if (now - timeIt->second >= TIMEOUT)
-		{
-			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
-			std::map<int, EventHandler *>::iterator clientIt = handlerMap.find(timeIt->first);
-			if (clientIt == handlerMap.end())
-			{
-				close(timeIt->first);
-				clientTimer.erase(timeIt++);
-				continue;
-			}
-			EventHandler *client = clientIt->second;
-			clientTimer.erase(timeIt++);
-			delete client;
-		}
-		else
-			++timeIt;
-	}
+// 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+// 	{
+// 		std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
+		
+// 		if (now - timeIt->second >= TIMEOUT)
+// 		{
+// 			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
+
+// 			std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
+// 			int clientFd = timeIt->first;
+
+// 			toErase.push_back(timeIt);
+// 			++timeIt;
+// 			clientTimer.erase(toErase);
+
+// 			if (clientIt != handlerMap.end())
+// 				delete clientIt->second;
+// 			else
+// 				close(clientFd);
+// 		}
+// 		else
+// 			++timeIt;
+// 	}
+	
+
+
+	// time_t now = std::time(NULL);
+
+	// for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+	// {
+	// 	std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
+		
+	// 	if (now - timeIt->second >= TIMEOUT)
+	// 	{
+	// 		std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
+
+	// 		std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
+	// 		int clientFd = timeIt->first;
+
+	// 		timeIt = clientTimer.erase(timeIt);
+
+	// 		if (clientIt != handlerMap.end())
+	// 			delete clientIt->second;
+	// 		else
+	// 			close(clientFd);
+	// 	}
+	// 	else
+	// 		++timeIt;
+	// }
+
+
+
+	// time_t now = std::time(NULL);
+
+	// for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
+	// {
+	// 	std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
+	// 	if (now - timeIt->second >= TIMEOUT)
+	// 	{
+	// 		std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\t" << "TIMEOUT" << RESET << std::endl;
+	// 		std::map<int, EventHandler *>::iterator clientIt = handlerMap.find(timeIt->first);
+	// 		if (clientIt == handlerMap.end())
+	// 		{
+	// 			close(timeIt->first);
+	// 			clientTimer.erase(timeIt++); 
+	// 			continue;
+	// 		}
+	// 		EventHandler *client = clientIt->second;
+	// 		clientTimer.erase(timeIt++);
+	// 		delete client;
+	// 	}
+	// 	else
+	// 		++timeIt;
+	// }
 }
 
 void	Webserv::cleanup(EventHandler *handler)
@@ -225,7 +281,7 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 5010);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT_MS);
 
 		clientTimeout();
 		for (int i = 0; i < eventCount; i++)

@@ -98,7 +98,7 @@ public:
 		ssize_t bytesSent = send(socket, buffer.c_str(), buffer.size(), 0);
 		if (bytesSent == -1)
 			throw(Disconnect("[CLIENT-" + _toString(socket) + "] send: " + strerror(errno)));
-		// std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
+		std::cout << GREEN << "======[SENT DATA OF SIZE " << bytesSent << " (BODY)]======" << RESET << std::endl;
 		// std::cout << buffer;
 		// std::cout << "==============================================================" << std::endl;
 		buffer.erase(0, bytesSent);
