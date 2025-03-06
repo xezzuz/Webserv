@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 05:24:19 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,6 @@ class Config {
 // void					split(const std::string& str, const char *set, std::vector<std::string>& result);
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string				stringtrim(const std::string& str, const char *set);
-bool					stringIsDigit(const std::string& str);
+bool					stringisdigit(const std::string& str);
 
 #endif

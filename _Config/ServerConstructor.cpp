@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConstructor.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 01:35:51 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:26:29 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ bool				Config::constructServers() {
 		start = serverBlocksIndexes[i].first;
 		end = serverBlocksIndexes[i].second;
 		if (!parseSingleServerBlock(start, end, newServerBlock))
-			return false;
+			continue;
 		Servers.push_back(newServerBlock);
 	}
-	return true;
+	return Servers.size() >= 1;
 }
 
 bool				Config::parseSingleServerBlock(int start, int end, ServerConfig& currentServer) {
@@ -112,6 +112,7 @@ bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, 
 	sharedFunctions.push_back(std::make_pair("auto_index", &Config::isValidAutoIndex));
 	sharedFunctions.push_back(std::make_pair("redirect", &Config::isValidRedirect));
 	sharedFunctions.push_back(std::make_pair("upload_store", &Config::isValidUploadStore));
+	sharedFunctions.push_back(std::make_pair("methods", &Config::isValidMethods));
 	sharedFunctions.push_back(std::make_pair("cgi_ext", &Config::isValidCgiExt));
 
 	for (size_t i = 0; i < limitedFunctions.size(); i++) {

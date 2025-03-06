@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   URI.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/06 20:11:27 by nazouz            #+#    #+#             */
+/*   Updated: 2025/03/06 20:27:44 by nazouz           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ClientHandler.hpp"
 
-void	produceAbsPath(RequestData& _RequestData) {
+void						produceAbsPath(RequestData& _RequestData) {
 	
 	if (!_RequestData._Config->redirect.second.empty())
 	{
@@ -29,7 +41,7 @@ void	produceAbsPath(RequestData& _RequestData) {
 	}
 }
 
-void	setQueryString(RequestData& _RequestData) {
+void						setQueryString(RequestData& _RequestData) {
 	size_t		pos;
 	std::string	query;
 
@@ -45,7 +57,7 @@ void	setQueryString(RequestData& _RequestData) {
 	}
 }
 
-void	setRequestedResourceType(RequestData& _RequestData) {
+void						setRequestedResourceType(RequestData& _RequestData) {
 	struct stat	pathStats;
 	std::string	pathChecker;
 	
@@ -123,7 +135,7 @@ void						handleFileResource(RequestData& _RequestData) {
 		throw(Code(404));
 }
 
-void			resolveAbsPath(RequestData& _RequestData) {
+void						resolveAbsPath(RequestData& _RequestData) {
 
 	setQueryString(_RequestData);
 	setRequestedResourceType(_RequestData);
@@ -133,7 +145,7 @@ void			resolveAbsPath(RequestData& _RequestData) {
 		handleFileResource(_RequestData);
 }
 
-void			resolveURI(RequestData& _RequestData) {
+void						resolveURI(RequestData& _RequestData) {
 	_RequestData.fullPath.clear();
 
 	if (!rootJail(_RequestData.URI))

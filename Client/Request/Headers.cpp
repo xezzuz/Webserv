@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 05:13:32 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:30:43 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,37 @@ bool						Request::isCriticalHeader(const std::string& key) {
 	if (key == "content-length" || key == "host" || key == "authorization" || key == "content-type" || key == "connection")
 		return true;
 	return false;
+}
+
+void						Request::resolveURITraversal(std::string& URI) {
+	std::stringstream			ss(URI);
+	std::vector<std::string>	splittedPath;
+	std::string					token;
+
+	if (URI.empty() || URI == "/")
+		return ;
+	
+	while (std::getline(ss, token, '/')) {
+		if (token == "" || token == ".")
+			continue;
+		if (token == "..") {
+			if (splittedPath.size())
+				splittedPath.pop_back();
+		}
+		else
+			splittedPath.push_back(token);
+	}
+
+	std::string		resolvedURI = "/";
+	for (size_t i = 0; i < splittedPath.size(); i++)
+		resolvedURI += splittedPath[i] + "/";
+
+	if (resolvedURI.size() > 1) {
+		if (URI[URI.size() - 1] == '/')
+			URI = resolvedURI;
+		else
+			resolvedURI.pop_back(), URI = resolvedURI;
+	}
 }
 
 void						Request::decodeURI() {
@@ -60,6 +91,7 @@ void						Request::isValidURI() {
 		throw (Code(400));
 	
 	decodeURI();
+	resolveURITraversal(_RequestData.URI);
 }
 
 void						Request::isValidHTTPVersion() {
@@ -154,7 +186,7 @@ void						Request::validateRequestHeaders() {
 			isEncoded = true;
 		}
 		if (ContentLength) {
-			if (!stringIsDigit(_RequestData.Headers["content-length"]))
+			if (!stringisdigit(_RequestData.Headers["content-length"]))
 				throw (Code(400));
 			char	*stringstop;
 			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/04 02:57:52 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ std::string		stringtolower(std::string str) {
 	return str;
 }
 
-bool			stringIsDigit(const std::string& str) {
+bool			stringisdigit(const std::string& str) {
 	for (size_t i = 0; i < str.size(); i++) {
 		if (!isdigit(str[i]))
 			return false;

@@ -56,7 +56,7 @@ std::vector<std::string>	split(const std::string& tosplit, const std::string& ch
 std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);
 std::string		stringtolower(std::string str);
-bool			stringIsDigit(const std::string& str);
+bool			stringisdigit(const std::string& str);
 ssize_t			htoi(const std::string& num);
 unsigned int	parseIPv4(const std::string& ipAddress);
 std::string		getDate( void );

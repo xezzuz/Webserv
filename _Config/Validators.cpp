@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 22:10:16 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ size_t						tokensCounter(const std::string& str) {
 }
 
 bool			Config::isValidPort(const std::string& port, ServerConfig& currentServer) {
-	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5 || !stringIsDigit(port))
+	if (port.empty() || tokensCounter(port) != 1 || port.size() > 5 || !stringisdigit(port))
 		return false;
 	
 	int		portDecimal = std::atoi(port.c_str());
@@ -96,7 +96,7 @@ bool					Config::isValidErrorPage(const std::string& errorPage, Directives& toFi
 	std::vector<std::string>	values = split(errorPage, " \t");
 	
 	for (size_t i = 0; i < values.size() - 1; i++) {
-		if (!stringIsDigit(values[i]))
+		if (!stringisdigit(values[i]))
 			return false;
 		
 		size_t	errorCode;
@@ -122,7 +122,7 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 	size_t				value = 0;
 	char				*stringstop;
 	if (isUnit) {
-		if (!(unit == 'G' || unit == 'M' || unit == 'K') || !stringIsDigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
+		if (!(unit == 'G' || unit == 'M' || unit == 'K') || !stringisdigit(client_max_body_size.substr(0, client_max_body_size.size() - 1)))
 			return false;
 		
 		value = std::strtoul(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str(), &stringstop, 10);
@@ -145,7 +145,7 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 			value = value * GB;
 		}
 	} else {
-		if (!stringIsDigit(client_max_body_size))
+		if (!stringisdigit(client_max_body_size))
 			return false;
 		
 		value = std::strtoul(client_max_body_size.c_str(), &stringstop, 10);
@@ -261,7 +261,7 @@ bool					Config::isValidRedirect(const std::string& redirect, Directives& toFill
 	value = std::strtoul(values[0].c_str(), &stringstop, 10);
 	if (ERANGE == errno || EINVAL == errno)
 		return false;
-	if (!stringIsDigit(values[0]))
+	if (!stringisdigit(values[0]))
 		return false;
 	
 	toFill.redirect.first = value;

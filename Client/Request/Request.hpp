@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 17:47:43 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,9 +126,9 @@ class Request {
 	
 	public:
 		Request(std::vector<ServerConfig>& vServers);
-		~Request();
 		Request(const Request& rhs);
 		Request&	operator=(const Request& rhs);
+		~Request();
 
 		bool						bufferContainChunk();
 
@@ -136,19 +136,17 @@ class Request {
 		void						parseRequestLineAndHeaders();
 		void						parseRequestLine();
 		void						parseRequestHeaders();
+		void						validateRequestHeaders();
 		void						parseRequestBody();
 		void						decodeChunkedBody();
+		void						parseLengthBody();
 		void						processRegularRequestRawBody();
 		void						processCGIRequestRawBody();
 		void						processMultipartFormData();
 		void						processMultipartHeaders();
 		void						processMultipartData();
 		void						processBinaryBody();
-		void						parseLengthBody();
 		
-		void						validateRequestHeaders();
-
-		// void						putRequestBodyInFile();
 
 		std::string					getBuffer() const { return buffer; };
 		void						setBuffer(const std::string& newValue) { this->buffer = newValue; };
@@ -157,6 +155,7 @@ class Request {
 
 		bool						headerExists(const std::string& key);
 		bool						isCriticalHeader(const std::string& key);
+		void						resolveURITraversal(std::string& URI);
 		void						decodeURI();
 		void						isValidMethod();
 		void						isValidURI();
@@ -171,7 +170,7 @@ class Request {
 void			resolveURI(RequestData& _RequestData);
 void			resolveAbsPath(RequestData& _RequestData);
 
-bool			stringIsDigit(const std::string& str);
+bool			stringisdigit(const std::string& str);
 std::string		stringtrim(const std::string& str, const std::string& set);
 std::string		stringtolower(std::string str);
 bool			isHexa(const std::string& num);
