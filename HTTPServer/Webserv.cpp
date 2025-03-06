@@ -226,8 +226,9 @@ void	Webserv::cleanup(EventHandler *handler)
 	it = dependencyMap.find(handler);
 	if (it != dependencyMap.end())
 	{
-		delete it->second; // deleting the dependency deletes the dependent in the destructor
+		EventHandler	*dependency = it->second;
 		dependencyMap.erase(it);
+		delete dependency; // deleting the dependency deletes the dependent in the destructor
 	}
 	else
 		delete handler;

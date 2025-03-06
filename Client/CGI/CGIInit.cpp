@@ -1,22 +1,21 @@
 #include "CGIHandler.hpp"
 #include "../../HTTPServer/Webserv.hpp"
 
-std::string	headerToEnv(const std::string& headerKey, const std::string& headerValue)
+std::string headerToEnv(const std::string& headerKey, const std::string& headerValue)
 {
-	std::string envVar = "HTTP_";
-
-	for (size_t i = 0; i < headerKey.size(); i++)
-	{
-		if (headerKey[i] == '-')
-			envVar += '_';
-		else
-			envVar += std::toupper(headerKey[i]);
-	}
-	return (envVar + "=" + headerValue);
+    std::string envVar = "HTTP_";
+    envVar.reserve(headerKey.size() + headerValue.size() + 7); // Pre-allocate memory
+    
+    for (size_t i = 0; i < headerKey.size(); i++)
+        envVar += (headerKey[i] == '-') ? '_' : std::toupper(headerKey[i]);
+    
+    return (envVar + "=" + headerValue);
 }
 
 void	CGIHandler::buildEnv()
 {
+	envVars.reserve(reqCtx->Headers.size() + 12); // 12 the number of env vars not in headers
+
 	// envvars.push_back("SERVER_NAME=" + reqCtx->config.);
 	envVars.push_back("REQUEST_METHOD=" + reqCtx->Method);
 	envVars.push_back("SCRIPT_NAME=" + reqCtx->scriptName);
@@ -49,6 +48,8 @@ void	CGIHandler::buildEnv()
 		else
 			envVars.push_back(headerToEnv(header->first, header->second));
 	}
+
+	envPtr.reserve(envVars.size() + 1);
 
 	for (std::vector<std::string>::iterator it = envVars.begin(); it != envVars.end(); it++)
 	{
@@ -101,16 +102,21 @@ void	CGIHandler::execCGI()
 
 		if (fd != -1)
 		{
-			close(sv[1]);
-			sv[1] = fd;
-		}
-
-		if (dup2(sv[1], STDIN_FILENO) == -1)
+            if (dup2(fd, STDIN_FILENO) == -1) {
+                std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
+                close(sv[1]);
+                close(fd);
+                _exit(1);
+            }
+            close(fd);
+        }
+		else if (dup2(sv[1], STDIN_FILENO) == -1)
 		{
-			std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
-			close(sv[1]);
-			throw(ChildException());
-		}
+            std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
+            close(sv[1]);
+            _exit(1);
+        }
+
 		close(sv[1]);
 
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find_last_of("/"));
@@ -131,8 +137,7 @@ void	CGIHandler::execCGI()
 			throw(ChildException());
 		}
 	}
-	if (fd != -1)
-		close(fd);
+	if (fd != -1) close(fd);
 	close(sv[1]);
 	cgiSocket = sv[0];
 }

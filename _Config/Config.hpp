@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 22:32:06 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 05:24:19 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ typedef struct								Directives{
 	// default values for every directives
 	Directives() : client_max_body_size(10 * MB), autoindex(false) {
 		methods.push_back("GET");
+		methods.push_back("POST");
+		methods.push_back("DELETE");
 		index.push_back("index.html");
 	}
 }															Directives;

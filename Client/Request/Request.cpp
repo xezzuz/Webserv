@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/03 22:08:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 05:31:43 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
 
+	_RequestRaws.mimeTypes["text/plain"] = "";
 	_RequestRaws.mimeTypes["text/html"] = ".html";
 	_RequestRaws.mimeTypes["text/css"] = ".css";
 	_RequestRaws.mimeTypes["text/csv"] = ".csv";

@@ -13,6 +13,7 @@ ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket
 	statusCodes.insert(std::make_pair(403, "Forbidden"));
 	statusCodes.insert(std::make_pair(404, "Not Found"));
 	statusCodes.insert(std::make_pair(405, "Method Not Allowed"));
+	statusCodes.insert(std::make_pair(409, "Conflict"));
 	statusCodes.insert(std::make_pair(413, "Payload Too Large"));
 	statusCodes.insert(std::make_pair(414, "URI Too Long"));
 	statusCodes.insert(std::make_pair(415, "Unsupported Media Type"));
@@ -49,7 +50,7 @@ void	ErrorPage::readBody()
 
 void	ErrorPage::generateHeaders()
 {
-	headers.clear();
+	headers.reserve(1024);
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 

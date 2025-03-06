@@ -4,7 +4,7 @@
 # include "../HTTPServer/Webserv.hpp"
 
 ClientHandler::~ClientHandler()
-{
+{	
 	HTTPserver->removeHandler(socket);
 	HTTPserver->eraseTimer(socket);
 	deleteResponse();

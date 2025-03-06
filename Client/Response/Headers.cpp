@@ -58,6 +58,8 @@ void	Response::handleGET( void )
 
 void	Response::generateHeaders( void )
 {
+	headers.reserve(1024);
+
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 

@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 17:44:28 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 05:13:32 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void						Request::decodeURI() {
 
 void						Request::isValidMethod() {
 	if (_RequestData.Method != "GET" && _RequestData.Method != "POST" && _RequestData.Method != "DELETE")
-		throw (Code(405));
+		throw (Code(501));
 }
 
 void						Request::isValidURI() {

@@ -46,7 +46,7 @@ private:
 	size_t	inBodySize;
 	pid_t	pid;
 	bool	headersParsed;
-	void	(CGIHandler::*CGIreader)();
+	bool	chunked;
 };
 
 #endif

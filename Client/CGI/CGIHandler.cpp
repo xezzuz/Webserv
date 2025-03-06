@@ -10,10 +10,9 @@ CGIHandler::~CGIHandler()
 		kill(pid, SIGTERM);
 }
 
-CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), inBodySize(0), pid(-1), headersParsed(false)
+CGIHandler::CGIHandler(int& clientSocket, RequestData *data) : AResponse(clientSocket, data), cgiSocket(-1), inBodySize(0), pid(-1), headersParsed(false), chunked(false)
 {
 	execCGI();
-	CGIreader = &CGIHandler::readCGILength;
 }
 
 int	CGIHandler::getFd() const
@@ -119,7 +118,10 @@ void	CGIHandler::handleEvent(uint32_t events)
 {
 	if (events & EPOLLIN)
 	{
-		(this->*CGIreader)();
+		if (chunked)
+			readCGIChunked();
+		else
+			readCGILength();
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 		HTTPserver->updateHandler(cgiSocket, 0);
 	}

@@ -146,8 +146,13 @@ void			resolveURI(RequestData& _RequestData) {
 
 	if (_RequestData.Method == "POST")
 	{
-		if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
-			throw (Code(403));
+		if (!_RequestData.isCGI)
+		{
+			if (_RequestData._Config->upload_store.empty())
+				throw (Code(403));
+			else
+				throw (Code(405));
+		}
 		if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)
 			throw (Code(413));
 	}

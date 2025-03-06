@@ -14,7 +14,7 @@ void	CGIHandler::validateHeaders()
 	if (field == headersMap.end() && !buffer.empty())
 	{
 		headers.append("\r\nTransfer-Encoding: chunked");
-		CGIreader = &CGIHandler::readCGIChunked;
+		chunked = true;
 		buffer = buildChunk(buffer.c_str(), buffer.size());
 	}
 
@@ -101,6 +101,8 @@ void	CGIHandler::addHeaders()
 
 void	CGIHandler::generateHeaders()
 {
+	headers.reserve(1024);
+
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
