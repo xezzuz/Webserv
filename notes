@@ -5,3 +5,5 @@ add needed headers to CGI
 rawbody = 0
 
 check isValidHost
+
+check length header when not POST

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 00:35:04 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:35:40 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,9 @@ ServerConfig&				Request::getMatchingServer() {
 void						Request::setMatchingConfig() {
 	ServerConfig&			matchingServer = getMatchingServer();
 	
-	// this is implemented by mmaila, i should check if its working properly with prefix matching
 	std::map<std::string, Directives>::iterator it = matchingServer.Locations.begin();
 	for (; it != matchingServer.Locations.end(); it++) {
-		if (_RequestData.URI.find(it->first) != std::string::npos) {
+		if (_RequestData.URI.find(it->first) == 0) {
 			if (it->first.size() > _RequestData.matchingLocation.size())
 				_RequestData.matchingLocation = it->first;
 		}

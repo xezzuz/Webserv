@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:30:43 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 20:44:35 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,15 +159,23 @@ void						Request::parseRequestHeaders() {
 }
 
 void						Request::validateRequestHeaders() {
-	_RequestData.host = headerExists("host") ? _RequestData.Headers["host"] : ""; // searching twice for no reason + creating empty string for no reason
-	if (_RequestData.host.empty())
+	if (!headerExists("host"))
 		throw (Code(400));
 	
-	if (headerExists("connection"))
-	{
-		if (_RequestData.Headers["connection"] == "close")
-			_RequestData.keepAlive = false;
+	_RequestData.host = _RequestData.Headers["host"];
+	
+	size_t		colonPos = _RequestData.host.find(':');
+	if (colonPos != std::string::npos) {
+		_RequestData.serverHost = _RequestData.host.substr(0, colonPos);
+		_RequestData.serverPort = _RequestData.host.substr(colonPos + 1);
+		if (_RequestData.serverHost.empty() || _RequestData.serverPort.empty())
+			throw (Code(400));
 	}
+	else
+		_RequestData.serverHost = _RequestData.host, _RequestData.serverPort = "80";
+	
+	if (headerExists("connection"))
+		_RequestData.keepAlive = _RequestData.Headers["connection"] == "close" ? false : true;
 
 	if (_RequestData.Method == "POST") {
 		bool		ContentLength = headerExists("content-length");
