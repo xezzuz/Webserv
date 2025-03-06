@@ -22,17 +22,17 @@ void Webserv::stop()
 	running = false;
 }
 
-void	Webserv::addTimer(int fd)
+void	Webserv::addTimer(EventHandler *client)
 {
-	clientTimer.push_back(std::make_pair(fd, std::time(NULL)));
+	clientTimer.push_back(std::make_pair(client, std::time(NULL)));
 }
 
-void	Webserv::updateTimer(int fd)
+void	Webserv::updateTimer(EventHandler *client)
 {
-	std::vector<std::pair<int, time_t> >::iterator it;
+	std::vector<std::pair<EventHandler *, time_t> >::iterator it;
 	for (it = clientTimer.begin(); it != clientTimer.end(); it++)
 	{
-		if (it->first == fd)
+		if (it->first == client)
 		{
 			it->second = std::time(NULL);
 			break;
@@ -40,12 +40,12 @@ void	Webserv::updateTimer(int fd)
 	}
 }
 
-void	Webserv::eraseTimer(int fd)
+void	Webserv::eraseTimer(EventHandler *client)
 {
-	std::vector<std::pair<int, time_t> >::iterator it;
+	std::vector<std::pair<EventHandler *, time_t> >::iterator it;
 	for (it = clientTimer.begin(); it != clientTimer.end(); it++)
 	{
-		if (it->first == fd)
+		if (it->first == client)
 		{
 			clientTimer.erase(it);
 			break;
@@ -207,15 +207,14 @@ void	Webserv::clientTimeout()
 	{
 		if (now - timeIt->second >= TIMEOUT)
 		{
-			std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
-			int clientFd = timeIt->first;
-
+			ClientHandler *client = static_cast<ClientHandler *>(timeIt->first);
+			
 			timeIt = clientTimer.erase(timeIt);
-
-			if (clientIt != handlerMap.end())
-				delete clientIt->second;
+		
+			if (client->getCgiActive())
+				client->gateway_timeout();
 			else
-				close(clientFd);
+				delete client;
 		}
 		else
 			++timeIt;

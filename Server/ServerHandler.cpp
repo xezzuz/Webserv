@@ -39,7 +39,7 @@ void	ServerHandler::handleEvent(uint32_t events)
 
 		ClientHandler	*client = new ClientHandler(clientSocket, this->vServers);
 		HTTPserver->registerHandler(clientSocket, client, EPOLLIN);
-		HTTPserver->addTimer(clientSocket);
+		HTTPserver->addTimer(client);
 
 		std::cout << CYAN << "\tClient Connected To Socket " << clientSocket << RESET << std::endl;
 	}

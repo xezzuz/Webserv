@@ -6,7 +6,7 @@
 ClientHandler::~ClientHandler()
 {	
 	HTTPserver->removeHandler(socket);
-	HTTPserver->eraseTimer(socket);
+	HTTPserver->eraseTimer(this);
 	deleteResponse();
 }
 
@@ -35,6 +35,14 @@ int	ClientHandler::getFd() const
 	return (socket);
 }
 
+void	ClientHandler::gateway_timeout()
+{
+	deleteResponse();
+	request.getRequestData()->keepAlive = false;
+	response = new ErrorPage(Code(504), socket, request.getRequestData());
+	HTTPserver->updateHandler(socket, EPOLLOUT);
+}
+
 void	ClientHandler::deleteResponse()
 {
 	if (response)
@@ -56,7 +64,7 @@ void	ClientHandler::createResponse()
 {
 	if (request.getRequestData()->isCGI)
 	{
-		if (HTTPserver->getCgiCounter() >= CGI_LIMIT)
+		if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 			throw(Code(503));
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgiActive = true;
@@ -91,7 +99,7 @@ void 	ClientHandler::handleRead()
 				returnValue = request.parseControlCenter(buf, bytesReceived);
 				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
-					if (HTTPserver->getCgiCounter() >= CGI_LIMIT)
+					if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 						throw(Code(503));
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgiActive = true;
@@ -123,7 +131,7 @@ void 	ClientHandler::handleWrite()
 					<< RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
-			HTTPserver->updateTimer(socket);
+			HTTPserver->updateTimer(this);
 			HTTPserver->updateHandler(socket, EPOLLIN);
 			this->reset();
 		}
@@ -134,7 +142,7 @@ void 	ClientHandler::handleWrite()
 
 void	ClientHandler::handleEvent(uint32_t events)
 {
-	HTTPserver->updateTimer(socket);
+	HTTPserver->updateTimer(this);
 	try
 	{
 		if (events & EPOLLIN)

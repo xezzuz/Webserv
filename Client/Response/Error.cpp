@@ -2,7 +2,7 @@
 
 ErrorPage::~ErrorPage() {}
 
-ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket, data), status(e)
+ErrorPage::ErrorPage(Code e, int& socket, RequestData	*data) : AResponse(socket, data), status(e)
 {
 	statusCodes.insert(std::make_pair(301, "Moved Permanently"));
 	statusCodes.insert(std::make_pair(302, "Found"));
@@ -22,6 +22,7 @@ ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket
 	statusCodes.insert(std::make_pair(500, "Internal Server Error"));
 	statusCodes.insert(std::make_pair(501, "Not Implemented"));
 	statusCodes.insert(std::make_pair(503, "Service Unavailable"));
+	statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
 	statusCodes.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 

@@ -66,7 +66,6 @@ public:
 
 		sender = &AResponse::sendHeaders;
 	}
-	AResponse& operator=(const AResponse& rhs);
 
 	virtual void	generateHeaders( void ) = 0;
 	virtual int		respond() = 0;

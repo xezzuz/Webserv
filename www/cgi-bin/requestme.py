@@ -12,6 +12,6 @@ def fetch_url(url):
 
 if __name__ == "__main__":
     while True:
-        fetch_url("http://localhost:8080/cgi-bin/requestme.py")
+        fetch_url("http://localhost:8080/cgi-bin/inf.py")
 
 

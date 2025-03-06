@@ -15,9 +15,9 @@
 
 # define MAX_EVENTS 10
 # define BACKLOG 128
-# define TIMEOUT 10
+# define TIMEOUT 5
 # define EPOLL_TIMEOUT 1000
-# define CGI_LIMIT 150
+# define PROCESS_LIMIT 150
 
 class Webserv
 {
@@ -31,9 +31,9 @@ public:
 	void	updateHandler(const int fd, uint32_t events);
 	void	removeHandler(const int fd);
 
-	void	addTimer(int fd);
-	void	updateTimer(int fd);
-	void	eraseTimer(int fd);
+	void	addTimer(EventHandler *client);
+	void	updateTimer(EventHandler *client);
+	void	eraseTimer(EventHandler *client);
 	void	clientTimeout();
 	void	incCgiCounter();
 	void	decCgiCounter();
@@ -61,8 +61,8 @@ private:
 
 	std::list<EventHandler *>					deleted;
 
-	std::vector<std::pair<int, time_t> >			clientTimer;
-	std::vector<std::pair<int, time_t> >::iterator	timeIt;
+	std::vector<std::pair<EventHandler *, time_t> >				clientTimer;
+	std::vector<std::pair<EventHandler *, time_t> >::iterator	timeIt;
 };
 
 #endif

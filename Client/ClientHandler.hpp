@@ -13,6 +13,8 @@ public:
 	ClientHandler(int fd, std::vector<ServerConfig>& vServers);
 
 
+	void	gateway_timeout();
+
 	void	reset();
 	void 	handleRead();
 	void 	handleWrite();

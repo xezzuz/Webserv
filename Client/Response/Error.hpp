@@ -9,7 +9,7 @@ class ErrorPage : public AResponse
 {
 public:
 	virtual ~ErrorPage();
-	ErrorPage(Code& e, int& socket, RequestData	*data);
+	ErrorPage(Code e, int& socket, RequestData	*data);
 
 	void	readBody( void );
 	void	generateHeaders( void );
