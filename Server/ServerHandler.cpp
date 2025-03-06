@@ -26,14 +26,13 @@ void	ServerHandler::handleEvent(uint32_t events)
 		int	clientSocket = accept(socket, NULL, NULL);
 		if (clientSocket == -1)
 		{
-			std::cerr << "[WEBSERV][ERROR]\t";
-			perror("accept");
+			std::cerr << YELLOW << "\tWebserv : accept : " << strerror(errno) << RESET << std::endl;
 			return;
 		}
 
 		if (fcntl(clientSocket, F_SETFD, FD_CLOEXEC) == -1)
 		{
-			std::cerr << "[WEBSERV][ERROR]\tfcntl :" << strerror(errno) << std::endl;
+			std::cerr << YELLOW << "\tWebserv : fcntl : " << strerror(errno) << RESET << std::endl;
 			close(clientSocket);
 			return;
 		}
@@ -42,10 +41,10 @@ void	ServerHandler::handleEvent(uint32_t events)
 		HTTPserver->registerHandler(clientSocket, client, EPOLLIN);
 		HTTPserver->addTimer(clientSocket);
 
-		std::cout << CYAN << "[WEBSERV][SERVER]\tClient Connected To Socket " << clientSocket << RESET << std::endl;
+		std::cout << CYAN << "\tClient Connected To Socket " << clientSocket << RESET << std::endl;
 	}
 	else if (events & EPOLLHUP)
 	{
-		throw(Disconnect("[SERVER-" + _toString(socket) + "] SHUTDOWN"));
+		throw(Disconnect("\tServer " + _toString(socket) + " : Shutdown"));
 	}
 }

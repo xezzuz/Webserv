@@ -106,7 +106,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	int status = getaddrinfo(host.c_str(), port.c_str(), &hints, &res);
 	if (status != 0)
 	{
-		std::cerr << "[WEBSERV][ERROR]\tgetaddrinfo: " << gai_strerror(status) << std::endl;
+		std::cerr << YELLOW << "\tWebserv: getaddrinfo: " << gai_strerror(status) << RESET << std::endl;
 		exit(errno);
 	}
 
@@ -128,7 +128,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		int yes = 1;
 		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(yes)) == -1)
 		{
-			std::cerr << "[WEBSERV][ERROR]\tsetsocketopt: " << strerror(errno) << std::endl;
+			std::cerr << YELLOW << "\tWebserv: setsocketopt: " << strerror(errno) << RESET << std::endl;
 			close(serverSocket);
 			freeaddrinfo(res);
 			exit(errno);
@@ -142,7 +142,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	if (!it)
 	{
 		close(serverSocket);
-		std::cerr << "[WEBSERV][ERROR]\tFailed to Bind Any Socket..." << std::endl;
+		std::cerr << YELLOW << "\tWebserv : Failed to Bind Any Socket..." << RESET << std::endl;
 		exit(errno);
 	}
 	return (serverSocket);
@@ -152,13 +152,13 @@ void    Webserv::listenForConnections(int& serverSocket)
 {
 	if (listen(serverSocket, BACKLOG) == -1)
 	{
-		std::cerr << "[WEBSERV][ERROR]\tlisten: " << strerror(errno) << std::endl;
+		std::cerr << YELLOW << "\tWebserv : listen: " << strerror(errno) << RESET << std::endl;
 		close(serverSocket);
 		exit(errno);
 	}
 	if (fcntl(serverSocket, F_SETFD, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
 	{
-		std::cerr << "[WEBSERV][ERROR]\tfcntl: " << strerror(errno) << std::endl;
+		std::cerr << YELLOW << "\tWebserv : fcntl: " << strerror(errno) << RESET << std::endl;
 		close(serverSocket);
 		exit(errno);
 	}
@@ -185,7 +185,7 @@ void	Webserv::initServers()
 		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
-		std::cout << BLUE << BOLD << "[WEBSERV]\t " << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
+		std::cout << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
 		ServerHandler	*handler = new ServerHandler(serverSocket);
 		handler->addVServer(*it);
@@ -200,12 +200,8 @@ void	Webserv::clientTimeout()
 
 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
 	{
-		std::cout << "CLIENT_ID: " << timeIt->first << ", CLIENT_TIME: " << timeIt->second << std::endl;
-		
 		if (now - timeIt->second >= TIMEOUT)
 		{
-			std::cout << YELLOW << "[WEBSERV][CLIENT-" << timeIt->first << "]\tTIMEOUT" << RESET << std::endl;
-
 			std::map<int, EventHandler*>::iterator clientIt = handlerMap.find(timeIt->first);
 			int clientFd = timeIt->first;
 
@@ -242,20 +238,19 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT_MS);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
 
-		clientTimeout();
 		for (int i = 0; i < eventCount; i++)
 		{
 			EventHandler	*handler = static_cast<EventHandler *>(events[i].data.ptr);
 			if (std::find(deleted.begin(), deleted.end(), handler) != deleted.end())
 				continue;
-			
+
 			try
 			{
 				if (events[i].events & EPOLLERR)
 				{
-					std::cerr << RED << "[WEBSERV][ERROR]\t CLIENT ON SOCKET " << handler->getFd() << " IS UNREACHABLE" << RESET << std::endl;
+					std::cerr << RED << "\tWebserv : error on socket " << handler->getFd() << RESET << std::endl;
 					cleanup(handler);
 				}
 				else
@@ -263,10 +258,11 @@ void	Webserv::run()
 			}
 			catch (Disconnect& e)
 			{
-				std::cerr << YELLOW << "[WEBSERV][DISCONNECT]" << e.what() << RESET << std::endl;
+				std::cerr << YELLOW << e.what() << RESET << std::endl;
 				cleanup(handler);
 			}
 		}
 		deleted.clear();
+		clientTimeout();
 	}
 }

@@ -30,9 +30,7 @@ bool	CGIHandler::storeBody()
 {
 	int		bytesWritten = write(cgiSocket, buffer.c_str(), buffer.size());
 	if (bytesWritten == -1)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "][CGI] write: " + strerror(errno)));
-	std::cout << "SOCKPAIR STORE_____" << std::endl << buffer;
-	std::cout << "_____SOCKPAIR STORE" << std::endl;
+		throw(Disconnect("\tClient " + _toString(socket) + " : write: " + strerror(errno)));
 	buffer.erase(0, bytesWritten);
 	return (buffer.empty());
 }
@@ -65,11 +63,8 @@ void	CGIHandler::readCGIChunked()
 	char	buf[SEND_BUFFER_SIZE] = {0};
 	int		bytesRead = read(cgiSocket, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : read: " + strerror(errno)));
 
-	std::cout << YELLOW << "======[READ(CHUNKED) DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-	std::cout << buffer;
-	std::cout << "+++++++++++++++++++++++++" << std::endl;
 	buffer = buildChunk(buf, bytesRead);
 	if (bytesRead == 0)
 		nextState = DONE;
@@ -85,14 +80,11 @@ void		CGIHandler::readCGILength()
 	int		bytesRead = read(cgiSocket, buf, SEND_BUFFER_SIZE);
 	if (bytesRead == -1)
 	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{
 		buffer = std::string(buf, bytesRead);
-		std::cout << YELLOW << "======[READ(LENGTH) DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		std::cout << buffer;
-		std::cout << "+++++++++++++++++++++++++" << std::endl;
 		if (headersParsed)
 			state = WRITE;
 	}

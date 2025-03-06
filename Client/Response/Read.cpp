@@ -57,16 +57,14 @@ void	Response::readRange()
 		static_cast<size_t>(SEND_BUFFER_SIZE),
 		rangeData.current->rangeLength
 	);
-	std::cout << "READ LENGTH OF RANGE :" << readLength << std::endl;
 	ssize_t bytesRead = bodyFile.read(buf, readLength).gcount();
 	if (bytesRead == -1)
 	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{
 		buffer.append(buf, bytesRead);
-		std::cout << YELLOW << "======[(RANGE) READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		rangeData.current->rangeLength -= bytesRead;
 		if ((this->*sender)() == true)
 			state = nextState;
@@ -86,15 +84,13 @@ void	Response::readBody()
 	ssize_t bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead == -1)
 	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{
 		if (bodyFile.peek() == EOF)
 			nextState = DONE;
 		buffer.append(buf, bytesRead);
-		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
-		std::cout << buffer ;
 		if ((this->*sender)() == true)
 			state = nextState;
 		else

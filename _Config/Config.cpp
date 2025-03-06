@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 23:54:09 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 00:36:30 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Config::Config(const std::string& configFileName) {
 		exit(1);
 	}
 	configFile.close();
-	printServersConfigs();
+	// printServersConfigs();
 }
 
 Config::~Config() {

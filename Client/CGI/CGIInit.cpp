@@ -59,11 +59,10 @@ void	CGIHandler::buildEnv()
 
 void	CGIHandler::execCGI()
 {
-	std::cout << "SCRIPT_NAME=" << reqCtx->scriptName << std::endl;
 	int sv[2];
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
 	{
-		std::cerr << "[WEBSERV][ERROR]\tsocketpair: " << strerror(errno) << std::endl;
+		std::cerr << YELLOW << "\tCGI : socketpair : " << strerror(errno) << RESET << std::endl;
 		throw(Code(500));
 	}
 	int fd = -1;
@@ -72,6 +71,7 @@ void	CGIHandler::execCGI()
 		fd = open(reqCtx->CGITempFilename.c_str(), O_RDONLY);
 		if (fd == -1)
 		{
+			std::cerr << YELLOW << "\tCGI : open : " << strerror(errno) << RESET << std::endl;
 			close(sv[0]);
 			close(sv[1]);
 			throw(Code(500));
@@ -81,9 +81,10 @@ void	CGIHandler::execCGI()
 	pid = fork();
 	if (pid == -1)
 	{
+		std::cerr << YELLOW << "\tCGI : fork : " << strerror(errno) << RESET << std::endl;
 		close(sv[0]);
 		close(sv[1]);
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] fork: " + strerror(errno)));
+		throw(Code(500));
 
 	}
 	else if (pid == 0)
@@ -91,8 +92,7 @@ void	CGIHandler::execCGI()
 		close(sv[0]);
 		if (dup2(sv[1], STDOUT_FILENO) == -1)
 		{
-			std::cerr << "[WEBSERV]\t";
-			perror("dup2");
+			std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
 			close(sv[1]);
 			if(fd != -1)
 				close(fd);
@@ -107,8 +107,7 @@ void	CGIHandler::execCGI()
 
 		if (dup2(sv[1], STDIN_FILENO) == -1)
 		{
-			std::cerr << "[WEBSERV]\t";
-			perror("dup2");
+			std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
 			close(sv[1]);
 			throw(ChildException());
 		}
@@ -117,8 +116,7 @@ void	CGIHandler::execCGI()
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find_last_of("/"));
 		if (chdir(dir.c_str()) == -1)
 		{
-			std::cerr << "[WEBSERV]\t";
-			perror("chdir");
+			std::cerr << YELLOW << "\tCGI : chdir : " << strerror(errno) << RESET << std::endl;
 			throw(ChildException());
 		}
 
@@ -129,8 +127,7 @@ void	CGIHandler::execCGI()
 		buildEnv();
 		if (execve(args[0], args, envPtr.data()) == -1)
 		{
-			std::cerr << "[WEBSERV][ERROR]\t";
-			perror("execve");
+			std::cerr << YELLOW << "\tCGI : execve : " << strerror(errno) << RESET << std::endl;
 			throw(ChildException());
 		}
 	}

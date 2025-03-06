@@ -1,12 +1,6 @@
 check comments
 
-benchmark siwtch vs fn ptr
-
-webserv should compile using C++ not G++
-
 add needed headers to CGI
-
-if CGI script fails
 
 rawbody = 0
 

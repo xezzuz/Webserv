@@ -6,13 +6,13 @@
 #    By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/21 09:47:15 by nazouz            #+#    #+#              #
-#    Updated: 2025/03/05 19:36:02 by mmaila           ###   ########.fr        #
+#    Updated: 2025/03/06 00:04:51 by mmaila           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			= 		webserv
 
-CPP				= 		g++
+CPP				= 		c++
 
 CPPFLAGS		= 		-Wall -Werror -Wextra -g3 -std=c++98 -fsanitize=address
 

@@ -16,6 +16,7 @@ class Disconnect : public std::exception
 {
 public:
 	virtual ~Disconnect() throw() {}
+	Disconnect() {}
 	Disconnect(std::string msg) : msg(msg) {}
 
 	virtual const char *what() const throw() { return (msg.c_str()); }
@@ -71,6 +72,5 @@ bool			allDigit(std::string str);
 std::string		capitalize(const std::string& word);
 std::string		toHex(size_t num);
 std::string		buildChunk(const char *data, size_t size); // error
-void printMap(std::map<std::string, std::string>& map);
 
 #endif

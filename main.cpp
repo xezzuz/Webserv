@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/02 23:59:20 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 00:42:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	handleINT(int sig)
 
 int main(int argc, char **argv) {
 	if (argc != 2)
-		return (std::cerr << BOLD << "[WEBSERV]\t usage: Webserv <config file>" << RESET << std::endl, 1);
+		return (std::cerr << BOLD << "usage: Webserv <config file>" << RESET << std::endl, 1);
 	
 	signal(SIGINT, handleINT);
 	signal(SIGPIPE, SIG_IGN);

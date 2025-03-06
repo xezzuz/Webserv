@@ -21,19 +21,14 @@ public:
 	void	createResponse();
 	void	deleteResponse();
 	
-	void	ctime();
-	time_t	getElapsedTime() const;
-
 	int		getFd() const;
 
 private:
-	time_t						elapsedTime;
-
 	int							socket;
-	Request						request;
 
 	bool						cgiActive;
 	AResponse					*response;
+	Request						request;
 
 	std::vector<ServerConfig>&	vServers;
 	Directives					config;

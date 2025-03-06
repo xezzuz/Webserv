@@ -16,22 +16,10 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : requ
 	cgiActive = false;
 	response = NULL;
 	reqState = REGULAR;
-	elapsedTime = std::time(NULL);
-}
-
-time_t	ClientHandler::getElapsedTime() const
-{
-	return (elapsedTime);
-}
-
-void	ClientHandler::ctime()
-{
-	elapsedTime = std::time(NULL);
 }
 
 void	ClientHandler::reset()
 {
-	std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tRESETTING.." << RESET << std::endl;
 	reqState = REGULAR;
 	deleteResponse();
 	request = Request(vServers);
@@ -57,7 +45,6 @@ void	ClientHandler::createResponse()
 {
 	if (request.getRequestData()->isCGI)
 	{
-		std::cout << "CGI NORMAL" << std::endl;
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgiActive = true;
 		HTTPserver->registerDependency(cgi, this);
@@ -78,24 +65,18 @@ void 	ClientHandler::handleRead()
 
 	ssize_t	bytesReceived = recv(socket, buf, RECV_BUFFER_SIZE, 0);
 	if (bytesReceived == 0)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+		throw(Disconnect("\tClient " + _toString(socket) + " : Closed Connection"));
 	else if (bytesReceived < 0)
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] recv: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : recv: " + strerror(errno)));
 	else
 	{
-		std::cout << "============= RECV =============" << std::endl;
-		std::cout << buf << std::endl;
-		std::cout << "================================" << std::endl;
 		int returnValue;
 		switch (reqState)
 		{
 			case REGULAR:
 				returnValue = request.parseControlCenter(buf, bytesReceived);
-				if (returnValue == RECV)
-					std::cout << "RECV" << std::endl;
 				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
-					std::cout << "FORWARD_CGI" << std::endl;
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgiActive = true;
 					HTTPserver->registerDependency(cgi, this);
@@ -105,10 +86,7 @@ void 	ClientHandler::handleRead()
 					reqState = CGI;
 				}
 				else if (returnValue == RESPOND) // receiving done - move to response
-				{
-					std::cout << "RESPOND" << std::endl;
 					createResponse();
-				}
 				break;
 			case CGI:
 				static_cast<CGIHandler *>(response)->setBuffer(buf, bytesReceived);
@@ -121,7 +99,11 @@ void 	ClientHandler::handleWrite()
 {
 	if (response->respond() == 1)
 	{
-		std::cout << GREEN << "[WEBSERV][CLIENT-" << socket << "]\tCLIENT SERVED" << RESET << std::endl;
+		std::cout << MAGENTA
+					<< "\t" << request.getRequestData()->Method
+					<< " " << request.getRequestData()->URI
+					<< " " << request.getRequestData()->StatusCode
+					<< RESET << std::endl;
 		if (request.getRequestData()->keepAlive)
 		{
 			HTTPserver->updateTimer(socket);
@@ -129,7 +111,7 @@ void 	ClientHandler::handleWrite()
 			this->reset();
 		}
 		else
-			throw(Disconnect("[CLIENT-" + _toString(socket) + "] CONNECTION CLOSE"));
+			throw(Disconnect());
 	}
 }
 
@@ -158,7 +140,7 @@ void	ClientHandler::handleEvent(uint32_t events)
 		}
 		else if (events & EPOLLHUP)
 		{
-			throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+			throw(Disconnect("\tClient " + _toString(socket) + " : Closed connection"));
 		}
 	}
 	catch (Code& e)
@@ -170,6 +152,6 @@ void	ClientHandler::handleEvent(uint32_t events)
 	catch (ChildException& e)
 	{
 		HTTPserver->stop();
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] CLOSED CONNECTION"));
+		throw(Disconnect("\tClient " + _toString(socket) + " : Error on child process"));
 	}
 }

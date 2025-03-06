@@ -20,9 +20,6 @@ void	produceAbsPath(RequestData& _RequestData) {
 	if (!_RequestData._Config->alias.empty()) {
 		if (_RequestData._Config->alias[_RequestData._Config->alias.length() - 1] == '/')
 			_RequestData._Config->alias.erase(_RequestData._Config->alias.length() - 1);
-		std::cout << "ALIAS: " << _RequestData._Config->alias << std::endl;
-		std::cout << "URI: " << _RequestData.URI << std::endl;
-		std::cout << "URI_SUB: " << _RequestData.URI.substr(_RequestData.matchingLocation.length()) << std::endl;
 		_RequestData.fullPath = _RequestData._Config->alias + _RequestData.URI.substr(_RequestData.matchingLocation.length());
 	}
 	else {
@@ -57,7 +54,6 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 	while (startPos < _RequestData.fullPath.size()) {
 		endPos = _RequestData.fullPath.find('/', startPos + 1);
 		pathChecker.append(_RequestData.fullPath.substr(startPos, endPos - startPos));
-		std::cout << "PATHCHECKER: " << pathChecker << std::endl;
 		if (stat(pathChecker.c_str(), &pathStats) != 0)
 			throw(Code(404));
 		if (!S_ISDIR(pathStats.st_mode))
@@ -70,16 +66,9 @@ void	setRequestedResourceType(RequestData& _RequestData) {
 		_RequestData.scriptName = _RequestData.URI.substr(0, _RequestData.URI.find(pathInfo));
 	else
 		_RequestData.scriptName = _RequestData.URI.substr(0, _RequestData.URI.find_first_of("?"));
-	std::cout << "PATH_INFO=" << pathInfo << std::endl;
-	std::cout << "SCRIPT_NAME=" << _RequestData.scriptName << std::endl;
-	std::cout << "URI=" << _RequestData.URI << std::endl;
 	_RequestData.pathTranslated = _RequestData.fullPath;
 	_RequestData.pathInfo = _RequestData.URI.substr(0, _RequestData.URI.find_first_of('?'));
 	_RequestData.fullPath.erase(pathChecker.size());
-	std::cout << "REAL_PATH_INFO=" << _RequestData.pathInfo << std::endl;
-	std::cout << "PATH_TRANSLATED=" << _RequestData.pathTranslated << std::endl;
-	std::cout << "FULL_PATH=" << _RequestData.fullPath << std::endl;
-	// _RequestData.pathInfo = _RequestData.fullPath;
 }
 
 void						handleDirectoryResource(RequestData& _RequestData) {
@@ -131,10 +120,7 @@ void						handleFileResource(RequestData& _RequestData) {
 
 	_RequestData.isCGI = extensionIsCGI(_RequestData);
 	if (!_RequestData.isCGI && _RequestData.scriptName != _RequestData.pathInfo)
-	{
-		std::cout << "FULLPATH: " << _RequestData.fullPath << "| PATHINFO: " << _RequestData.pathInfo << std::endl;
 		throw(Code(404));
-	}
 }
 
 void			resolveAbsPath(RequestData& _RequestData) {
@@ -155,8 +141,6 @@ void			resolveURI(RequestData& _RequestData) {
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);
-	std::cout << "FULLPATH: " << _RequestData.fullPath << std::endl;
-	std::cout << "PATH_INFO: " << _RequestData.pathInfo << std::endl;
 	if (_RequestData.isDir && _RequestData.URI[_RequestData.URI.size() - 1] != '/')
 		throw(Code(308, "http://" + _RequestData.host + _RequestData.URI + '/'));
 

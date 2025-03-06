@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/05 22:17:29 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 00:35:14 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ void			Request::decodeChunkedBody() {
 		
 		size_t chunkSize = htoi(chunkSizeStr);
 		if (!chunkSize && buffer.substr(CRLFpos, 4) == DOUBLE_CRLF) {
-			std::cout << "[INFO]\tBody Decoding is Done..." << std::endl;
 			buffer.clear();
 			bodyFinished = true;
 			return ;
@@ -186,9 +185,6 @@ void			Request::processBinaryBody() {
 	if (!fileUploader.is_open()) {
 		std::string		fileUploaderRandname = "file_" + generateRandomString();
 		
-		if (access(fileUploaderRandname.c_str(), F_OK) == 0)
-			throw Code(503); // 503 (service unavailable) or should we throw (Code(409)) conflict
-		
 		size_t			semiColonPos = _RequestData.contentType.find(';');
 		
 		std::string		contentType = semiColonPos != std::string::npos ? 
@@ -238,7 +234,10 @@ void			Request::processRegularRequestRawBody() {
 }
 
 void	Request::setupCGITempFile() {
-	std::string		fileUploaderRandname = "/tmp/temp_" + generateRandomString();
+	std::string		fileUploaderRandname = "/tmp/webserv_" + generateRandomString();
+	
+	if (access(fileUploaderRandname.c_str(), F_OK))
+		throw Code(409);
 	
 	_RequestData.CGITempFilename = fileUploaderRandname;
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
@@ -264,7 +263,6 @@ void			Request::parseRequestBody() {
 	// if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
 	// 	throw (Code(403));
 	
-	std::cout << "[REQUEST]\tParsing Body..." << std::endl;
 	if (isEncoded)
 		decodeChunkedBody(); // after this the decoded body will be stored in _RequestRaws.rawBody
 	else

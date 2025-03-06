@@ -20,7 +20,6 @@ ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket
 	statusCodes.insert(std::make_pair(431, "Request Header Fields Too Large"));
 	statusCodes.insert(std::make_pair(500, "Internal Server Error"));
 	statusCodes.insert(std::make_pair(501, "Not Implemented"));
-	// statusCodes.insert(std::make_pair(504, "Gateway Timeout"));
 	statusCodes.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
@@ -30,7 +29,7 @@ void	ErrorPage::readBody()
 	ssize_t bytesRead = bodyFile.read(buf, SEND_BUFFER_SIZE).gcount();
 	if (bytesRead == -1)
 	{
-		throw(Disconnect("[CLIENT-" + _toString(socket) + "] read: " + strerror(errno)));
+		throw(Disconnect("\tClient " + _toString(socket) + " : read: " + strerror(errno)));
 	}
 	else if (bytesRead > 0)
 	{
@@ -38,7 +37,6 @@ void	ErrorPage::readBody()
 		{
 			nextState = DONE;
 		}
-		std::cout << YELLOW << "======[READ DATA OF SIZE " << bytesRead << "]======" << RESET << std::endl;
 		buffer.append(buf, bytesRead);
 		if ((this->*sender)() == true)
 			state = nextState;
@@ -99,7 +97,7 @@ void	ErrorPage::generateHeaders()
 		nextState = DONE;
 	}
 	headers.insert(0, "HTTP/1.1 " + _toString(status.status) + " " + getCodeDescription(status.status));
-	std::cout  << headers << std::endl;
+	reqCtx->StatusCode = status.status;
 	if ((this->*sender)() == true)
 		state = nextState;
 	else
