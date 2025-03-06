@@ -12,6 +12,7 @@ Webserv::~Webserv()
 
 Webserv::Webserv(std::vector<ServerConfig>& servers) : servers(servers)
 {
+	cgiCounter = 0;
 	srand(std::time(0));
 	epoll_fd = epoll_create1(0);
 }
@@ -51,6 +52,12 @@ void	Webserv::eraseTimer(int fd)
 		}
 	}
 }
+
+void	Webserv::incCgiCounter() {++cgiCounter;}
+
+void	Webserv::decCgiCounter() {--cgiCounter;}
+
+int		Webserv::getCgiCounter() const {return (cgiCounter);}
 
 void	Webserv::collect(EventHandler *handler)
 {
@@ -156,7 +163,7 @@ void    Webserv::listenForConnections(int& serverSocket)
 		close(serverSocket);
 		exit(errno);
 	}
-	if (fcntl(serverSocket, F_SETFD, FD_CLOEXEC) == -1) // sets the socket to nonblock mode so it doesn't "block" on I/O operations (accept(), recv() ..)
+	if (fcntl(serverSocket, F_SETFD, FD_CLOEXEC) == -1)
 	{
 		std::cerr << YELLOW << "\tWebserv : fcntl: " << strerror(errno) << RESET << std::endl;
 		close(serverSocket);
@@ -175,14 +182,12 @@ void	Webserv::initServers()
 		std::pair<std::string, std::string> bindAddress = std::make_pair(it->host, it->port);
 		std::map<std::pair<std::string, std::string>, int>::iterator deja = boundServers.find(bindAddress);
 
-		// if server already bound just add the virtual server config to the ServerHandler
 		if (deja != boundServers.end())
 		{
 			static_cast<ServerHandler *>(handlerMap[deja->second])->addVServer(*it);
 			continue ;
 		}
 
-		// resolves domain name bind serverSocket to sockaddr and returns a valid socket
 		serverSocket = bindSocket(it->host, it->port);
 		listenForConnections(serverSocket);
 		std::cout << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
@@ -217,6 +222,8 @@ void	Webserv::clientTimeout()
 	}
 }
 
+void	Webserv::eraseDependency(EventHandler *dependent) {dependencyMap.erase(dependent);}
+
 void	Webserv::cleanup(EventHandler *handler)
 {
 	if (!handler)
@@ -225,11 +232,7 @@ void	Webserv::cleanup(EventHandler *handler)
 	std::map<EventHandler *, EventHandler *>::iterator it;
 	it = dependencyMap.find(handler);
 	if (it != dependencyMap.end())
-	{
-		EventHandler	*dependency = it->second;
-		dependencyMap.erase(it);
-		delete dependency; // deleting the dependency deletes the dependent in the destructor
-	}
+		delete it->second; // deleting the dependency deletes the dependent in the destructor
 	else
 		delete handler;
 }
@@ -239,7 +242,7 @@ void	Webserv::run()
 	struct epoll_event events[MAX_EVENTS];
 	while (running)
 	{
-		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
+		int eventCount = epoll_wait(epoll_fd, events, MAX_EVENTS, EPOLL_TIMEOUT);
 
 		for (int i = 0; i < eventCount; i++)
 		{

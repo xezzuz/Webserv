@@ -22,6 +22,7 @@ public:
 	void	deleteResponse();
 	
 	int		getFd() const;
+	bool	getCgiActive() const;
 
 private:
 	int							socket;

@@ -150,7 +150,7 @@ void			resolveURI(RequestData& _RequestData) {
 		{
 			if (_RequestData._Config->upload_store.empty())
 				throw (Code(403));
-			else
+			else if (!_RequestData.isDir)
 				throw (Code(405));
 		}
 		if (_RequestData.contentLength > _RequestData._Config->client_max_body_size)

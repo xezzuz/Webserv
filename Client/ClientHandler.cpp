@@ -25,6 +25,11 @@ void	ClientHandler::reset()
 	request = Request(vServers);
 }
 
+bool	ClientHandler::getCgiActive() const
+{
+	return (cgiActive);
+}
+
 int	ClientHandler::getFd() const
 {
 	return (socket);
@@ -35,7 +40,13 @@ void	ClientHandler::deleteResponse()
 	if (response)
 	{
 		if (cgiActive)
-			HTTPserver->collect(static_cast<CGIHandler *>(response));
+		{
+			CGIHandler *cgi = static_cast<CGIHandler *>(response);
+			HTTPserver->eraseDependency(cgi);
+			HTTPserver->collect(cgi);
+			HTTPserver->decCgiCounter();
+			cgiActive = false;
+		}
 		delete response;
 		response = NULL;
 	}
@@ -45,12 +56,15 @@ void	ClientHandler::createResponse()
 {
 	if (request.getRequestData()->isCGI)
 	{
+		if (HTTPserver->getCgiCounter() >= CGI_LIMIT)
+			throw(Code(503));
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgiActive = true;
 		HTTPserver->registerDependency(cgi, this);
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
 		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
+		HTTPserver->incCgiCounter();
 	}
 	else
 	{
@@ -77,6 +91,8 @@ void 	ClientHandler::handleRead()
 				returnValue = request.parseControlCenter(buf, bytesReceived);
 				if (returnValue == FORWARD_CGI) // receive CGI body
 				{
+					if (HTTPserver->getCgiCounter() >= CGI_LIMIT)
+						throw(Code(503));
 					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 					cgiActive = true;
 					HTTPserver->registerDependency(cgi, this);
@@ -84,6 +100,7 @@ void 	ClientHandler::handleRead()
 					cgi->setBuffer(request.getBuffer());
 					response = cgi;
 					reqState = CGI;
+					HTTPserver->incCgiCounter();
 				}
 				else if (returnValue == RESPOND) // receiving done - move to response
 					createResponse();

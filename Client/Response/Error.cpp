@@ -21,6 +21,7 @@ ErrorPage::ErrorPage(Code& e, int& socket, RequestData	*data) : AResponse(socket
 	statusCodes.insert(std::make_pair(431, "Request Header Fields Too Large"));
 	statusCodes.insert(std::make_pair(500, "Internal Server Error"));
 	statusCodes.insert(std::make_pair(501, "Not Implemented"));
+	statusCodes.insert(std::make_pair(503, "Service Unavailable"));
 	statusCodes.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
