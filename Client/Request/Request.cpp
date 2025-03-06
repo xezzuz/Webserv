@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 05:31:43 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 22:54:03 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ Request::~Request() {
 }
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
-	isEncoded = false;
-	isMultipart = false;
 	headersFinished = false;
 	bodyFinished = false;
 	
@@ -68,8 +66,6 @@ Request&	Request::operator=(const Request& rhs)
 		
 		headersFinished = rhs.headersFinished;
 		bodyFinished = rhs.bodyFinished;
-		isEncoded = rhs.isEncoded;
-		isMultipart = rhs.isMultipart;
 	}
 	return *this;
 }

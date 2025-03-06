@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:44:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 22:54:19 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,36 +26,36 @@ bool						Request::isCriticalHeader(const std::string& key) {
 	return false;
 }
 
-void						Request::resolveURITraversal(std::string& URI) {
-	std::stringstream			ss(URI);
-	std::vector<std::string>	splittedPath;
-	std::string					token;
+// void						Request::resolveURITraversal(std::string& URI) {
+// 	std::stringstream			ss(URI);
+// 	std::vector<std::string>	splittedPath;
+// 	std::string					token;
 
-	if (URI.empty() || URI == "/")
-		return ;
+// 	if (URI.empty() || URI == "/")
+// 		return ;
 	
-	while (std::getline(ss, token, '/')) {
-		if (token == "" || token == ".")
-			continue;
-		if (token == "..") {
-			if (splittedPath.size())
-				splittedPath.pop_back();
-		}
-		else
-			splittedPath.push_back(token);
-	}
+// 	while (std::getline(ss, token, '/')) {
+// 		if (token == "" || token == ".")
+// 			continue;
+// 		if (token == "..") {
+// 			if (splittedPath.size())
+// 				splittedPath.pop_back();
+// 		}
+// 		else
+// 			splittedPath.push_back(token);
+// 	}
 
-	std::string		resolvedURI = "/";
-	for (size_t i = 0; i < splittedPath.size(); i++)
-		resolvedURI += splittedPath[i] + "/";
+// 	std::string		resolvedURI = "/";
+// 	for (size_t i = 0; i < splittedPath.size(); i++)
+// 		resolvedURI += splittedPath[i] + "/";
 
-	if (resolvedURI.size() > 1) {
-		if (URI[URI.size() - 1] == '/')
-			URI = resolvedURI;
-		else
-			resolvedURI.pop_back(), URI = resolvedURI;
-	}
-}
+// 	if (resolvedURI.size() > 1) {
+// 		if (URI[URI.size() - 1] == '/')
+// 			URI = resolvedURI;
+// 		else
+// 			resolvedURI.pop_back(), URI = resolvedURI;
+// 	}
+// }
 
 void						Request::decodeURI() {
 	std::string			encodedURI = _RequestData.URI;
@@ -90,8 +90,8 @@ void						Request::isValidURI() {
 	if (_RequestData.URI.find_first_not_of(allowedURIChars) != std::string::npos)
 		throw (Code(400));
 	
-	decodeURI();
-	resolveURITraversal(_RequestData.URI);
+	decodeURI(); /////////////////////////////////////////////////////////////////////
+	// resolveURITraversal(_RequestData.URI);
 }
 
 void						Request::isValidHTTPVersion() {
@@ -177,59 +177,57 @@ void						Request::validateRequestHeaders() {
 	if (headerExists("connection"))
 		_RequestData.keepAlive = _RequestData.Headers["connection"] == "close" ? false : true;
 
-	if (_RequestData.Method == "POST") {
-		bool		ContentLength = headerExists("content-length");
-		bool		TransferEncoding = headerExists("transfer-encoding");
-		bool		ContentType = headerExists("content-type");
-
-		if (!TransferEncoding && !ContentLength)
-			throw (Code(411));
-		if (TransferEncoding && ContentLength)
-			_RequestData.Headers.erase("content-length"), ContentLength = false;
+	bool		ContentLength = headerExists("content-length");
+	bool		TransferEncoding = headerExists("transfer-encoding");
+	bool		ContentType = headerExists("content-type");
 		
-		if (TransferEncoding) {
-			_RequestData.transferEncoding = stringtolower(_RequestData.Headers["transfer-encoding"]);
-			if (_RequestData.transferEncoding != "chunked")
-				throw (Code(501));
-			isEncoded = true;
-		}
-		if (ContentLength) {
-			if (!stringisdigit(_RequestData.Headers["content-length"]))
-				throw (Code(400));
-			char	*stringstop;
-			_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);
-			if (ERANGE == errno)
-				throw (Code(413));
-			if (EINVAL == errno)
-				throw (Code(400));
-		}
-
-		if (ContentType) {
-			_RequestData.contentType = _RequestData.Headers["content-type"];
-			
-			size_t		semiColonPos = _RequestData.contentType.find(';');
-			if (semiColonPos == std::string::npos)
-				return ;
-			
-			std::string mediaType = _RequestData.contentType.substr(0, semiColonPos);
-			if (mediaType.empty())
-				throw (Code(400));
-			isMultipart = (mediaType == "multipart/form-data");
-			if (!isMultipart)
-				return ;
-
-			size_t	boundaryPos = _RequestData.contentType.find("boundary=", semiColonPos);
-			if (boundaryPos == std::string::npos)
-				throw (Code(400));
-			
-			_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(boundaryPos + 9);
-			if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72) // RFC 2046, Section 5.1.1
-				throw (Code(400));
-			_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
-		}
-		else
-			_RequestData.contentType = "application/octet-stream";
+	if (_RequestData.Method == "POST" && !TransferEncoding && !ContentLength)
+		throw (Code(411));
+	
+	if (TransferEncoding) {
+		_RequestData.transferEncoding = stringtolower(_RequestData.Headers["transfer-encoding"]);
+		if (_RequestData.transferEncoding != "chunked")
+			throw (Code(501));
+		_RequestData.isEncoded = true;
 	}
+	
+	if (ContentLength) {
+		if (!stringisdigit(_RequestData.Headers["content-length"]))
+			throw (Code(400));
+		char	*stringstop;
+		if (errno == ERANGE) {
+			std::cout << "already erange" << std::endl;
+		}
+		_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);
+		if (ERANGE == errno || EINVAL == errno)
+			throw (Code(400));
+	}
+	
+	if (ContentType) {
+		_RequestData.contentType = _RequestData.Headers["content-type"];
+		
+		size_t		semiColonPos = _RequestData.contentType.find(';');
+		if (semiColonPos == std::string::npos)
+			return ;
+		
+		std::string mediaType = _RequestData.contentType.substr(0, semiColonPos);
+		if (mediaType.empty())
+			throw (Code(400));
+		_RequestData.isMultipart = (mediaType == "multipart/form-data");
+		if (!_RequestData.isMultipart)
+			return ;
+	
+		size_t	boundaryPos = _RequestData.contentType.find("boundary=", semiColonPos);
+		if (boundaryPos == std::string::npos)
+			throw (Code(400));
+		
+		_RequestRaws.boundaryBegin = "--" + _RequestData.contentType.substr(boundaryPos + 9);
+		if (_RequestRaws.boundaryBegin.empty() || _RequestRaws.boundaryBegin.size() > 72) // RFC 2046, Section 5.1.1
+			throw (Code(400));
+		_RequestRaws.boundaryEnd += _RequestRaws.boundaryBegin + "--";
+	}
+	else
+		_RequestData.contentType = "application/octet-stream";
 }
 
 // HEADERS CONTROL CENTER

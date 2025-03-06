@@ -52,12 +52,12 @@ void	ErrorPage::readBody()
 
 void	ErrorPage::generateHeaders()
 {
+	errno = 0;
 	headers.reserve(1024);
 	headers.append("\r\nServer: webserv/1.0");
 	headers.append("\r\nDate: " + getDate());
 
-	if (reqCtx->Method == "POST")
-		reqCtx->keepAlive = false;
+	reqCtx->keepAlive = false;
 
 	if (reqCtx->keepAlive)
 		headers.append("\r\nConnection: keep-alive");

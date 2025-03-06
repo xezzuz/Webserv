@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 05:50:22 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/06 22:54:11 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,7 @@ void			Request::processRegularRequestRawBody() {
 	if (!_RequestRaws.rawBodySize) // i need to check this
 		return ;
 
-	if (isMultipart)
+	if (_RequestData.isMultipart)
 		processMultipartFormData();
 	else
 		processBinaryBody();
@@ -263,7 +263,7 @@ void			Request::parseRequestBody() {
 	// if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
 	// 	throw (Code(403));
 	
-	if (isEncoded)
+	if (_RequestData.isEncoded)
 		decodeChunkedBody(); // after this the decoded body will be stored in _RequestRaws.rawBody
 	else
 		parseLengthBody();   // after this the decoded body will be stored in _RequestRaws.rawBody

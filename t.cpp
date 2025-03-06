@@ -1,51 +1,49 @@
 #include <stdlib.h>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
 
 
-class A;
+std::string						resolveURITraversal(std::string& URI) {
+	std::stringstream			ss(URI);
+	std::vector<std::string>	splittedPath;
+	std::string					token;
 
-class Base
-{
-public:
-	virtual ~Base() {}
-	Base() {}
-	virtual void func(A* s) = 0;
-
-	int x;
-};
-
-class A
-{
-public:
-	~A(){}
-	A() {}
-
-	Base *a;
-	char arr[500];
-};
-
-class B : public Base
-{
-public:
-	void func(A* s)
-	{
-		s->a = this;
+	if (URI.empty() || URI == "/")
+		return URI;
+	
+	if (URI.find("/..") == URI.size() - 3 || URI.find("/.") == URI.size() - 2)
+		URI += "/";
+	
+	while (std::getline(ss, token, '/')) {
+		if (token == "" || token == ".")
+			continue;
+		if (token == "..") {
+			if (splittedPath.size())
+				splittedPath.pop_back();
+		}
+		else
+			splittedPath.push_back(token);
 	}
 
-	size_t a;
-};
+	std::string		resolvedURI = "/";
+	for (size_t i = 0; i < splittedPath.size(); i++)
+		resolvedURI += splittedPath[i] + "/";
 
-#include <iostream>
+	if (resolvedURI.size() > 1) {
+		if (URI[URI.size() - 1] == '/')
+			URI = resolvedURI;
+		else
+			resolvedURI.pop_back(), URI = resolvedURI;
+	}
+	return resolvedURI;
+}
 
-int main()
+
+int main(int arcg, char **argv)
 {
+	std::string tmp = argv[1];
 
-
-	A x;
-
-	B *z = new B;
-
-	z->func(&x);
-
-	std::cout << "B *z = " << z << " | A &x = " << &x << " | Base *x.a = " << x.a << std::endl;
-	std::cout << "static_cast Z " << static_cast<B *>(x.a) << std::endl;
+	std::cout << "Resolved Path: " << resolveURITraversal(tmp) << std::endl;
 }

@@ -29,7 +29,7 @@ void	CGIHandler::buildEnv()
 	envVars.push_back("SERVER_PORT=");
 	envVars.push_back("SERVER_HOST=");
 
-	if (reqCtx->Headers.find("content-length") == reqCtx->Headers.end() && !reqCtx->CGITempFilename.empty())
+	if (reqCtx->isEncoded && !reqCtx->CGITempFilename.empty())
 	{
 		ssize_t fileSize = fileLength(reqCtx->CGITempFilename);
 		if (fileSize == -1)
@@ -43,7 +43,7 @@ void	CGIHandler::buildEnv()
 	{
 		if (header->first == "content-type")
 			envVars.push_back("CONTENT_TYPE=" + header->second);
-		else if (header->first == "content-length")
+		else if (!reqCtx->isEncoded && header->first == "content-length")
 			envVars.push_back("CONTENT_LENGTH=" + header->second);
 		else
 			envVars.push_back(headerToEnv(header->first, header->second));

@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:33:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/06 22:53:54 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ typedef struct								RequestData {
 	bool									isDir;
 	bool									isRange;
 	bool									keepAlive;
+	bool									isEncoded;
+	bool									isMultipart;
 	
 	int										StatusCode;
 	
@@ -85,7 +87,7 @@ typedef struct								RequestData {
 	std::map<std::string, std::string>		Headers;
 	Directives								*_Config;
 	
-	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200), contentLength(0) {}
+	RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), isEncoded(false), isMultipart(false), StatusCode(200), contentLength(0) {}
 }											RequestData;
 
 typedef	struct								RequestRaws {
@@ -116,10 +118,6 @@ class Request {
 		RequestRaws						_RequestRaws;
 
 		std::vector<ServerConfig>&		vServers;
-
-		/*			   PARSING FLAGS			*/
-		bool							isEncoded;
-		bool							isMultipart;
 
 		/*				STATE FLAGS				*/
 		bool							headersFinished;
