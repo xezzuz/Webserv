@@ -257,10 +257,7 @@ void	Webserv::run()
 			try
 			{
 				if (events[i].events & EPOLLERR)
-				{
-					std::cerr << RED << "\tWebserv : error on socket " << handler->getFd() << RESET << std::endl;
 					cleanup(handler);
-				}
 				else
 					handler->handleEvent(events[i].events);
 			}

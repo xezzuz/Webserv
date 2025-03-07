@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 03:33:15 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/07 17:38:44 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,37 +25,6 @@ bool						Request::isCriticalHeader(const std::string& key) {
 		return true;
 	return false;
 }
-
-// void						Request::resolveURITraversal(std::string& URI) {
-// 	std::stringstream			ss(URI);
-// 	std::vector<std::string>	splittedPath;
-// 	std::string					token;
-
-// 	if (URI.empty() || URI == "/")
-// 		return ;
-	
-// 	while (std::getline(ss, token, '/')) {
-// 		if (token == "" || token == ".")
-// 			continue;
-// 		if (token == "..") {
-// 			if (splittedPath.size())
-// 				splittedPath.pop_back();
-// 		}
-// 		else
-// 			splittedPath.push_back(token);
-// 	}
-
-// 	std::string		resolvedURI = "/";
-// 	for (size_t i = 0; i < splittedPath.size(); i++)
-// 		resolvedURI += splittedPath[i] + "/";
-
-// 	if (resolvedURI.size() > 1) {
-// 		if (URI[URI.size() - 1] == '/')
-// 			URI = resolvedURI;
-// 		else
-// 			resolvedURI.pop_back(), URI = resolvedURI;
-// 	}
-// }
 
 void						Request::decodeURI() {
 	std::string			encodedURI = _RequestData.URI;

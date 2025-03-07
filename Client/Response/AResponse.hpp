@@ -10,7 +10,7 @@
 # include <algorithm>
 # include "../Request/Request.hpp"
 
-# define SEND_BUFFER_SIZE 16384 /*4096*/
+# define SEND_BUFFER_SIZE 16384
 
 enum State
 {
@@ -30,11 +30,6 @@ public:
 		statusCodes.insert(std::make_pair(201, "Created"));
 		statusCodes.insert(std::make_pair(204, "No Content"));
 		statusCodes.insert(std::make_pair(206, "Partial Content"));
-		// statusCodes.insert(std::make_pair(301, "Moved Permanently"));
-		// statusCodes.insert(std::make_pair(302, "Found"));
-		// statusCodes.insert(std::make_pair(303, "See Other"));
-		// statusCodes.insert(std::make_pair(307, "Temporary Redirect"));
-		// statusCodes.insert(std::make_pair(308, "Permanent Redirect"));
 
 		mimeTypes.insert(std::make_pair(".html", "text/html"));
 		mimeTypes.insert(std::make_pair(".htm", "text/html"));
@@ -97,7 +92,7 @@ public:
 		buffer.erase(0, bytesSent);
 		return (buffer.empty());
 	}
-	
+
 protected:
 	int				socket;
 	enum State		state;

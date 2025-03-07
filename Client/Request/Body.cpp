@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Body.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 00:28:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 18:03:00 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,8 +225,11 @@ void			Request::processRegularRequestRawBody() {
 void	Request::setupCGITempFile() {
 	std::string		fileUploaderRandname = "/tmp/webserv_" + generateRandomString();
 	
-	if (access(fileUploaderRandname.c_str(), F_OK))
+	if (access(fileUploaderRandname.c_str(), F_OK) == 0)
+	{
+		std::cout << fileUploaderRandname << std::endl;
 		throw Code(409);
+	}
 	
 	_RequestData.CGITempFilename = fileUploaderRandname;
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);

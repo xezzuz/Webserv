@@ -42,6 +42,8 @@ void	CGIHandler::setBuffer(std::string buffer)
 			throw(Code(400));
 		this->buffer = buffer;
 		inBodySize += buffer.size();
+		if (inBodySize > reqCtx->_Config->client_max_body_size)
+			throw(Code(413));
 		HTTPserver->updateHandler(socket, 0);
 		HTTPserver->updateHandler(cgiSocket, EPOLLOUT);
 	}
@@ -53,6 +55,8 @@ void	CGIHandler::setBuffer(char *buf, ssize_t size)
 	inBodySize += size;
 	if (inBodySize > reqCtx->contentLength)
 		throw(Code(400));
+	else if (inBodySize > reqCtx->_Config->client_max_body_size)
+		throw(Code(413));
 	HTTPserver->updateHandler(socket, 0);
 	HTTPserver->updateHandler(cgiSocket, EPOLLOUT);
 }
