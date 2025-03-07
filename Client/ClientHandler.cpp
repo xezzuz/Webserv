@@ -38,7 +38,6 @@ int	ClientHandler::getFd() const
 void	ClientHandler::gateway_timeout()
 {
 	deleteResponse();
-	request.getRequestData()->keepAlive = false;
 	response = new ErrorPage(Code(504), socket, request.getRequestData());
 	HTTPserver->updateHandler(socket, EPOLLOUT);
 }
@@ -66,11 +65,11 @@ void	ClientHandler::createResponse()
 	{
 		if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 			throw(Code(503));
+		HTTPserver->updateHandler(socket, 0);
 		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
 		cgiActive = true;
 		HTTPserver->registerDependency(cgi, this);
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
-		HTTPserver->updateHandler(socket, 0);
 		response = cgi;
 		HTTPserver->incCgiCounter();
 	}

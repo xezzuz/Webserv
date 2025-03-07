@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 01:37:34 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@
 #include <algorithm>
 #include <limits.h>
 #include <sys/stat.h>
-// #include "../Utils/Helpers.hpp"
 
 #define KB 1024
 #define MB 1024 * KB
@@ -103,9 +102,9 @@ class Config {
 		
 	public:
 		Config();
-		Config(const std::string& configFileName);
 		~Config();
 
+		bool						parse(const std::string& configFileName);
 		bool						openConfigFile(const std::string& configFileName);
 		bool						parseConfigFile();
 		bool						storeConfigFileInVector();

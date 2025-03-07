@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   _ControlCenter.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 22:53:00 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 04:51:31 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 ServerConfig&				Request::getMatchingServer() {
 	for (size_t i = 0; i < vServers.size(); i++) {
 		for (size_t j = 0; j < vServers[i].server_names.size(); j++) {
-			if (vServers[i].server_names[j] == _RequestData.host)
+			if (vServers[i].server_names[j] == _RequestData.serverHost)
 				return vServers[i];
 		}
 	}
@@ -49,9 +49,6 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize) {
 			throw Code(400);
 		if (buffer.find(DOUBLE_CRLF) == std::string::npos)
 			return RECV;
-		std::cout << "============ REQ =============" << std::endl;
-		std::cout << buffer << std::endl;
-		std::cout << "\n==============================" << std::endl;
 		parseRequestLineAndHeaders();
 		setMatchingConfig();
 		resolveURI(_RequestData);

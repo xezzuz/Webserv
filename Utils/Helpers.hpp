@@ -11,6 +11,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <map>
+#include <list>
 
 class Disconnect : public std::exception
 {
@@ -71,6 +72,8 @@ std::string		generateRandomString( void );
 bool			allDigit(std::string str);
 std::string		capitalize(const std::string& word);
 std::string		toHex(size_t num);
-std::string		buildChunk(const char *data, size_t size); // error
+std::string		buildChunk(const char *data, size_t size);
+std::string		normalizeURI(const std::string& path);
+
 
 #endif

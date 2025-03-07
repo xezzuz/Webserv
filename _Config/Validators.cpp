@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 22:51:23 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 01:40:14 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,24 +41,9 @@ bool			Config::isValidPort(const std::string& port, ServerConfig& currentServer)
 }
 
 bool					Config::isValidHost(const std::string& host, ServerConfig& currentServer) {
-	static const char			allowedChars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.";
-	
-	if (host.find_first_not_of(allowedChars) != std::string::npos)
-		return (false);
-
-	std::vector<std::string>	labels = split(host, ".");
-	
-	
-	for (size_t i = 0; i < labels.size(); i++)
-	{
-		if (labels[i].size() > 63)
-			return (false);
-	}
-
-	if (host.size() > 255)
-		return (false);
-
-	currentServer.host = host;
+	currentServer.host.clear();
+	if (tokensCounter(host) != 1)
+		return false;
 	return true;
 }
 

@@ -83,13 +83,21 @@ void		CGIHandler::readCGILength()
 	}
 	else if (bytesRead > 0)
 	{
-		buffer = std::string(buf, bytesRead);
+		buffer.append(buf, bytesRead);
 		if (headersParsed)
 			state = WRITE;
+		else
+			state = HEADERS;
 	}
 	else
 	{
-		state = DONE;
+		if (headersParsed)
+			state = DONE;
+		else
+		{
+			state = HEADERS;
+			nextState = DONE;
+		}
 	}
 }
 

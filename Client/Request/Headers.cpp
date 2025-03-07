@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Headers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:26:22 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 22:54:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 03:33:15 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,8 @@ void						Request::isValidURI() {
 	if (_RequestData.URI.find_first_not_of(allowedURIChars) != std::string::npos)
 		throw (Code(400));
 	
-	decodeURI(); /////////////////////////////////////////////////////////////////////
-	// resolveURITraversal(_RequestData.URI);
+	decodeURI();
+	_RequestData.URI = normalizeURI(_RequestData.URI);
 }
 
 void						Request::isValidHTTPVersion() {
@@ -172,7 +172,7 @@ void						Request::validateRequestHeaders() {
 			throw (Code(400));
 	}
 	else
-		_RequestData.serverHost = _RequestData.host, _RequestData.serverPort = "80";
+		_RequestData.serverHost = _RequestData.host;
 	
 	if (headerExists("connection"))
 		_RequestData.keepAlive = _RequestData.Headers["connection"] == "close" ? false : true;
@@ -195,9 +195,6 @@ void						Request::validateRequestHeaders() {
 		if (!stringisdigit(_RequestData.Headers["content-length"]))
 			throw (Code(400));
 		char	*stringstop;
-		if (errno == ERANGE) {
-			std::cout << "already erange" << std::endl;
-		}
 		_RequestData.contentLength = std::strtoul(_RequestData.Headers["content-length"].c_str(), &stringstop, 10);
 		if (ERANGE == errno || EINVAL == errno)
 			throw (Code(400));

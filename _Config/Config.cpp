@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:02 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 00:36:30 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/07 01:20:52 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 
 Config::Config() {}
 
-Config::Config(const std::string& configFileName) {
+bool	Config::parse(const std::string& configFileName) {
 	if (!openConfigFile(configFileName) || !parseConfigFile() || !constructServers()) {
 		ErrorLogger(configFileName + " could not meet the minimum requirements to run Webserv!");
 		configFile.close();
-		exit(1);
+		return false;
 	}
 	configFile.close();
-	// printServersConfigs();
+	return true;
 }
 
 Config::~Config() {

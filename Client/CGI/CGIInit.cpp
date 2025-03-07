@@ -16,18 +16,17 @@ void	CGIHandler::buildEnv()
 {
 	envVars.reserve(reqCtx->Headers.size() + 12); // 12 the number of env vars not in headers
 
-	// envvars.push_back("SERVER_NAME=" + reqCtx->config.);
 	envVars.push_back("REQUEST_METHOD=" + reqCtx->Method);
 	envVars.push_back("SCRIPT_NAME=" + reqCtx->scriptName);
 	envVars.push_back("PATH_INFO=" + reqCtx->pathInfo);
 	envVars.push_back("QUERY_STRING=" + reqCtx->queryString);
 	envVars.push_back("PATH_TRANSLATED="+ reqCtx->pathTranslated);
 	envVars.push_back("REQUEST_URI=" + reqCtx->URI);
+	envVars.push_back("SERVER_HOST=" + reqCtx->serverHost);
+	envVars.push_back("SERVER_PORT=" + reqCtx->serverPort);
 	envVars.push_back("SERVER_SOFTWARE=webserv/1.0");
 	envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	envVars.push_back("SERVER_PORT=");
-	envVars.push_back("SERVER_HOST=");
 
 	if (reqCtx->isEncoded && !reqCtx->CGITempFilename.empty())
 	{
@@ -106,7 +105,7 @@ void	CGIHandler::execCGI()
                 std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
                 close(sv[1]);
                 close(fd);
-                _exit(1);
+				throw(ChildException());
             }
             close(fd);
         }
@@ -114,7 +113,7 @@ void	CGIHandler::execCGI()
 		{
             std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
             close(sv[1]);
-            _exit(1);
+			throw(ChildException());
         }
 
 		close(sv[1]);

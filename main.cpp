@@ -6,11 +6,9 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:40:52 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 00:42:34 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/07 01:36:53 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// #include "Request.hpp"
 
 #include "./HTTPServer/Webserv.hpp"
 #include "./_Config/Config.hpp"
@@ -28,10 +26,15 @@ int main(int argc, char **argv) {
 	
 	signal(SIGINT, handleINT);
 	signal(SIGPIPE, SIG_IGN);
-	Config			conf(argv[1]);
+	
+	Config			conf;
+	if (!conf.parse(argv[1]))
+		return (1);
+
 	Webserv			Main(conf.getServers());
 
-	Main.initServers();
+	if (!Main.initServers())
+		return (1);
 	Main.run();
 	
 	return 0;
