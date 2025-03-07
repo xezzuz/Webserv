@@ -6,23 +6,18 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:33:50 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 22:54:03 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 00:29:22 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
-Request::~Request() {
-	if (fileUploader.is_open())
-		fileUploader.close();
-}
 
 Request::Request(std::vector<ServerConfig>&	vServers) : vServers(vServers) {
 	headersFinished = false;
 	bodyFinished = false;
 	
 	_RequestData._Config = &vServers[0].ServerDirectives;
-
+	
 	_RequestRaws.mimeTypes["text/plain"] = "";
 	_RequestRaws.mimeTypes["text/html"] = ".html";
 	_RequestRaws.mimeTypes["text/css"] = ".css";
@@ -60,7 +55,7 @@ Request&	Request::operator=(const Request& rhs)
 	if (this != &rhs)
 	{
 		buffer = rhs.buffer;
-
+		
 		_RequestData = rhs._RequestData;
 		_RequestRaws = rhs._RequestRaws;
 		
@@ -70,58 +65,7 @@ Request&	Request::operator=(const Request& rhs)
 	return *this;
 }
 
-// RequestData::RequestData() : isCGI(false), isDir(false), isRange(false), keepAlive(true), StatusCode(200) {
-// 	// should i generate cgitempfilename here? we will see
-// 	contentLength = 0;
-// 	_Config = NULL; // ?
-// }
-
-// RequestData&		RequestData::operator=(const RequestData &rhs) {
-// 	if (this != &rhs) {
-// 		isCGI = rhs.isCGI;
-// 		isDir = rhs.isDir;
-// 		isRange = rhs.isRange;
-// 		keepAlive = rhs.keepAlive;
-// 		StatusCode = rhs.StatusCode;
-
-// 		Method = rhs.Method;
-// 		URI = rhs.URI;
-// 		HTTPversion = rhs.HTTPversion;
-
-// 		queryString = rhs.queryString;
-// 		pathInfo = rhs.pathInfo;
-// 		scriptName = rhs.scriptName;
-// 		cgiIntrepreter = rhs.cgiIntrepreter;
-// 		CGITempFilename = rhs.CGITempFilename;
-		
-// 		fullPath = rhs.fullPath;
-// 		contentType = rhs.contentType;
-// 		contentLength = rhs.contentLength;
-// 		connection = rhs.connection;
-// 		host = rhs.host;
-// 		transferEncoding = rhs.transferEncoding;
-// 		matchingLocation = rhs.matchingLocation;
-
-// 		Headers = rhs.Headers;
-
-// 		// _Config: deep copy or shallow copy?
-// 		// if (rhs._Config) {
-// 		// 	if (!_Config) {
-// 		// 		_Config = new Directives(*rhs._Config); // Deep copy
-// 		// 	} else {
-// 		// 		*_Config = *rhs._Config;
-// 		// 	}
-// 		// } else {
-// 		// 	delete _Config;
-// 		// 	_Config = nullptr;
-// 		// }
-
-// 		// reset CGITempFilestream since fstream cannot be copied
-// 		if (CGITempFilestream.is_open())
-// 			CGITempFilestream.close();
-// 		// if (!rhs.CGITempFilename.empty()) {
-// 		// 	CGITempFilestream.open(rhs.CGITempFilename, std::ios::in | std::ios::out);
-// 		// }
-// 	}
-// 	return *this;
-// }
+Request::~Request() {
+	if (fileUploader.is_open())
+		fileUploader.close();
+}

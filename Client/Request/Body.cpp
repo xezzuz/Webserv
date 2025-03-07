@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 22:54:11 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 00:28:44 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,6 @@ void			Request::decodeChunkedBody() {
 		size_t			currPos = 0, CRLFpos = 0;
 		
 		CRLFpos = buffer.find(CRLF);
-		// if (CRLFpos == std::string::npos || CRLFpos == currPos)
-		// 	return false;
 		
 		chunkSizeStr = buffer.substr(currPos, CRLFpos - currPos);
 		if (!isHexa(chunkSizeStr))
@@ -85,8 +83,6 @@ void			Request::decodeChunkedBody() {
 		_RequestRaws.rawBody += buffer.substr(currPos, chunkSize);
 		_RequestRaws.rawBodySize += chunkSize;
 		_RequestRaws.totalBodySize += chunkSize;
-		// if (buffer.substr(currPos + chunkSize, 2) != CRLF) // malformed chunk
-		// 	return false;
 		buffer.erase(0, currPos + chunkSize + 2);
 	}
 }
@@ -166,7 +162,6 @@ void			Request::processMultipartData() {
 
 void			Request::processMultipartFormData() {
 	while (!_RequestRaws.rawBody.empty()) {
-		// if rawBody contain boundaryBegin and Headers CRLF-CRLF
 		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) == 0 && _RequestRaws.rawBody.find(DOUBLE_CRLF) != std::string::npos)
 			processMultipartHeaders();
 		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open())
@@ -179,8 +174,6 @@ void			Request::processMultipartFormData() {
 void			Request::processBinaryBody() {
 	if (_RequestRaws.rawBody.empty())
 		return ;
-	// if (_RequestRaws.rawBodySize > _RequestData.contentLength)
-	//	throw(400);
 
 	if (!fileUploader.is_open()) {
 		std::string		fileUploaderRandname = "file_" + generateRandomString();
@@ -220,11 +213,7 @@ void			Request::processBinaryBody() {
 }
 
 void			Request::processRegularRequestRawBody() {
-	// at this point the rawBody contains RAWBODY i.e decoded body (unchunked)
-	
-	// if (_RequestRaws.rawBodySize > _RequestData.contentLength) // i need to check this
-	//	throw(Code(400));
-	if (!_RequestRaws.rawBodySize) // i need to check this
+	if (!_RequestRaws.rawBodySize)
 		return ;
 
 	if (_RequestData.isMultipart)
@@ -260,16 +249,13 @@ void			Request::processCGIRequestRawBody() {
 
 // BODY CONTROL CENTER
 void			Request::parseRequestBody() {
-	// if (!_RequestData.isCGI && _RequestData._Config->upload_store.empty())
-	// 	throw (Code(403));
-	
 	if (_RequestData.isEncoded)
-		decodeChunkedBody(); // after this the decoded body will be stored in _RequestRaws.rawBody
+		decodeChunkedBody();
 	else
-		parseLengthBody();   // after this the decoded body will be stored in _RequestRaws.rawBody
+		parseLengthBody();
 	
 	if (_RequestData.isCGI)
-		processCGIRequestRawBody();     // process _RequestRaws.rawBody
+		processCGIRequestRawBody();
 	else
-		processRegularRequestRawBody(); // process _RequestRaws.rawBody
+		processRegularRequestRawBody();
 }
