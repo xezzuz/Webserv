@@ -101,6 +101,12 @@ void	CGIHandler::addHeaders()
 
 void	CGIHandler::generateHeaders()
 {
+	if (buffer.size() < 8192 && nextState != DONE)
+	{
+		state = READ;
+		nextState = HEADERS;
+		return ;
+	}
 	headers.reserve(1024);
 
 	headers.append("\r\nServer: webserv/1.0");
@@ -116,8 +122,9 @@ void	CGIHandler::generateHeaders()
 	addHeaders();
 	headers.append("\r\n\r\n");
 	headersParsed = true;
+	nextState = READ;
 	if ((this->*sender)() == true && buffer.empty())
 		state = nextState;
 	else
-		state = WRITE;	
+		state = WRITE;
 }

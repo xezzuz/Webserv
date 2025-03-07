@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helpers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:30:21 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 00:40:48 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,3 +236,37 @@ std::string buildChunk(const char* data, size_t size)
 	
 	return (result);
 }
+
+std::string	normalizeURI(const std::string& path)
+{
+	std::list<std::string> tokens;
+	size_t start = 1;
+	size_t end;
+	std::string	token;
+
+	while (start <= path.size())
+	{
+		end = path.find('/', start);
+		token = path.substr(start, end - start + 1);
+
+		if (token == ".." || token == "../")
+		{
+			if (!tokens.empty())
+				tokens.pop_back();
+		}
+		else if (!(token == "/" || token == "." || token == "./"))
+			tokens.push_back(token);
+
+		if (end == std::string::npos)
+			break;
+
+		start = end + 1;
+	}
+
+	std::string result = "/";
+	result.reserve(path.size());
+	for (std::list<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
+		result.append(*it);
+	return (result);
+}
+

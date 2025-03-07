@@ -17,7 +17,7 @@
 # define BACKLOG 128
 # define TIMEOUT 5
 # define EPOLL_TIMEOUT 1000
-# define PROCESS_LIMIT 150
+# define PROCESS_LIMIT 100
 
 class Webserv
 {
@@ -42,13 +42,13 @@ public:
 	void	collect(EventHandler *handler);
 	void	cleanup(EventHandler *handler);
 
-	void		initServers();
+	bool		initServers();
 	static void	stop();
 	void		run();
 
 private:
 	int 	bindSocket(std::string& host, std::string& port);
-	void    listenForConnections(int& listener);
+	int		listenForConnections(int& listener);
 
 	static bool						running;
 	int								cgiCounter;

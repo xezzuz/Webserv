@@ -114,7 +114,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	if (status != 0)
 	{
 		std::cerr << YELLOW << "\tWebserv: getaddrinfo: " << gai_strerror(status) << RESET << std::endl;
-		exit(errno);
+		return (-1);
 	}
 
 	// create socket and assign (bind) that socket an address returned in res
@@ -138,7 +138,7 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 			std::cerr << YELLOW << "\tWebserv: setsocketopt: " << strerror(errno) << RESET << std::endl;
 			close(serverSocket);
 			freeaddrinfo(res);
-			exit(errno);
+			return (-1);
 		}
 
 		if (bind(serverSocket, it->ai_addr, it->ai_addrlen) == 0)
@@ -150,28 +150,29 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 	{
 		close(serverSocket);
 		std::cerr << YELLOW << "\tWebserv : Failed to Bind Any Socket..." << RESET << std::endl;
-		exit(errno);
+		return (-1);
 	}
 	return (serverSocket);
 }
 
-void    Webserv::listenForConnections(int& serverSocket)
+int    Webserv::listenForConnections(int& serverSocket)
 {
 	if (listen(serverSocket, BACKLOG) == -1)
 	{
 		std::cerr << YELLOW << "\tWebserv : listen: " << strerror(errno) << RESET << std::endl;
 		close(serverSocket);
-		exit(errno);
+		return (-1);
 	}
 	if (fcntl(serverSocket, F_SETFD, FD_CLOEXEC) == -1)
 	{
 		std::cerr << YELLOW << "\tWebserv : fcntl: " << strerror(errno) << RESET << std::endl;
 		close(serverSocket);
-		exit(errno);
+		return (-1);
 	}
+	return (0);
 }
 
-void	Webserv::initServers()
+bool	Webserv::initServers()
 {
 	int													serverSocket;
 	std::vector<ServerConfig>::iterator					it;
@@ -189,7 +190,10 @@ void	Webserv::initServers()
 		}
 
 		serverSocket = bindSocket(it->host, it->port);
-		listenForConnections(serverSocket);
+		if (serverSocket == -1)
+			continue ;
+		if (listenForConnections(serverSocket) == -1)
+			continue ;
 		std::cout << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 
 		ServerHandler	*handler = new ServerHandler(serverSocket);
@@ -197,6 +201,7 @@ void	Webserv::initServers()
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
 		registerHandler(serverSocket, handler, EPOLLIN);
 	}
+	return (!boundServers.empty());
 }
 
 void	Webserv::clientTimeout()

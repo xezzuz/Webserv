@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   URI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 20:11:27 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:27:44 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 03:06:08 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,8 @@ void						handleDirectoryResource(RequestData& _RequestData) {
 		std::vector<std::string>::iterator	it = _RequestData._Config->index.begin();
 		
 		for (; it != _RequestData._Config->index.end(); it++) {
+			if (it->at(0) == '/')
+				it->erase(0, 1);
 			if (access((_RequestData.fullPath + (*it)).c_str(), F_OK) == 0) {
 				_RequestData.fullPath += *it;
 				_RequestData.isDir = false;
@@ -109,11 +111,11 @@ void						handleDirectoryResource(RequestData& _RequestData) {
 }
 
 bool						extensionIsCGI(RequestData& _RequestData) {
-	size_t dot = _RequestData.fileName.find_last_of('.');
+	size_t dot = _RequestData.fullPath.find_last_of('.');
 	if (dot == std::string::npos)
 		return (false);
 
-	std::string file_ext = _RequestData.fileName.substr(dot);
+	std::string file_ext = _RequestData.fullPath.substr(dot);
 	
 	std::map<std::string, std::string>::iterator it = _RequestData._Config->cgi_ext.find(file_ext);
 	if (it != _RequestData._Config->cgi_ext.end())
@@ -147,9 +149,6 @@ void						resolveAbsPath(RequestData& _RequestData) {
 
 void						resolveURI(RequestData& _RequestData) {
 	_RequestData.fullPath.clear();
-
-	if (!rootJail(_RequestData.URI))
-		throw(Code(403));
 
 	produceAbsPath(_RequestData);
 	resolveAbsPath(_RequestData);

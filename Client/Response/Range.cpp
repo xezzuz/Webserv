@@ -116,7 +116,7 @@ void	Response::nextRange()
 			else
 				state = WRITE;
 		}
-		else if (rangeData.ranges.size() == 1)//////// FIIIIX
+		else if (rangeData.ranges.size() == 1)
 		{
 			state = DONE;
 		}
