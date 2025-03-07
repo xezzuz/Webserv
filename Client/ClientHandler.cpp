@@ -14,6 +14,7 @@ ClientHandler::ClientHandler(int fd, std::vector<ServerConfig>& vServers) : requ
 {
 	socket = fd;
 	cgiActive = false;
+	cgiTimer= 0;
 	response = NULL;
 	reqState = REGULAR;
 }
@@ -24,6 +25,8 @@ void	ClientHandler::reset()
 	deleteResponse();
 	request = Request(vServers);
 }
+
+time_t	ClientHandler::getCgiTimer() const { return (cgiTimer); }
 
 bool	ClientHandler::getCgiActive() const
 {
@@ -38,7 +41,9 @@ int	ClientHandler::getFd() const
 void	ClientHandler::gateway_timeout()
 {
 	deleteResponse();
-	response = new ErrorPage(Code(504), socket, request.getRequestData());
+	response = new (std::nothrow) ErrorPage(Code(504), socket, request.getRequestData());
+	if (!response)
+		throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
 	HTTPserver->updateHandler(socket, EPOLLOUT);
 }
 
@@ -66,7 +71,10 @@ void	ClientHandler::createResponse()
 		if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 			throw(Code(503));
 		HTTPserver->updateHandler(socket, 0);
-		CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+		CGIHandler	*cgi = new (std::nothrow) CGIHandler(socket, request.getRequestData());
+		if (!cgi)
+			throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
+		cgiTimer = time(NULL);
 		cgiActive = true;
 		HTTPserver->registerDependency(cgi, this);
 		HTTPserver->registerHandler(cgi->getFd(), cgi, EPOLLIN);
@@ -75,7 +83,9 @@ void	ClientHandler::createResponse()
 	}
 	else
 	{
-		this->response = new Response(socket, request.getRequestData());
+		response = new (std::nothrow) Response(socket, request.getRequestData());
+		if (!response)
+			throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
 }
@@ -100,7 +110,10 @@ void 	ClientHandler::handleRead()
 				{
 					if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 						throw(Code(503));
-					CGIHandler	*cgi = new CGIHandler(socket, request.getRequestData());
+					CGIHandler	*cgi = new (std::nothrow) CGIHandler(socket, request.getRequestData());
+					if (!cgi)
+						throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
+					cgiTimer = time(NULL);
 					cgiActive = true;
 					HTTPserver->registerDependency(cgi, this);
 					HTTPserver->registerHandler(cgi->getFd(), cgi, 0);
@@ -170,7 +183,9 @@ void	ClientHandler::handleEvent(uint32_t events)
 	catch (Code& e)
 	{
 		deleteResponse();
-		this->response = new ErrorPage(e, socket, request.getRequestData());
+		response = new (std::nothrow) ErrorPage(e, socket, request.getRequestData());
+		if (!response)
+			throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
 		HTTPserver->updateHandler(socket, EPOLLOUT);
 	}
 	catch (ChildException& e)

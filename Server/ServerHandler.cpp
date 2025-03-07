@@ -37,7 +37,13 @@ void	ServerHandler::handleEvent(uint32_t events)
 			return;
 		}
 
-		ClientHandler	*client = new ClientHandler(clientSocket, this->vServers);
+		ClientHandler	*client = new (std::nothrow) ClientHandler(clientSocket, this->vServers);
+		if (!client)
+		{
+			close(clientSocket);
+			std::cerr << "\tServer " + _toString(socket) + " : Memory allocation failed" << std::endl;
+			return;
+		}
 		HTTPserver->registerHandler(clientSocket, client, EPOLLIN);
 		HTTPserver->addTimer(client);
 

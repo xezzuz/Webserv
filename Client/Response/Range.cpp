@@ -1,6 +1,6 @@
 # include "Response.hpp"
 
-void	Response::parseRangeHeader( void ) // example => Range: bytes=0-499,1000-1499
+void	Response::parseRangeHeader( void )
 {
 	std::string	value = reqCtx->Headers["range"];
 	std::string prefix = "bytes=";

@@ -3,27 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 17:46:13 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 00:29:56 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/07 19:25:57 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-# include <iostream>
-# include <iomanip>
 # include <sstream>
 # include <string.h>
 # include <map>
 # include <vector>
-# include <algorithm>
-
-# include <fcntl.h>
-# include <sys/socket.h>
-# include <unistd.h>
 # include "../../Utils/Helpers.hpp"
 # include "../../_Config/Config.hpp"
 

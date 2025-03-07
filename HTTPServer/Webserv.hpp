@@ -6,18 +6,17 @@
 #include <algorithm>
 #include <netdb.h>
 #include <map>
-#include <errno.h>
+#include <list>
 #include <vector>
 #include <ctime>
-#include <signal.h>
 #include <sys/wait.h>
-#include <cstring>
 
 # define MAX_EVENTS 10
 # define BACKLOG 128
-# define TIMEOUT 5
-# define EPOLL_TIMEOUT 1000
-# define PROCESS_LIMIT 100
+# define TIMEOUT 5 // in seconds
+# define CGI_TIMEOUT 20 // in seconds
+# define EPOLL_TIMEOUT 1000 // in ms
+# define PROCESS_LIMIT 50
 
 class Webserv
 {

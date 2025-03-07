@@ -1,8 +1,6 @@
 #ifndef _ERROR_HPP
 # define _ERROR_HPP
 
-#include <iostream>
-#include <vector>
 #include "AResponse.hpp"
 
 class ErrorPage : public AResponse

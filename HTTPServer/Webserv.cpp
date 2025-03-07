@@ -117,7 +117,6 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		return (-1);
 	}
 
-	// create socket and assign (bind) that socket an address returned in res
 	struct addrinfo		*it;
 	int					serverSocket = -1;
 
@@ -126,11 +125,6 @@ int	Webserv::bindSocket(std::string& host, std::string& port)
 		serverSocket = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
 		if (serverSocket == -1)
 			continue;
-
-		// kernel has a wait period for ports to be reusable after a socket has been closed under normal behaviour
-		// setsocketopt specifically the 3rd argument SO_REUSEADDR and SO_REUSEPORT allows the address port to be reusable
-		// in our case we just prepare the socket to be able to bind to an address that already in use
-		// that would be if the server crashed and restarted the previous address bound to the socket wouldn't be unavaible due to the kernel wait period 
 
 		int yes = 1;
 		if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(yes)) == -1)
@@ -193,13 +187,21 @@ bool	Webserv::initServers()
 		if (serverSocket == -1)
 			continue ;
 		if (listenForConnections(serverSocket) == -1)
+		{
+			close(serverSocket);
 			continue ;
-		std::cout << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
-
-		ServerHandler	*handler = new ServerHandler(serverSocket);
+		}
+			
+		ServerHandler	*handler = new (std::nothrow) ServerHandler(serverSocket);
+		if (!handler)
+		{
+			close(serverSocket);
+			continue ;
+		}
 		handler->addVServer(*it);
 		boundServers.insert(std::make_pair(bindAddress, serverSocket));
 		registerHandler(serverSocket, handler, EPOLLIN);
+		std::cout << BLUE << BOLD << "Server listening on " << it->host << ":" << it->port << RESET << std::endl;
 	}
 	return (!boundServers.empty());
 }
@@ -210,16 +212,21 @@ void	Webserv::clientTimeout()
 
 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
 	{
+		ClientHandler *client = static_cast<ClientHandler *>(timeIt->first);
+
 		if (now - timeIt->second >= TIMEOUT)
 		{
-			ClientHandler *client = static_cast<ClientHandler *>(timeIt->first);
-			
 			timeIt = clientTimer.erase(timeIt);
 		
 			if (client->getCgiActive())
 				client->gateway_timeout();
 			else
 				delete client;
+		}
+		else if (client->getCgiActive() && now - client->getCgiTimer() >= CGI_TIMEOUT)
+		{
+			timeIt = clientTimer.erase(timeIt);
+			delete client;
 		}
 		else
 			++timeIt;

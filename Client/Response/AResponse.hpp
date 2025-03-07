@@ -1,13 +1,9 @@
 #ifndef ARES_HPP
 # define ARES_HPP
 
-# include <iostream>
-# include <vector>
 # include <map>
 # include <dirent.h>
-# include <cstring>
 # include <sys/socket.h>
-# include <algorithm>
 # include "../Request/Request.hpp"
 
 # define SEND_BUFFER_SIZE 16384

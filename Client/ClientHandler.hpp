@@ -23,12 +23,14 @@ public:
 	void	createResponse();
 	void	deleteResponse();
 	
+	time_t	getCgiTimer() const;
 	int		getFd() const;
 	bool	getCgiActive() const;
 
 private:
 	int							socket;
 
+	time_t						cgiTimer;
 	bool						cgiActive;
 	AResponse					*response;
 	Request						request;

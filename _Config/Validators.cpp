@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 01:40:14 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/07 21:12:09 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ bool					Config::isValidHost(const std::string& host, ServerConfig& currentServe
 	currentServer.host.clear();
 	if (tokensCounter(host) != 1)
 		return false;
+	currentServer.host = host;
 	return true;
 }
 
