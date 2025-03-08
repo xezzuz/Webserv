@@ -74,6 +74,8 @@ public:
 		ssize_t bytesSent = send(socket, headers.c_str(), headers.size(), 0);
 		if (bytesSent == -1)
 			throw(Disconnect("\tClient " + _toString(socket) + " : send: " + strerror(errno)));
+		else if (bytesSent == 0 && !headers.empty())
+			throw(Disconnect("\tClient " + _toString(socket) + " : send: unable to send"));
 		headers.erase(0, bytesSent);
 		if (headers.empty())
 			sender = &AResponse::sendBody;
@@ -85,6 +87,8 @@ public:
 		ssize_t bytesSent = send(socket, buffer.c_str(), buffer.size(), 0);
 		if (bytesSent == -1)
 			throw(Disconnect("\tClient " + _toString(socket) + " : send: " + strerror(errno)));
+		else if (bytesSent == 0 && !buffer.empty())
+			throw(Disconnect("\tClient " + _toString(socket) + " : send: unable to send"));
 		buffer.erase(0, bytesSent);
 		return (buffer.empty());
 	}

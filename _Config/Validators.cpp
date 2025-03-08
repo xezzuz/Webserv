@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 21:12:09 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/07 22:37:49 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,28 +114,23 @@ bool					Config::isValidClientMaxBodySize(const std::string& client_max_body_siz
 		value = std::strtoul(client_max_body_size.substr(0, client_max_body_size.size() - 1).c_str(), &stringstop, 10);
 		if (ERANGE == errno || EINVAL == errno)
 			return false;
+		if (value > 1024)
+			return false;
 
-		if (unit == 'K') {
-			if (value * KB < value)
-				return false;
+		if (unit == 'K')
 			value = value * KB;
-		}
-		else if (unit == 'M') {
-			if (value * MB < value)
-			return false;
+		else if (unit == 'M')
 			value = value * MB;
-		}
-		else if (unit == 'G') {
-			if (value * GB < value)
-			return false;
+		else if (unit == 'G')
 			value = value * GB;
-		}
 	} else {
 		if (!stringisdigit(client_max_body_size))
 			return false;
 		
 		value = std::strtoul(client_max_body_size.c_str(), &stringstop, 10);
 		if (ERANGE == errno || EINVAL == errno)
+			return false;
+		if (value > 1024)
 			return false;
 	}
 	toFill.client_max_body_size = value;
@@ -216,10 +211,12 @@ bool					Config::isValidMethods(const std::string& methods, Directives& toFill) 
 
 	std::vector<std::string>	values = split(methods, " \t");
 
-	for (size_t i = 0; i < values.size(); i++)
+	for (size_t i = 0; i < values.size(); i++) {
 		if (values[i] != "GET" && values[i] != "POST" && values[i] != "DELETE")
 			return false;
-	toFill.methods = values;
+		if (std::find(toFill.methods.begin(), toFill.methods.end(), values[i]) == toFill.methods.end())
+			toFill.methods.push_back(values[i]);
+	}
 	return true;
 }
 

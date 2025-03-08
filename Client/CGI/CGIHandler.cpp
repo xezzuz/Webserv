@@ -30,6 +30,8 @@ bool	CGIHandler::storeBody()
 	int		bytesWritten = write(cgiSocket, buffer.c_str(), buffer.size());
 	if (bytesWritten == -1)
 		throw(Disconnect("\tClient " + _toString(socket) + " : write: " + strerror(errno)));
+	else if (bytesWritten == 0 && !buffer.empty())
+		throw(Disconnect("\tClient " + _toString(socket) + " : write: unable to write"));
 	buffer.erase(0, bytesWritten);
 	return (buffer.empty());
 }

@@ -20,8 +20,8 @@ void	Response::handlePOST()
 
 void	Response::handleDELETE( void )
 {
-	if (reqCtx->isDir)
-		throw (Code(403));
+	if (reqCtx->isDir || access(reqCtx->fullPath.c_str(), W_OK) != 0)
+		throw(Code(403));
 	else
 	{
 		if (std::remove(reqCtx->fullPath.c_str()) == -1)

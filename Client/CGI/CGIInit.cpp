@@ -94,7 +94,7 @@ void	CGIHandler::execCGI()
 		{
 			std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
 			close(sv[1]);
-			if(fd != -1)
+			if (fd != -1)
 				close(fd);
 			throw(ChildException());
 		}
@@ -117,7 +117,6 @@ void	CGIHandler::execCGI()
         }
 
 		close(sv[1]);
-
 		std::string dir = reqCtx->fullPath.substr(0, reqCtx->fullPath.find_last_of("/"));
 		if (chdir(dir.c_str()) == -1)
 		{
