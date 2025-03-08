@@ -45,20 +45,12 @@ public:
 	const std::string	location;
 };
 
-class ChildException : public std::exception
-{
-public:
-	virtual ~ChildException() throw() {}
-	ChildException() {}
-};
-
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string		stringtrim(const std::string& str, const char *set);
 bool			isHexa(const std::string& num);
 std::string		stringtolower(std::string str);
 bool			stringisdigit(const std::string& str);
 ssize_t			htoi(const std::string& num);
-unsigned int	parseIPv4(const std::string& ipAddress);
 std::string		getDate( void );
 std::string		getDate( void );
 std::string		getContentType(const std::string& target, std::map<std::string, std::string>& mimeTypes);
@@ -66,7 +58,6 @@ ssize_t			fileLength(std::string& path);
 std::string		_toString(int num);
 std::string		_toString(long num);
 std::string		_toString(unsigned long num);
-bool			rootJail(const std::string& uri);
 std::string		generateRandomString( void );
 bool			allDigit(std::string str);
 std::string		capitalize(const std::string& word);

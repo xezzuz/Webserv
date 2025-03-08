@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parsing.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 20:20:43 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/01 18:45:17 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:08:49 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ void				Config::fillServerBlocksIndexes() {
 }
 
 bool				Config::locationBlockIsInsideAServerBlock(int locationStart, int locationEnd) {
-	// std::pair<int, int>		matchingServerBlock;
 	for (size_t i = 0; i < serverBlocksIndexes.size(); i++) {
 		if (serverBlocksIndexes[i].first < locationStart && serverBlocksIndexes[i].second > locationEnd)
 			return true;

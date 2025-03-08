@@ -36,7 +36,6 @@ public:
 	int		respond();
 
 private:
-	// created here
 	std::vector<std::string>			envVars;
 	std::vector<char *>					envPtr;
 	char								*args[3];

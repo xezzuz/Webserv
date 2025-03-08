@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:39:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 17:50:36 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:10:13 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int					Request::parseControlCenter(char *recvBuffer, int recvBufferSize) {
 		setMatchingConfig();
 		resolveURI(_RequestData);
 		if (_RequestData.Method != "POST")
-			return RESPOND; // stop receiving
+			return RESPOND;
 		if (_RequestData.isCGI) {
 			if (!_RequestData.isEncoded)
 				return FORWARD_CGI;

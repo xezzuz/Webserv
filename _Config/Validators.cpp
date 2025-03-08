@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Validators.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 22:37:49 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:29:35 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ bool					Config::isValidLocation(const std::string& location, std::map<std::stri
 	return true;
 }
 
-bool					Config::isValidAlias(const std::string& alias, Directives& toFill) { // FIX
+bool					Config::isValidAlias(const std::string& alias, Directives& toFill) {
 	if (tokensCounter(alias) != 1)
 		return false;
 
