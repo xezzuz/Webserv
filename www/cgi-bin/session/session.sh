@@ -21,7 +21,7 @@ if [ "$HTTP_COOKIE" ]; then
         
         if [ "$NOW" -gt "$EXPIRY" ]; then
             rm "$SESSION_FILE"
-            echo -e "Location: ${BASE_URL}button\r"
+            echo -e "Location: ${BASE_URL}\r"
             echo -e "\r"
             exit 0
         fi

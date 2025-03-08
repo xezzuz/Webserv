@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 13:01:00 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 19:24:19 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:08:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,16 +137,13 @@ class Config {
 
 		int&								getLogs();
 		std::vector<ServerConfig>&			getServers();
-		// std::vector<vServerConfigParser>&	getParser();
 		std::ifstream&						getConfigFile();
-		// std::string&						getConfigFileName();
 		std::vector<std::string>&			getConfigFileVector();
 		std::vector< std::pair<int, int> >&	getServerBlocksIndexes();
 		std::vector< std::pair<int, int> >&	getLocationBlocksIndexes();
 
 };
 
-// void					split(const std::string& str, const char *set, std::vector<std::string>& result);
 std::vector<std::string>	split(const std::string& tosplit, const std::string& charset);
 std::string				stringtrim(const std::string& str, const char *set);
 bool					stringisdigit(const std::string& str);

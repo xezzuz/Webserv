@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/23 18:00:37 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 21:12:09 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:09:22 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@ bool					Config::isValidLocation(const std::string& location, std::map<std::stri
 	return true;
 }
 
-bool					Config::isValidAlias(const std::string& alias, Directives& toFill) { // FIX
+bool					Config::isValidAlias(const std::string& alias, Directives& toFill) {
 	if (tokensCounter(alias) != 1)
 		return false;
 

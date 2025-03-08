@@ -32,7 +32,7 @@ void	CGIHandler::buildEnv()
 	{
 		ssize_t fileSize = fileLength(reqCtx->CGITempFilename);
 		if (fileSize == -1)
-			throw(ChildException());
+			exit(errno);
 		envVars.push_back("CONTENT_LENGTH=" + _toString(fileSize));
 	}
 
@@ -78,6 +78,9 @@ void	CGIHandler::execCGI()
 		}
 	}
 
+	if (access(reqCtx->cgiIntrepreter.c_str(), F_OK | X_OK) != 0)
+		throw(Code(500));
+
 	pid = fork();
 	if (pid == -1)
 	{
@@ -96,7 +99,7 @@ void	CGIHandler::execCGI()
 			close(sv[1]);
 			if(fd != -1)
 				close(fd);
-			throw(ChildException());
+			exit(errno);
 		}
 
 		if (fd != -1)
@@ -105,7 +108,7 @@ void	CGIHandler::execCGI()
                 std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
                 close(sv[1]);
                 close(fd);
-				throw(ChildException());
+				exit(errno);
             }
             close(fd);
         }
@@ -113,7 +116,7 @@ void	CGIHandler::execCGI()
 		{
             std::cerr << YELLOW << "\tCGI : dup2 : " << strerror(errno) << RESET << std::endl;
             close(sv[1]);
-			throw(ChildException());
+			exit(errno);
         }
 
 		close(sv[1]);
@@ -122,7 +125,7 @@ void	CGIHandler::execCGI()
 		if (chdir(dir.c_str()) == -1)
 		{
 			std::cerr << YELLOW << "\tCGI : chdir : " << strerror(errno) << RESET << std::endl;
-			throw(ChildException());
+			exit(errno);
 		}
 
 		args[0] = const_cast<char *>(reqCtx->cgiIntrepreter.c_str());
@@ -133,7 +136,7 @@ void	CGIHandler::execCGI()
 		if (execve(args[0], args, envPtr.data()) == -1)
 		{
 			std::cerr << YELLOW << "\tCGI : execve : " << strerror(errno) << RESET << std::endl;
-			throw(ChildException());
+			exit(errno);
 		}
 	}
 	if (fd != -1) close(fd);

@@ -14,9 +14,9 @@
 # define MAX_EVENTS 10
 # define BACKLOG 128
 # define TIMEOUT 5 // in seconds
-# define CGI_TIMEOUT 20 // in seconds
+# define CGI_TIMEOUT 15 // in seconds
 # define EPOLL_TIMEOUT 1000 // in ms
-# define PROCESS_LIMIT 50
+# define PROCESS_LIMIT 25
 
 class Webserv
 {

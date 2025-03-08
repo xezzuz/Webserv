@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 10:30:24 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 18:03:00 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:10:18 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ void			Request::processMultipartFormData() {
 			processMultipartHeaders();
 		if (_RequestRaws.rawBody.find(_RequestRaws.boundaryBegin + CRLF) != 0 && fileUploader.is_open())
 			processMultipartData();
-		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF) // should i set bodyFinished?
+		if (_RequestRaws.rawBody == _RequestRaws.boundaryEnd + CRLF)
 			_RequestRaws.rawBody.clear(), _RequestRaws.rawBodySize = 0, fileUploader.close(), _RequestData.StatusCode = 201;
 	}
 }
@@ -226,10 +226,7 @@ void	Request::setupCGITempFile() {
 	std::string		fileUploaderRandname = "/tmp/webserv_" + generateRandomString();
 	
 	if (access(fileUploaderRandname.c_str(), F_OK) == 0)
-	{
-		std::cout << fileUploaderRandname << std::endl;
 		throw Code(409);
-	}
 	
 	_RequestData.CGITempFilename = fileUploaderRandname;
 	fileUploader.open(_RequestData.CGITempFilename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);

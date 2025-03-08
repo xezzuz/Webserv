@@ -42,7 +42,7 @@ if session_id is None and not redirect:
     print(cookies.output(), end="\r\n")
 
 if redirect:
-    print(f"Location: {base_url}button", end="\r\n\r\n")
+    print(f"Location: {base_url}", end="\r\n\r\n")
 else:
     print("", end="\r\n\r\n")
     print(f"""<html><body>

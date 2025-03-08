@@ -28,6 +28,26 @@ void	ClientHandler::reset()
 
 time_t	ClientHandler::getCgiTimer() const { return (cgiTimer); }
 
+bool	ClientHandler::childStatus()
+{
+	if (!cgiActive)
+		return (false);
+
+
+	CGIHandler *cgi = static_cast<CGIHandler *>(response);
+	int status;
+	int ret = waitpid(cgi->getPid(), &status, WNOHANG);
+	if (ret > 0)
+	{
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		{
+			kickCGI(500);
+			return (true);
+		}
+	}
+	return (false);
+}
+
 bool	ClientHandler::getCgiActive() const
 {
 	return (cgiActive);
@@ -38,10 +58,10 @@ int	ClientHandler::getFd() const
 	return (socket);
 }
 
-void	ClientHandler::gateway_timeout()
+void	ClientHandler::kickCGI(int code)
 {
 	deleteResponse();
-	response = new (std::nothrow) ErrorPage(Code(504), socket, request.getRequestData());
+	response = new (std::nothrow) ErrorPage(Code(code), socket, request.getRequestData());
 	if (!response)
 		throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
 	HTTPserver->updateHandler(socket, EPOLLOUT);
@@ -106,7 +126,7 @@ void 	ClientHandler::handleRead()
 		{
 			case REGULAR:
 				returnValue = request.parseControlCenter(buf, bytesReceived);
-				if (returnValue == FORWARD_CGI) // receive CGI body
+				if (returnValue == FORWARD_CGI)
 				{
 					if (HTTPserver->getCgiCounter() >= PROCESS_LIMIT)
 						throw(Code(503));
@@ -122,7 +142,7 @@ void 	ClientHandler::handleRead()
 					reqState = CGI;
 					HTTPserver->incCgiCounter();
 				}
-				else if (returnValue == RESPOND) // receiving done - move to response
+				else if (returnValue == RESPOND)
 					createResponse();
 				break;
 			case CGI:
@@ -187,10 +207,5 @@ void	ClientHandler::handleEvent(uint32_t events)
 		if (!response)
 			throw(Disconnect("\tClient " + _toString(socket) + " : Memory allocation failed"));
 		HTTPserver->updateHandler(socket, EPOLLOUT);
-	}
-	catch (ChildException& e)
-	{
-		HTTPserver->stop();
-		throw(Disconnect("\tClient " + _toString(socket) + " : Error on child process"));
 	}
 }

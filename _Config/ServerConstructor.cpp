@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConstructor.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 18:55:44 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/06 20:26:29 by nazouz           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:09:03 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,12 @@ bool				Config::fillServerBlockDirectives(std::string& key, std::string& value, 
 	
 	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, ServerConfig&)> >	limitedFunctions;
 
-	// the following are only allowed in server block : host - port - server_name
 	limitedFunctions.push_back(std::make_pair("host", &Config::isValidHost));
 	limitedFunctions.push_back(std::make_pair("port", &Config::isValidPort));
 	limitedFunctions.push_back(std::make_pair("server_name", &Config::isValidServerName));
 
 	std::vector<std::pair<std::string, bool (Config::*)(const std::string&, Directives&)> >	sharedFunctions;
 
-	// the following are only allowed in location block : location - methods - alias - cgi_pass - cgi_ext
 	sharedFunctions.push_back(std::make_pair("error_page", &Config::isValidErrorPage));
 	sharedFunctions.push_back(std::make_pair("client_max_body_size", &Config::isValidClientMaxBodySize));
 	sharedFunctions.push_back(std::make_pair("root", &Config::isValidRoot));

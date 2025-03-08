@@ -13,7 +13,7 @@ public:
 	ClientHandler(int fd, std::vector<ServerConfig>& vServers);
 
 
-	void	gateway_timeout();
+	void	kickCGI(int code);
 
 	void	reset();
 	void 	handleRead();
@@ -23,6 +23,7 @@ public:
 	void	createResponse();
 	void	deleteResponse();
 	
+	bool	childStatus();
 	time_t	getCgiTimer() const;
 	int		getFd() const;
 	bool	getCgiActive() const;

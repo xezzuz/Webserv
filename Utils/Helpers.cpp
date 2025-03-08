@@ -6,7 +6,7 @@
 /*   By: mmaila <mmaila@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 16:28:26 by nazouz            #+#    #+#             */
-/*   Updated: 2025/03/07 00:40:48 by mmaila           ###   ########.fr       */
+/*   Updated: 2025/03/08 02:22:39 by mmaila           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,19 +75,6 @@ ssize_t htoi(const std::string& num)
 	return (static_cast<ssize_t>(value));
 }
 
-unsigned int	parseIPv4(const std::string& ipAddress) {
-	std::stringstream	ss(ipAddress);
-	unsigned int		octets;
-	unsigned char		*ptr = (unsigned char *)&octets;
-
-	std::string			token;
-	while (std::getline(ss, token, '.')) {
-		*ptr = std::atoi(token.c_str());
-		ptr++;
-	}
-	return octets;
-}
-
 ssize_t	fileLength(std::string& path)
 {
 	struct stat fileStat;
@@ -144,23 +131,6 @@ std::string		_toString(int num)
 	std::ostringstream ret;
 	ret << num;
 	return (ret.str());
-}
-
-bool	rootJail(const std::string& uri)
-{
-	int					traverse = 0;
-	std::stringstream	target(uri);
-	std::string			token;
-	while (getline(target, token, '/'))
-	{
-		if (token == "..")
-			traverse--;
-		else
-			traverse++;
-	}
-	if (traverse < 0)
-		return (false);
-	return (true);
 }
 
 bool	allDigit(std::string str)

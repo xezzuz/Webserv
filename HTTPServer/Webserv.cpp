@@ -1,5 +1,6 @@
 #include "Webserv.hpp"
 #include "../Server/ServerHandler.hpp"
+#include "../Client/CGI/CGIHandler.hpp"
 
 bool	Webserv::running = true;
 
@@ -213,13 +214,18 @@ void	Webserv::clientTimeout()
 	for (timeIt = clientTimer.begin(); timeIt != clientTimer.end(); )
 	{
 		ClientHandler *client = static_cast<ClientHandler *>(timeIt->first);
+		if (client->childStatus())
+		{
+			timeIt++;
+			continue;
+		}
 
 		if (now - timeIt->second >= TIMEOUT)
 		{
 			timeIt = clientTimer.erase(timeIt);
 		
 			if (client->getCgiActive())
-				client->gateway_timeout();
+				client->kickCGI(504);
 			else
 				delete client;
 		}
